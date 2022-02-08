@@ -45,9 +45,9 @@ func rplFileContents(c *cli.Context, s, r, p, content string) (err error) {
 			}
 			_ = os.Remove(tmpname)
 			if c.Bool("show-diff") {
-				log.Info("changes applied:\n%v\n", unified)
+				log.Info("# changes applied:\n%v\n", unified)
 			} else {
-				log.Info("modified: %v\n", p)
+				log.Info("# modified: %v\n", p)
 			}
 		}
 	}

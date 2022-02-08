@@ -3,8 +3,8 @@ module github.com/go-curses/coreutils/replace
 go 1.17
 
 require (
-	github.com/go-curses/coreutils/errors v0.0.0-00010101000000-000000000000
-	github.com/go-curses/coreutils/path v0.0.0-00010101000000-000000000000
+	github.com/go-curses/coreutils/errors v0.0.0-20220208191728-75ffe3f72ca4
+	github.com/go-curses/coreutils/path v0.0.0-20220208191728-75ffe3f72ca4
 	github.com/urfave/cli/v2 v2.3.0
 )
 

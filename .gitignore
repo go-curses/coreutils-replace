@@ -1,1 +1,4 @@
-rpl
+/rpl
+*#
+*.swp
+*.tmp

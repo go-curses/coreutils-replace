@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/urfave/cli/v2"
 
@@ -68,6 +69,24 @@ func rplFileString(c *cli.Context, s, r, p string) (err error) {
 
 func rplFileRegexp(c *cli.Context, s, r, p string) (err error) {
 	var content string
+	rxFlags := []string{}
+	if c.Bool("multi-line") ||
+		c.Bool("multi-line-dot-match-nl") ||
+		c.Bool("multi-line-dot-match-nl-insensitive") {
+		rxFlags = append(rxFlags, "m")
+	}
+	if c.Bool("dot-match-nl") ||
+		c.Bool("multi-line-dot-match-nl") ||
+		c.Bool("multi-line-dot-match-nl-insensitive") {
+		rxFlags = append(rxFlags, "s")
+	}
+	if c.Bool("ignore-case") ||
+		c.Bool("multi-line-dot-match-nl-insensitive") {
+		rxFlags = append(rxFlags, "i")
+	}
+	if len(rxFlags) > 0 {
+		s = "(?" + strings.Join(rxFlags, "") + ")" + s
+	}
 	if content, err = replace.Regexp(s, r, p); err != nil {
 		return
 	}

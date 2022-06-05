@@ -29,13 +29,21 @@ func processPath(c *cli.Context, s, r, p string) (errs []error) {
 	}
 
 	if path.IsDir(p) {
-		if c.Bool("regex") {
+		if c.Bool("regex") ||
+			c.Bool("multi-line") ||
+			c.Bool("dot-match-nl") ||
+			c.Bool("multi-line-dot-match-nl") ||
+			c.Bool("multi-line-dot-match-nl-insensitive") {
 			return rplPathRegexp(c, s, r, p)
 		}
 		return rplPathString(c, s, r, p)
 	}
 
-	if c.Bool("regex") {
+	if c.Bool("regex") ||
+		c.Bool("multi-line") ||
+		c.Bool("dot-match-nl") ||
+		c.Bool("multi-line-dot-match-nl") ||
+		c.Bool("multi-line-dot-match-nl-insensitive") {
 		if err := rplFileRegexp(c, s, r, p); err != nil {
 			errs = append(errs, err)
 		}
@@ -103,7 +111,27 @@ func main() {
 			&cli.BoolFlag{
 				Name:    "regex",
 				Usage:   "search and replace arguments are regular expressions",
-				Aliases: []string{"p"},
+				Aliases: []string{"P"},
+			},
+			&cli.BoolFlag{
+				Name:    "multi-line",
+				Usage:   "set the multi-line (?m) regexp flag (implies -P)",
+				Aliases: []string{"m"},
+			},
+			&cli.BoolFlag{
+				Name:    "dot-match-nl",
+				Usage:   "set the dot-match-nl (?s) regexp flag (implies -P)",
+				Aliases: []string{"s"},
+			},
+			&cli.BoolFlag{
+				Name:    "multi-line-dot-match-nl",
+				Usage:   "convenience flag to set -m and -s (implies -P)",
+				Aliases: []string{"ms", "p"},
+			},
+			&cli.BoolFlag{
+				Name:    "multi-line-dot-match-nl-insensitive",
+				Usage:   "convenience flag to set -m, -s and -i (implies -P)",
+				Aliases: []string{"msi"},
 			},
 			&cli.BoolFlag{
 				Name:    "recurse",

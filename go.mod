@@ -4,14 +4,14 @@ go 1.17
 
 require (
 	github.com/go-curses/cdk v0.5.12
-	github.com/go-curses/coreutils/errors v0.0.0-20220802021038-1304d9f15286
-	github.com/go-curses/coreutils/notify v0.0.0-20220802021038-1304d9f15286
-	github.com/go-curses/coreutils/path v0.0.0-20220802021038-1304d9f15286
 	github.com/urfave/cli/v2 v2.11.1
 )
 
 require (
-	github.com/go-curses/coreutils/diff v0.0.0-20220802021038-1304d9f15286
+	github.com/go-curses/corelibs/diff v0.0.0-20220802182645-a9fea252d76e
+	github.com/go-curses/corelibs/errors v0.0.0-20220802182645-a9fea252d76e
+	github.com/go-curses/corelibs/notify v0.0.0-20220802182645-a9fea252d76e
+	github.com/go-curses/corelibs/path v0.0.0-20220802182645-a9fea252d76e
 	github.com/go-curses/ctk v0.5.3
 )
 

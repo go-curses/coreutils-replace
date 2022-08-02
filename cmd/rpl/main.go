@@ -130,9 +130,9 @@ func main() {
 		},
 		&cli.StringFlag{
 			Name:    "backup-extension",
-			Usage:   "specify the backup file extension to use",
+			Usage:   "specify the backup file suffix to use",
 			Aliases: []string{"B"},
-			Value:   "bak",
+			Value:   ".bak",
 		},
 		&cli.BoolFlag{
 			Name:    "show-diff",

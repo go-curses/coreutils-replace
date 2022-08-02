@@ -366,9 +366,9 @@ func performWork() (o, e string) {
 			} else {
 				if gOptions.backup {
 					if gOptions.backupExtension == "" {
-						gOptions.backupExtension = "bak"
+						gOptions.backupExtension = ".bak"
 					}
-					if err := path.BackupAndOverwrite(gSourceFiles[idx], gSourceFiles[idx]+"."+gOptions.backupExtension, modified); err != nil {
+					if err := path.BackupAndOverwrite(gSourceFiles[idx], gSourceFiles[idx]+gOptions.backupExtension, modified); err != nil {
 						e += fmt.Sprintf("error writing %v: %v\n", gSourceFiles[idx], err)
 						continue
 					}

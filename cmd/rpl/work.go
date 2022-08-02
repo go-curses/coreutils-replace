@@ -9,8 +9,8 @@ import (
 	cenums "github.com/go-curses/cdk/lib/enums"
 	"github.com/go-curses/cdk/lib/paths"
 	"github.com/go-curses/cdk/log"
-	"github.com/go-curses/coreutils/diff"
-	"github.com/go-curses/coreutils/path"
+	"github.com/go-curses/corelibs/diff"
+	"github.com/go-curses/corelibs/path"
 )
 
 var (

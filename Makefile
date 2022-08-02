@@ -5,6 +5,7 @@ BUILD_CMD := rpl
 CDK_PATH := ../../cdk
 CTK_PATH := ../../ctk
 CCU_PATH := ..
+CORELIBS_PATH := ../../corelibs
 LOG_LEVEL := debug
 
 RUN_ARGS := --help
@@ -155,6 +156,13 @@ local: depends-on-cdk-path
 			go mod edit -replace=github.com/go-curses/coreutils/$${coreutil}=${CCU_PATH}/$${coreutil} ; \
 		fi; \
 	done
+	@echo "# adding go.mod local corelibs package replacements..."
+	@for tgt in `ls ${CORELIBS_PATH}/`; do \
+		if [ -f ${CORELIBS_PATH}/$$tgt/go.mod ]; then \
+			echo -e "#\tcorelibs/$$tgt"; \
+			go mod edit -replace=github.com/go-curses/corelibs/$$tgt=${CORELIBS_PATH}/$$tgt ; \
+		fi; \
+	done
 	@echo "# running go mod tidy"
 	@go mod tidy
 
@@ -180,6 +188,13 @@ unlocal: depends-on-cdk-path
 		if [ -d ${CCU_PATH}/$${coreutil} ]; then \
 			echo -e "#\tcoreutils/$${coreutil}"; \
 			go mod edit -dropreplace=github.com/go-curses/coreutils/$${coreutil} ; \
+		fi; \
+	done
+	@echo "# removing go.mod local corelibs package replacements..."
+	@for tgt in `ls ${CORELIBS_PATH}/`; do \
+		if [ -f ${CORELIBS_PATH}/$$tgt/go.mod ]; then \
+			echo -e "#\tcorelibs/$$tgt"; \
+			go mod edit -dropreplace=github.com/go-curses/corelibs/$$tgt ; \
 		fi; \
 	done
 	@echo "# running go mod tidy"

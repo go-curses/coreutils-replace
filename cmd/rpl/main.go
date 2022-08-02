@@ -8,7 +8,7 @@ import (
 	"github.com/go-curses/cdk"
 	cstrings "github.com/go-curses/cdk/lib/strings"
 
-	"github.com/go-curses/coreutils/notify"
+	"github.com/go-curses/corelibs/notify"
 	"github.com/go-curses/ctk"
 )
 

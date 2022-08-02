@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/go-curses/coreutils/errors"
+	"github.com/go-curses/corelibs/errors"
 )
 
 func newError(messages ...string) error {

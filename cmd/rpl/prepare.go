@@ -5,7 +5,7 @@ import (
 
 	cenums "github.com/go-curses/cdk/lib/enums"
 	"github.com/go-curses/cdk/log"
-	"github.com/go-curses/coreutils/notify"
+	"github.com/go-curses/corelibs/notify"
 	"github.com/go-curses/ctk"
 )
 

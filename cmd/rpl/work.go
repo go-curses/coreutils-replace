@@ -248,6 +248,7 @@ func prepareWorkAt(index int) {
 	if gDelta[index] == nil {
 		if source, err = path.ReadFile(gSourceFiles[index]); err != nil {
 			gWorkErrors = append(gWorkErrors, fmt.Errorf("%v - %v", gSourceFiles[index], err))
+			gDelta[index] = diff.New(gSourceFiles[index], "", "")
 			return
 		}
 

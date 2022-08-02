@@ -337,7 +337,7 @@ func performWork() (o, e string) {
 			if unified != "" {
 				o += unified
 			} else {
-				e += fmt.Sprintf("# \"%v\" not found in any of the %d files examined (dry-run)\n", gSearch, len(gSourceFiles))
+				e += fmt.Sprintf("# no changes made to any of the %d files examined (dry-run)\n", len(gSourceFiles))
 			}
 		} else {
 			for idx, delta := range gDelta {
@@ -351,9 +351,6 @@ func performWork() (o, e string) {
 			}
 		}
 
-		if e != "" {
-			e += "\n"
-		}
 		e += "# rpl exited without making any changes (dry-run)\n"
 		return
 	}
@@ -403,11 +400,8 @@ func performWork() (o, e string) {
 		}
 	}
 
-	if e != "" {
-		e += "\n"
-	}
 	if !found {
-		e += fmt.Sprintf("# \"%v\" not found in any of the %d files examined\n", gSearch, totalFilesEdited)
+		e += fmt.Sprintf("# no changes made to any of the %d files examined\n", totalFilesEdited)
 	} else {
 		e += fmt.Sprintf("# rpl exited after making %d changes across %d files\n", totalNumEdits, totalFilesEdited)
 	}

@@ -85,6 +85,8 @@ func prepare(data []interface{}, argv ...interface{}) cenums.EventFlag {
 
 	if gOptions.quiet {
 		notifier.Set(notify.Quiet)
+	} else if gOptions.verbose {
+		notifier.Set(notify.Debug)
 	}
 
 	cliArgv := gCtx.Args().Slice()

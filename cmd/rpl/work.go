@@ -340,7 +340,9 @@ func processCliWork() (err error) {
 	gSourceFiles = findAllFiles(gTargets...)
 	gTotalWork = len(gSourceFiles)
 	if gTotalWork == 0 {
-		err = fmt.Errorf("no files found")
+		if gOptions.verbose {
+			err = fmt.Errorf("no files found")
+		}
 		return
 	}
 	gDelta = make([]*diff.Diff, gTotalWork)
@@ -353,7 +355,9 @@ func processCliWork() (err error) {
 
 func performWork() (o, e string) {
 	if gAbortWork {
-		e = "# rpl exited without making any changes\n"
+		if gOptions.verbose {
+			e = "# rpl exited without making any changes\n"
+		}
 		return
 	}
 
@@ -390,6 +394,7 @@ func performWork() (o, e string) {
 	found := false
 	totalNumEdits := 0
 	totalFilesEdited := 0
+	diffOut := ""
 
 	for idx, delta := range gDelta {
 		if delta != nil {
@@ -417,25 +422,42 @@ func performWork() (o, e string) {
 					if gOptions.showDiff {
 						unified := delta.UnifiedEdits()
 						if unified != "" {
-							o += fmt.Sprintf(unified)
-							e += fmt.Sprintf("# changed: %v\n", gSourceFiles[idx])
-						} else {
-							e += fmt.Sprintf("# skipped: %v\n", gSourceFiles[idx])
+							diffOut += fmt.Sprintf(unified)
+							if gOptions.verbose {
+								e += fmt.Sprintf("# %v: %d changes made\n", gSourceFiles[idx], numKept)
+							}
+						} else if gOptions.verbose {
+							e += fmt.Sprintf("# %v: no changes made\n", gSourceFiles[idx])
 						}
-					} else {
-						o += fmt.Sprintf("# changed: %v\n", gSourceFiles[idx])
+					} else if !gOptions.quiet {
+						o += fmt.Sprintf("# %v: %d changes made\n", gSourceFiles[idx], numKept)
 					}
-				} else if !gOptions.showDiff {
-					o += fmt.Sprintf("# skipped: %v\n", gSourceFiles[idx])
+				} else if gOptions.verbose {
+					o += fmt.Sprintf("# %v: no changes made\n", gSourceFiles[idx])
 				}
 			}
 		}
 	}
 
-	if !found {
-		e += fmt.Sprintf("# no changes made to any of the %d files examined\n", totalFilesEdited)
-	} else {
-		e += fmt.Sprintf("# rpl exited after making %d changes across %d files\n", totalNumEdits, totalFilesEdited)
+	if gOptions.showDiff && diffOut != "" {
+		if gOptions.verbose {
+			o += "## start of diff output\n"
+		}
+		o += diffOut
+		diffOut = ""
+		if gOptions.verbose {
+			o += "## end of diff output\n"
+		}
+	}
+
+	if gOptions.verbose {
+		if found {
+			e += fmt.Sprintf("# rpl exited after making %d changes across %d files\n", totalNumEdits, totalFilesEdited)
+		} else if totalFilesEdited > 0 {
+			e += fmt.Sprintf("# no changes made to any of the %d files examined\n", totalFilesEdited)
+		} else {
+			e += fmt.Sprintf("# nothing to do\n")
+		}
 	}
 
 	return

@@ -309,7 +309,12 @@ func processNextWork() {
 
 	unified := gDelta[gTargetIndex].UnifiedEdits()
 	if unified == "" {
-		unified = fmt.Sprintf("(no changes necessary, \"%v\" not found)", gSearch)
+		if gOptions.verbose {
+			unified = fmt.Sprintf("(no changes necessary, \"%v\" not found)", gSearch)
+		} else {
+			processNextWork()
+			return
+		}
 	}
 	if err := gDiffLabel.SetMarkup(tangoDiff(unified)); err != nil {
 		gDiffLabel.LogErr(err)

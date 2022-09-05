@@ -325,7 +325,7 @@ func processNextWork() {
 }
 
 func startWorkProcess() cenums.EventFlag {
-	gSourceFiles = findAllFiles(gArgv[1:]...)
+	gSourceFiles = findAllFiles(gTargets...)
 	gTotalWork = len(gSourceFiles)
 	if gTotalWork > 0 {
 		gDelta = make([]*diff.Diff, gTotalWork)
@@ -337,7 +337,7 @@ func startWorkProcess() cenums.EventFlag {
 }
 
 func processCliWork() (err error) {
-	gSourceFiles = findAllFiles(gArgv[1:]...)
+	gSourceFiles = findAllFiles(gTargets...)
 	gTotalWork = len(gSourceFiles)
 	if gTotalWork == 0 {
 		err = fmt.Errorf("no files found")

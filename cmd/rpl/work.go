@@ -3,14 +3,21 @@ package main
 import (
 	"fmt"
 	"html"
+	"os"
 	"regexp"
 	"strings"
 
-	cenums "github.com/go-curses/cdk/lib/enums"
-	"github.com/go-curses/cdk/lib/paths"
-	"github.com/go-curses/cdk/log"
 	"github.com/go-curses/corelibs/diff"
 	"github.com/go-curses/corelibs/path"
+
+	cenums "github.com/go-curses/cdk/lib/enums"
+	"github.com/go-curses/cdk/log"
+
+	"github.com/gabriel-vasile/mimetype"
+)
+
+const (
+	MaxInteractiveFileSize = 1024 * 1024 * 1 // 1 Mb
 )
 
 var (
@@ -25,17 +32,37 @@ var (
 func findAllFiles(argv ...string) (files []string) {
 	gOptions.RLock()
 	defer gOptions.RUnlock()
-	log.DebugF("options: %v", gOptions)
 	for _, src := range argv {
-		if paths.IsFile(src) {
-			files = append(files, src)
-		} else if paths.IsDir(src) {
-			for _, found := range path.Ls(src, gOptions.all, gOptions.recurse) {
-				log.DebugF("ls: %v", found)
-				if paths.IsFile(found) {
-					files = append(files, found)
-				}
+		var fileInfo os.FileInfo
+		var err error
+		if fileInfo, err = os.Stat(src); err != nil {
+			gWorkErrors = append(gWorkErrors, err)
+			continue
+		}
+		if fileInfo.Mode().IsDir() {
+			if gOptions.recurse {
+				files = append(files, findAllFiles(path.Ls(src, gOptions.all, false)...)...)
+			} else if gOptions.verbose {
+				gWorkErrors = append(gWorkErrors, fmt.Errorf("%v: ignoring directory", src))
 			}
+		} else if fileInfo.Mode().IsRegular() {
+			if kind, err := mimetype.DetectFile(src); err == nil {
+				if mime := kind.String(); len(mime) >= 4 && mime[:4] == "text" {
+					if fileInfo.Size() >= MaxInteractiveFileSize {
+						if gOptions.verbose {
+							gWorkErrors = append(gWorkErrors, fmt.Errorf("%v: size of %d is greater than %d bytes", src, fileInfo.Size(), MaxInteractiveFileSize))
+						}
+					} else {
+						files = append(files, src)
+					}
+				} else if gOptions.verbose {
+					gWorkErrors = append(gWorkErrors, fmt.Errorf("%v: not plain text", src))
+				}
+			} else {
+				gWorkErrors = append(gWorkErrors, fmt.Errorf("%v: %v", src, err))
+			}
+		} else if gOptions.verbose {
+			gWorkErrors = append(gWorkErrors, fmt.Errorf("%v: not a file or directory", src))
 		}
 	}
 	return

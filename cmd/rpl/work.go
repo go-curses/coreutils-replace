@@ -40,6 +40,9 @@ func findAllFiles(argv ...string) (files []string) {
 			continue
 		}
 		if fileInfo.Mode().IsDir() {
+			if src != "/" {
+				src = strings.TrimSuffix(src, "/")
+			}
 			if gOptions.recurse {
 				files = append(files, findAllFiles(path.Ls(src, gOptions.all, false)...)...)
 			} else if gOptions.verbose {

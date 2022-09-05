@@ -3,9 +3,10 @@ package main
 import (
 	"github.com/urfave/cli/v2"
 
+	"github.com/go-curses/corelibs/notify"
+
 	cenums "github.com/go-curses/cdk/lib/enums"
 	"github.com/go-curses/cdk/log"
-	"github.com/go-curses/corelibs/notify"
 	"github.com/go-curses/ctk"
 )
 
@@ -75,6 +76,10 @@ func prepare(data []interface{}, argv ...interface{}) cenums.EventFlag {
 	gOptions.showDiff = gCtx.Bool("show-diff")
 	gOptions.interactive = gCtx.Bool("interactive")
 	gOptions.quiet = gCtx.Bool("quiet")
+	gOptions.verbose = gCtx.Bool("verbose")
+	if gOptions.quiet {
+		gOptions.verbose = false
+	}
 	gOptions.Unlock()
 	log.DebugF("prepare options=%v", gOptions)
 

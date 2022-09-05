@@ -21,6 +21,7 @@ type options struct {
 	showDiff                       bool
 	interactive                    bool
 	quiet                          bool
+	verbose                        bool
 
 	sync.RWMutex
 }
@@ -44,6 +45,7 @@ func (o *options) String() string {
 	s += fmt.Sprintf("showDiff=%v;", o.showDiff)
 	s += fmt.Sprintf("interactive=%v;", o.interactive)
 	s += fmt.Sprintf("quiet=%v;", o.quiet)
+	s += fmt.Sprintf("verbose=%v;", o.verbose)
 	s += "}"
 	return s
 }

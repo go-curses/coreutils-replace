@@ -9,6 +9,7 @@ import (
 	cstrings "github.com/go-curses/cdk/lib/strings"
 
 	"github.com/go-curses/corelibs/notify"
+
 	"github.com/go-curses/ctk"
 )
 
@@ -119,11 +120,6 @@ func main() {
 			Aliases: []string{"I"},
 		},
 		&cli.BoolFlag{
-			Name:    "quiet",
-			Usage:   "run silently, ignored if --dry-run is also used",
-			Aliases: []string{"q"},
-		},
-		&cli.BoolFlag{
 			Name:    "backup",
 			Usage:   "make backups before replacing content",
 			Aliases: []string{"b"},
@@ -138,6 +134,16 @@ func main() {
 			Name:    "show-diff",
 			Usage:   "include unified diffs of all changes in the output",
 			Aliases: []string{"D"},
+		},
+		&cli.BoolFlag{
+			Name:    "quiet",
+			Usage:   "run silently, ignored if --dry-run is also used",
+			Aliases: []string{"q"},
+		},
+		&cli.BoolFlag{
+			Name:    "verbose",
+			Usage:   "run loudly, ignored if --quiet is also used",
+			Aliases: []string{"v"},
 		},
 	)
 

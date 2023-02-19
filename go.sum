@@ -14,8 +14,8 @@ github.com/gabriel-vasile/mimetype v1.4.1 h1:TRWk7se+TOjCYgRth7+1/OYLNiRNIotknkF
 github.com/gabriel-vasile/mimetype v1.4.1/go.mod h1:05Vi0w3Y9c/lNvJOdmIwvrrAhX3rYhfQQCaf9VJcv7M=
 github.com/gdamore/encoding v1.0.0 h1:+7OoQ1Bc6eTm5niUzBa0Ctsh6JbMW6Ra+YNuAtDBdko=
 github.com/gdamore/encoding v1.0.0/go.mod h1:alR0ol34c49FCSBLjhosxzcPHQbf2trDkoo5dl+VrEg=
-github.com/go-curses/cdk v0.5.13 h1:0WOHdqN6A8qb8WFZfgXHDli2GezjYvaqQUsjXQIbozM=
-github.com/go-curses/cdk v0.5.13/go.mod h1:RYoXR6dJFki6ZBSGo9pWipOt8dYtPBp8dwJ/NItfHtk=
+github.com/go-curses/cdk v0.5.14 h1:BtNnmVJpR9epYOoprwOF+nvi6PEnCwHiQ2H1zI4szhg=
+github.com/go-curses/cdk v0.5.14/go.mod h1:RYoXR6dJFki6ZBSGo9pWipOt8dYtPBp8dwJ/NItfHtk=
 github.com/go-curses/corelibs/diff v0.0.0-20220802182645-a9fea252d76e h1:7hM07ku4UJkkF0Y5X0qDvRVXGqGDHf3SMBRGscbzJ50=
 github.com/go-curses/corelibs/diff v0.0.0-20220802182645-a9fea252d76e/go.mod h1:S0+LOxSjqZ2LBm8X+I36OVgcqFwCeDyyxe87GOEWtHk=
 github.com/go-curses/corelibs/errors v0.0.0-20220802182645-a9fea252d76e h1:qOkys8e15W825asgtOAeDYtdvnn7ODVF1DKJXVvT2tk=
@@ -24,8 +24,8 @@ github.com/go-curses/corelibs/notify v0.0.0-20220802182645-a9fea252d76e h1:dUwd8
 github.com/go-curses/corelibs/notify v0.0.0-20220802182645-a9fea252d76e/go.mod h1:vYjsfn7Ij6lfzgcgMjYBoFYt5h74e+NUx2wXcNt+4bQ=
 github.com/go-curses/corelibs/path v0.0.0-20220802182645-a9fea252d76e h1:HZQC5G2m5DXfcshuM5NZy66jrFzSLxtYCHSlzXD5VOI=
 github.com/go-curses/corelibs/path v0.0.0-20220802182645-a9fea252d76e/go.mod h1:+jUDwFLkHEnADunbbPwkgQqlj7+ha0IFrd3bMTTcKZ4=
-github.com/go-curses/ctk v0.5.4 h1:JqlnYfIbur630c8ZCTCtbfqXcFczW7bujJgclD5Szb4=
-github.com/go-curses/ctk v0.5.4/go.mod h1:wPaMPYzwbdvwST48YL6VmvDI1sPjOOysxKjmuHeAiQo=
+github.com/go-curses/ctk v0.5.5 h1:FUA57wAtym8VvW+4yRkQXYkxq5NJTkTLlu6HikwsPao=
+github.com/go-curses/ctk v0.5.5/go.mod h1:pMsZp7kzfLQ0KbhTJuE1NPGGAItSbo/lEuRpHf54h4k=
 github.com/go-curses/term v1.2.2-gocurses.1 h1:wUi7qtaZQO9q7+YpX8nGBDoFJd7aWZeo25UrbyPsgPg=
 github.com/go-curses/term v1.2.2-gocurses.1/go.mod h1:ZuwRe9U+iLY2qTuhzg/kg0Pc9bZdfcJCtfHrjGvZtVA=
 github.com/go-curses/terminfo v1.0.0 h1:vU1G+oYsvSwmywZe6ZsoRQ8a8XDrzlM3rPeejUmpzc4=

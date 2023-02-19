@@ -3,7 +3,7 @@ module github.com/go-curses/coreutils/replace
 go 1.19
 
 require (
-	github.com/go-curses/cdk v0.5.13
+	github.com/go-curses/cdk v0.5.14
 	github.com/urfave/cli/v2 v2.14.1
 )
 
@@ -13,7 +13,7 @@ require (
 	github.com/go-curses/corelibs/errors v0.0.0-20220802182645-a9fea252d76e
 	github.com/go-curses/corelibs/notify v0.0.0-20220802182645-a9fea252d76e
 	github.com/go-curses/corelibs/path v0.0.0-20220802182645-a9fea252d76e
-	github.com/go-curses/ctk v0.5.4
+	github.com/go-curses/ctk v0.5.5
 )
 
 require (

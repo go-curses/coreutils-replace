@@ -1,9 +1,9 @@
 module github.com/go-curses/coreutils/replace
 
-go 1.17
+go 1.19
 
 require (
-	github.com/go-curses/cdk v0.5.12
+	github.com/go-curses/cdk v0.5.13
 	github.com/urfave/cli/v2 v2.14.1
 )
 
@@ -13,7 +13,7 @@ require (
 	github.com/go-curses/corelibs/errors v0.0.0-20220802182645-a9fea252d76e
 	github.com/go-curses/corelibs/notify v0.0.0-20220802182645-a9fea252d76e
 	github.com/go-curses/corelibs/path v0.0.0-20220802182645-a9fea252d76e
-	github.com/go-curses/ctk v0.5.3
+	github.com/go-curses/ctk v0.5.4
 )
 
 require (
@@ -45,9 +45,9 @@ require (
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2 // indirect
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90 // indirect
-	golang.org/x/net v0.0.0-20220826154423-83b083e8dc8b // indirect
-	golang.org/x/sys v0.0.0-20220829200755-d48e67d00261 // indirect
-	golang.org/x/term v0.0.0-20220722155259-a9ba230a4035 // indirect
-	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/net v0.7.0 // indirect
+	golang.org/x/sys v0.5.0 // indirect
+	golang.org/x/term v0.5.0 // indirect
+	golang.org/x/text v0.7.0 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 )

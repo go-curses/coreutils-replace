@@ -1,20 +1,73 @@
-#!/usr/bin/make -f
+#!/usr/bin/make --no-print-directory --jobs=1 --environment-overrides -f
+
+# Copyright (c) 2023  The Go-Curses Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+#: uncomment to echo instead of execute
+#CMD=echo
+
+-include .env
+#export
+
+.PHONY: all help run
+.PHONY: clean distclean realclean
+.PHONY: local unlocal tidy be-update
+.PHONY: debug build build-all build-amd64 build-arm64
+.PHONY: release release-all release-amd64 release-arm64
+.PHONY: install install-autocomplete
+.PHONY: install-shortlinks install-shortestlinks
+
+BIN_NAME ?= rpl
+UNTAGGED_VERSION ?= v0.2.3
+UNTAGGED_COMMIT ?= 0000000000
 
 SHELL := /bin/bash
-BUILD_CMD := rpl
-CDK_PATH := ../../cdk
-CTK_PATH := ../../ctk
-CCU_PATH := ..
-CORELIBS_PATH := ../../corelibs
 LOG_LEVEL := debug
 
 RUN_ARGS := --help
 
-COREUTILS = diff path errors notify
+GO_ENJIN_PKG := nil
+BE_LOCAL_PATH := nil
 
-.PHONY: all build clean clean-logs dev fmt help profile.cpu profile.mem run tidy
+GOPKG_KEYS ?= CDK CTK CLD CLE CLN CLP
 
-all: help
+CDK_GO_PACKAGE ?= github.com/go-curses/cdk
+CDK_LOCAL_PATH ?= ../cdk
+
+CTK_GO_PACKAGE ?= github.com/go-curses/ctk
+CTK_LOCAL_PATH ?= ../ctk
+
+CLD_GO_PACKAGE ?= github.com/go-curses/corelibs/diff
+CLD_LOCAL_PATH ?= ../corelibs/diff
+
+CLE_GO_PACKAGE ?= github.com/go-curses/corelibs/errors
+CLE_LOCAL_PATH ?= ../corelibs/errors
+
+CLN_GO_PACKAGE ?= github.com/go-curses/corelibs/notify
+CLN_LOCAL_PATH ?= ../corelibs/notify
+
+CLP_GO_PACKAGE ?= github.com/go-curses/corelibs/path
+CLP_LOCAL_PATH ?= ../corelibs/path
+
+CLEAN_FILES     ?= ${BIN_NAME} ${BIN_NAME}.*.* coverage.out pprof.*
+DISTCLEAN_FILES ?=
+REALCLEAN_FILES ?=
+
+BUILD_VERSION_VAR := main.APP_VERSION
+BUILD_RELEASE_VAR := main.APP_RELEASE
+
+include Golang.cmd.mk
 
 help:
 	@echo "usage: make [target]"
@@ -26,285 +79,189 @@ help:
 	@echo
 	@echo "cleanup targets:"
 	@echo "  clean       - cleans package and built files"
-	@echo "  clean-logs  - cleans *.log from the project"
-	@echo
-	@echo "go.mod helpers:"
-	@echo "  local       - add go.mod local CDK package replacements"
-	@echo "  unlocal     - remove go.mod local CDK package replacements"
+	@echo "  distclean   - clean and removes extraneous files"
 	@echo
 	@echo "build targets:"
-	@echo "  deps        - install stringer and bitmasker tools"
-	@echo "  generate    - run go generate"
-	@echo "  build       - build the ${BUILD_CMD} command"
-	@echo "  dev         - build the ${BUILD_CMD} with profiling"
+	@echo "  debug       - build debug ${BUILD_NAME}"
+	@echo "  build       - build clean ${BUILD_NAME}"
+	@echo "  release     - build clean and compress ${BUILD_NAME}"
+	@echo
+	@echo "cross-build targets:"
+	@echo "  build-all     - both build-arm64 and build-amd64"
+	@echo "  build-arm64   - build clean ${BIN_NAME}.${BUILD_OS}.arm64"
+	@echo "  build-amd64   - build clean ${BIN_NAME}.${BUILD_OS}.amd64"
+	@echo "  release-all   - both release-arm64 and release-amd64"
+	@echo "  release-arm64 - build clean and compress ${BIN_NAME}.${BUILD_OS}.arm64"
+	@echo "  release-amd64 - build clean and compress ${BIN_NAME}.${BUILD_OS}.amd64"
+	@echo
+	@echo "install targets:"
+	@echo "  install       - installs ${BUILD_NAME} to ${DESTDIR}${prefix}/bin/${BIN_NAME}"
+	@echo "  install-arm64 - installs ${BIN_NAME}.${BUILD_OS}.arm64 to ${DESTDIR}${prefix}/bin/${BIN_NAME}"
+	@echo "  install-amd64 - installs ${BIN_NAME}.${BUILD_OS}.amd64 to ${DESTDIR}${prefix}/bin/${BIN_NAME}"
 	@echo
 	@echo "run targets:"
 	@echo "  run         - run the dev build (sanely handle crashes)"
 	@echo "  profile.cpu - run the dev build and profile CPU"
 	@echo "  profile.mem - run the dev build and profile memory"
+	@echo
+	@echo "go helpers:"
+	@echo "  local       - add go.mod local GOPKG_KEYS replacements"
+	@echo "  unlocal     - remove go.mod local GOPKG_KEYS replacements"
+	@echo "  generate    - run go generate ./..."
+	@echo "  be-update   - get latest GOPKG_KEYS dependencies"
+	@echo
+	@echo "Notes:"
+	@echo "  GOPKG_KEYS are go packages managed by this Makefile."
+	@echo "  The following are the available GOPKG_KEYS:" \
+		$(if ${GOPKG_KEYS},$(foreach key,${GOPKG_KEYS},; echo "    $(key): $($(key)_GO_PACKAGE) ($($(key)_LOCAL_PATH))"))
 
-vet:
-	@echo -n "# vetting replace ..."
-	@go vet && echo " done"
+clean:
+	@$(call __clean,${CLEAN_FILES})
 
-test: vet
-	@echo "# testing replace ..."
-	@go test -v ./...
+distclean: clean
+	@$(call __clean,${DISTCLEAN_FILES})
 
-cover:
-	@echo "# testing replace (with coverage) ..."
-	@go test -cover -coverprofile=coverage.out ./...
-	@echo "# test coverage ..."
-	@go tool cover -html=coverage.out
+realclean: distclean
+	@$(call __clean,${REALCLEAN_FILES})
 
-clean-build-logs:
-	@echo "# cleaning *.build.log files"
-	@rm -fv *.build.log || true
+debug: BUILD_VERSION=$(call __tag_ver)
+debug: BUILD_RELEASE=$(call __rel_ver)
+debug: TRIM_PATHS=$(call __go_trim_path)
+debug: __golang
+	@$(call __go_build_debug,"${BUILD_NAME}",${BUILD_OS},${BUILD_ARCH},./cmd/rpl)
+	@${SHASUM_CMD} "${BUILD_NAME}"
 
-clean-logs:
-	@echo "# cleaning *.log files"
-	@rm -fv *.log || true
-	@echo "# cleaning *.out files"
-	@rm -fv *.out || true
-	@echo "# cleaning pprof files"
-	@rm -rfv /tmp/*.cdk.pprof || true
+build: BUILD_VERSION=$(call __tag_ver)
+build: BUILD_RELEASE=$(call __rel_ver)
+build: TRIM_PATHS=$(call __go_trim_path)
+build: __golang
+	@$(call __go_build_release,"${BUILD_NAME}",${BUILD_OS},${BUILD_ARCH},./cmd/rpl)
+	@${SHASUM_CMD} "${BUILD_NAME}"
 
-clean-cmd: clean-build-logs
-	@echo "# cleaning built commands"
-	@for tgt in `ls cmd`; do \
-		if [ -f $$tgt ]; then rm -fv $$tgt; fi; \
-	done
+build-amd64: BUILD_VERSION=$(call __tag_ver)
+build-amd64: BUILD_RELEASE=$(call __rel_ver)
+build-amd64: TRIM_PATHS=$(call __go_trim_path)
+build-amd64: __golang
+	@$(call __go_build_release,"${BIN_NAME}.${BUILD_OS}.amd64",${BUILD_OS},amd64,./cmd/rpl)
+	@${SHASUM_CMD} "${BIN_NAME}.${BUILD_OS}.amd64"
 
-clean: clean-logs clean-cmd
-	@echo "# cleaning goland builds"
-	@rm -rfv go_* || true
+build-arm64: BUILD_VERSION=$(call __tag_ver)
+build-arm64: BUILD_RELEASE=$(call __rel_ver)
+build-arm64: TRIM_PATHS=$(call __go_trim_path)
+build-arm64: __golang
+	@$(call __go_build_release,"${BIN_NAME}.${BUILD_OS}.arm64",${BUILD_OS},arm64,./cmd/rpl)
+	@${SHASUM_CMD} "${BIN_NAME}.${BUILD_OS}.arm64"
 
-define _gocache_dir =
-$(shell go env | grep ^GOCACHE | perl -pe 's#^GOCACHE=(.)(.+?)(\1)#\2#')
-endef
+build-all: build-amd64 build-arm64
 
-clean-go-cache: GOLANG_CACHE_DIR=$(call _gocache_dir)
-clean-go-cache:
-	@echo "# cleaning go caches (${GOLANG_CACHE_DIR})"
-	@echo "## before: $(shell du -hs ${CACHE_DIR} | awk '{print $$1}')"
-	@go clean -r github.com/go-curses/coreutils/replace
-	@go clean -r github.com/go-curses/coreutils/replace/cmd/rpl
-	@echo "## after: $(shell du -hs ${CACHE_DIR} | awk '{print $$1}')"
+release: build
+	@$(call __upx_build,"${BUILD_NAME}")
 
-build:
-	@echo -n "# building command ${BUILD_CMD}... "
-	@cd cmd/${BUILD_CMD}; \
-		( go build -v \
-				-trimpath \
-				-ldflags="\
--X 'main.IncludeProfiling=false' \
--X 'main.IncludeLogFile=false'   \
--X 'main.IncludeLogLevel=false'  \
-" \
-				-o ../../${BUILD_CMD} \
-			2>&1 ) > ../../${BUILD_CMD}.build.log; \
-		rv="$$?"; \
-		cd - > /dev/null; \
-		if [ $$rv = "0" -a -f ${BUILD_CMD} ]; then \
-			echo "done."; \
-		else \
-			echo "failed.\n>\tsee ./${BUILD_CMD}.build.log for errors"; \
-			false; \
-		fi
+release-arm64: build-arm64
+	@$(call __upx_build,"${BIN_NAME}.${BUILD_OS}.arm64")
 
-deps:
-	@echo "# installing dependencies..."
+release-amd64: build-amd64
+	@$(call __upx_build,"${BIN_NAME}.${BUILD_OS}.amd64")
 
-generate:
-	@echo "# generate go sources..."
-	@go generate -v ./...
+release-all: release-amd64 release-arm64
 
-depends-on-cdk-path:
-	@if [ ! -d ${CDK_PATH} ]; then \
-			echo "Error: $(MAKECMDGOALS) depends upon a valid CDK_PATH."; \
-			echo "Default: ../cdk"; \
-			echo ""; \
-			echo "Specify the path to an existing CDK checkout with the"; \
-			echo "CDK_PATH variable as follows:"; \
-			echo ""; \
-			echo " make CDK_PATH=../path/to/cdk $(MAKECMDGOALS)"; \
-			echo ""; \
-			false; \
-		fi
-
-local: depends-on-cdk-path
-	@echo "# adding go.mod local CTK package replacements..."
-	@go mod edit -replace=github.com/go-curses/ctk=${CTK_PATH}
-	@echo "# adding go.mod local CDK package replacements..."
-	@go mod edit -replace=github.com/go-curses/cdk=${CDK_PATH}
-	@for tgt in charset encoding env log memphis; do \
-		if [ -f ${CDK_PATH}/$${tgt}/go.mod ]; then \
-			echo "#\t$${tgt}"; \
-			go mod edit -replace=github.com/go-curses/cdk/$${tgt}=${CDK_PATH}/$${tgt} ; \
-		fi; \
-	done
-	@for tgt in `ls ${CDK_PATH}/lib`; do \
-		if [ -f ${CDK_PATH}/lib/$${tgt}/go.mod ]; then \
-			echo "#\tlib/$${tgt}"; \
-			go mod edit -replace=github.com/go-curses/cdk/lib/$${tgt}=${CDK_PATH}/lib/$${tgt} ; \
-		fi; \
-	done
-	@echo "# adding go.mod local coreutils package replacements..."
-	@for coreutil in ${COREUTILS}; do \
-		if [ -d ${CCU_PATH}/$${coreutil} ]; then \
-			echo -e "#\tcoreutils/$${coreutil}"; \
-			go mod edit -replace=github.com/go-curses/coreutils/$${coreutil}=${CCU_PATH}/$${coreutil} ; \
-		fi; \
-	done
-	@echo "# adding go.mod local corelibs package replacements..."
-	@for tgt in `ls ${CORELIBS_PATH}/`; do \
-		if [ -f ${CORELIBS_PATH}/$$tgt/go.mod ]; then \
-			echo -e "#\tcorelibs/$$tgt"; \
-			go mod edit -replace=github.com/go-curses/corelibs/$$tgt=${CORELIBS_PATH}/$$tgt ; \
-		fi; \
-	done
-	@echo "# running go mod tidy"
-	@go mod tidy
-
-unlocal: depends-on-cdk-path
-	@echo "# removing go.mod local CTK package replacements..."
-	@go mod edit -dropreplace=github.com/go-curses/ctk
-	@echo "# removing go.mod local CDK package replacements..."
-	@go mod edit -dropreplace=github.com/go-curses/cdk
-	@for tgt in charset encoding env log memphis; do \
-		if [ -f ${CDK_PATH}/$${tgt}/go.mod ]; then \
-			echo "#\t$${tgt}"; \
-			go mod edit -dropreplace=github.com/go-curses/cdk/$${tgt} ; \
-		fi; \
-	done
-	@for tgt in `ls ${CDK_PATH}/lib`; do \
-		if [ -f ${CDK_PATH}/lib/$${tgt}/go.mod ]; then \
-			echo "#\tlib/$${tgt}"; \
-			go mod edit -dropreplace=github.com/go-curses/cdk/lib/$${tgt} ; \
-		fi; \
-	done
-	@echo "# removing go.mod local coreutils package replacements..."
-	@for coreutil in ${COREUTILS}; do \
-		if [ -d ${CCU_PATH}/$${coreutil} ]; then \
-			echo -e "#\tcoreutils/$${coreutil}"; \
-			go mod edit -dropreplace=github.com/go-curses/coreutils/$${coreutil} ; \
-		fi; \
-	done
-	@echo "# removing go.mod local corelibs package replacements..."
-	@for tgt in `ls ${CORELIBS_PATH}/`; do \
-		if [ -f ${CORELIBS_PATH}/$$tgt/go.mod ]; then \
-			echo -e "#\tcorelibs/$$tgt"; \
-			go mod edit -dropreplace=github.com/go-curses/corelibs/$$tgt ; \
-		fi; \
-	done
-	@echo "# running go mod tidy"
-	@go mod tidy
-
-dev:
-	@if [ -d cmd/${BUILD_CMD} ]; \
-	then \
-		echo -n "# building: ${BUILD_CMD} [dev]... "; \
-		cd cmd/${BUILD_CMD}; \
-		( go build -v \
-				-gcflags=all="-N -l" \
-				-ldflags="\
--X 'main.IncludeProfiling=true' \
--X 'main.IncludeLogFile=true'   \
--X 'main.IncludeLogLevel=true'  \
-" \
-				-o ../../${BUILD_CMD} \
-			2>&1 ) > ../../${BUILD_CMD}.build.log; \
-		rv="$$?"; \
-		cd - > /dev/null; \
-		if [ $$rv = "0" -a -f ${BUILD_CMD} ]; then \
-			echo "done."; \
-		else \
-			echo "failed.\n>\tsee ./${BUILD_CMD}.build.log errors below:"; \
-			cat ./${BUILD_CMD}.build.log; \
-			false; \
-		fi; \
+install:
+	@if [ -f "${BUILD_NAME}" ]; then \
+		echo "# ${BUILD_NAME} present"; \
+		$(call __install_exe,"${BUILD_NAME}","${INSTALL_BIN_PATH}/${BIN_NAME}"); \
 	else \
-		echo "# build cmd not found: ${BUILD_CMD}"; \
+		echo "error: missing ${BUILD_NAME} binary" 1>&2; \
+		false; \
 	fi
 
-run: export GO_CDK_LOG_FILE=./${BUILD_CMD}.cdk.log
+install-arm64:
+	@if [ -f "${BIN_NAME}.${BUILD_OS}.arm64" ]; then \
+		echo "# ${BIN_NAME}.${BUILD_OS}.arm64 present"; \
+		$(call __install_exe,"${BIN_NAME}.${BUILD_OS}.arm64","${INSTALL_BIN_PATH}/${BIN_NAME}"); \
+	else \
+		echo "error: missing ${BIN_NAME}.${BUILD_OS}.arm64 binary" 1>&2; \
+		false; \
+	fi
+
+install-amd64:
+	@if [ -f "${BIN_NAME}.${BUILD_OS}.amd64" ]; then \
+		echo "# ${BIN_NAME}.${BUILD_OS}.amd64 present"; \
+		$(call __install_exe,"${BIN_NAME}.${BUILD_OS}.amd64","${INSTALL_BIN_PATH}/${BIN_NAME}"); \
+	else \
+		echo "error: missing ${BIN_NAME}.${BUILD_OS}.amd64 binary" 1>&2; \
+		false; \
+	fi
+
+run: export GO_CDK_LOG_FILE=./${BUILD_NAME}.cdk.log
 run: export GO_CDK_LOG_LEVEL=${LOG_LEVEL}
 run: export GO_CDK_LOG_FULL_PATHS=true
 run:
-	@if [ -f ${BUILD_CMD} ]; \
+	@if [ -f ${BUILD_NAME} ]; \
 	then \
-		echo "# running: ${BUILD_CMD} ${RUN_ARGS}"; \
-		( ./${BUILD_CMD} ${RUN_ARGS} ) 2>> ${GO_CDK_LOG_FILE}; \
+		echo "# running: ${BUILD_NAME} ${RUN_ARGS}"; \
+		( ./${BUILD_NAME} ${RUN_ARGS} ) 2>> ${GO_CDK_LOG_FILE}; \
 		if [ $$? -ne 0 ]; \
 		then \
 			stty sane; echo ""; \
-			echo "# ${BUILD_CMD} crashed, see: ./${BUILD_CMD}.cdk.log"; \
+			echo "# ${BIN_NAME} crashed, see: ./${BIN_NAME}.cdk.log"; \
 			read -p "# Press <Enter> to reset terminal, <Ctrl+C> to cancel" RESP; \
 			reset; \
-			echo "# ${BUILD_CMD} crashed, terminal reset, see: ./${BUILD_CMD}.cdk.log"; \
+			echo "# ${BIN_NAME} crashed, terminal reset, see: ./${BIN_NAME}.cdk.log"; \
 		else \
-			echo "# ${BUILD_CMD} exited normally."; \
+			echo "# ${BIN_NAME} exited normally."; \
 		fi; \
 	fi
 
-profile.cpu: export GO_CDK_LOG_FILE=./${BUILD_CMD}.cdk.log
+profile.cpu: export GO_CDK_LOG_FILE=./${BIN_NAME}.cdk.log
 profile.cpu: export GO_CDK_LOG_LEVEL=${LOG_LEVEL}
 profile.cpu: export GO_CDK_LOG_FULL_PATHS=true
-profile.cpu: export GO_CDK_PROFILE_PATH=/tmp/${BUILD_CMD}.cdk.pprof
+profile.cpu: export GO_CDK_PROFILE_PATH=/tmp/${BIN_NAME}.cdk.pprof
 profile.cpu: export GO_CDK_PROFILE=cpu
-profile.cpu: dev
-	@mkdir -v /tmp/${BUILD_CMD}.cdk.pprof 2>/dev/null || true
-	@if [ -f ${BUILD_CMD} ]; \
+profile.cpu: debug
+	@mkdir -v /tmp/${BIN_NAME}.cdk.pprof 2>/dev/null || true
+	@if [ -f ${BIN_NAME} ]; \
 		then \
-			./${BUILD_CMD} && \
-			if [ -f /tmp/${BUILD_CMD}.cdk.pprof/cpu.pprof ]; \
+			./${BIN_NAME} && \
+			if [ -f /tmp/${BIN_NAME}.cdk.pprof/cpu.pprof ]; \
 			then \
 				read -p "# Press enter to open a pprof instance" JUNK \
-				&& go tool pprof -http=:8080 /tmp/${BUILD_CMD}.cdk.pprof/cpu.pprof ; \
+				&& go tool pprof -http=:8080 /tmp/${BIN_NAME}.cdk.pprof/cpu.pprof ; \
 			else \
-				echo "# missing /tmp/${BUILD_CMD}.cdk.pprof/cpu.pprof"; \
+				echo "# missing /tmp/${BIN_NAME}.cdk.pprof/cpu.pprof"; \
 			fi ; \
 		fi
 
-profile.mem: export GO_CDK_LOG_FILE=./${BUILD_CMD}.log
+profile.mem: export GO_CDK_LOG_FILE=./${BIN_NAME}.log
 profile.mem: export GO_CDK_LOG_LEVEL=${LOG_LEVEL}
 profile.mem: export GO_CDK_LOG_FULL_PATHS=true
-profile.mem: export GO_CDK_PROFILE_PATH=/tmp/${BUILD_CMD}.cdk.pprof
+profile.mem: export GO_CDK_PROFILE_PATH=/tmp/${BIN_NAME}.cdk.pprof
 profile.mem: export GO_CDK_PROFILE=mem
-profile.mem: dev
-	@mkdir -v /tmp/${BUILD_CMD}.cdk.pprof 2>/dev/null || true
-	@if [ -f ${BUILD_CMD} ]; \
+profile.mem: debug
+	@mkdir -v /tmp/${BIN_NAME}.cdk.pprof 2>/dev/null || true
+	@if [ -f ${BIN_NAME} ]; \
 		then \
-			./${BUILD_CMD} && \
-			if [ -f /tmp/${BUILD_CMD}.cdk.pprof/mem.pprof ]; \
+			./${BIN_NAME} && \
+			if [ -f /tmp/${BIN_NAME}.cdk.pprof/mem.pprof ]; \
 			then \
 				read -p "# Press enter to open a pprof instance" JUNK \
-				&& go tool pprof -http=:8080 /tmp/${BUILD_CMD}.cdk.pprof/mem.pprof; \
+				&& go tool pprof -http=:8080 /tmp/${BIN_NAME}.cdk.pprof/mem.pprof; \
 			else \
-				echo "# missing /tmp/${BUILD_CMD}.cdk.pprof/mem.pprof"; \
+				echo "# missing /tmp/${BIN_NAME}.cdk.pprof/mem.pprof"; \
 			fi ; \
 		fi
 
-#
-# Cross-Compilation Targets
-#
+tidy: __tidy
 
-dev-linux-amd64: export GOOS=linux
-dev-linux-amd64: export GOARCH=amd64
-dev-linux-amd64: dev
+be-update: __be_update
 
-dev-linux-mips64: export GOOS=linux
-dev-linux-mips64: export GOARCH=mips64
-dev-linux-mips64: dev
+local: __local
 
-dev-darwin-amd64: export GOOS=darwin
-dev-darwin-amd64: export GOARCH=amd64
-dev-darwin-amd64: dev
+unlocal: __unlocal
 
-#
-# Experiments
-#
+vet: __vet
 
-tail-logs:
-	@tail -F ${BUILD_CMD}.cdk.log ${BUILD_CMD}.build.log
+test: __test
 
+cover: __cover
+
+generate: __generate

@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"path/filepath"
 
 	"github.com/urfave/cli/v2"
 
@@ -13,11 +14,12 @@ import (
 	"github.com/go-curses/ctk"
 )
 
-const (
+var (
 	APP_NAME    = "rpl"
 	APP_USAGE   = "search and replace"
 	APP_DESC    = "command line search and replace"
-	APP_VERSION = "0.2.2"
+	APP_VERSION = "0.2.3"
+	APP_RELEASE = "trunk"
 	APP_TAG     = "rpl"
 	APP_TITLE   = "rpl"
 )
@@ -39,6 +41,8 @@ var (
 )
 
 func init() {
+	APP_NAME = filepath.Base(os.Args[0])
+	APP_TITLE = APP_NAME
 	cdk.Build.Profiling = cstrings.IsTrue(IncludeProfiling)
 	cdk.Build.LogFile = cstrings.IsTrue(IncludeLogFile)
 	cdk.Build.LogFormat = cstrings.IsTrue(IncludeLogFormat)
@@ -57,7 +61,7 @@ func main() {
 		APP_NAME,
 		APP_USAGE,
 		APP_DESC,
-		APP_VERSION,
+		APP_VERSION+" ("+APP_RELEASE+")",
 		APP_TAG,
 		APP_TITLE,
 		"/dev/tty",
@@ -65,7 +69,7 @@ func main() {
 
 	app.CLI().ArgsUsage = ""
 	app.CLI().HideHelpCommand = true
-	app.CLI().UsageText = "rpl [options] <search> <replace> <path> [path...]"
+	app.CLI().UsageText = APP_NAME + " [options] <search> <replace> <path> [path...]"
 
 	app.CLI().Flags = append(
 		app.CLI().Flags,

@@ -1,6 +1,9 @@
+/.idea
+/.env
+/replace
 /rpl
+/rpl.*.*
 *#
 *.swp
 *.tmp
-.idea
 *.log

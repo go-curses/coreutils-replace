@@ -187,8 +187,8 @@ local: __local
 
 unlocal: __unlocal
 
-vet: __vet
+#vet: __vet
 
-test: __test
+#test: __test
 
 generate: __generate

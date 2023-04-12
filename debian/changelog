@@ -1,0 +1,5 @@
+replace (0.2.3) unstable; urgency=medium
+
+  * initial v0.2.3 release
+
+ -- The Go-Curses Team <go.enjin.org+curses@gmail.com>  Tue, 11 Apr 2023 20:44:37 -0400

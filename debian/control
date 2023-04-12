@@ -1,0 +1,20 @@
+Source: replace
+Section: go-curses
+Priority: optional
+Maintainer: The Go-Curses Team <go.enjin.org+curses@gmail.com>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.5.1
+Homepage: https://go-curses.org
+Vcs-Browser: https://github.com/go-curses/coreutils-replace
+Vcs-Git: https://github.com/go-curses/coreutils-replace.git
+Rules-Requires-Root: no
+
+Package: replace
+Architecture: any
+Conflicts: rpl
+Description: Command line search and replace utility
+ Simple command line utility to help with searching and replacing strings
+ within one or more files.
+ .
+ Has a Go-Curses based interactive mode and can also output a diff of
+ changes made (or would have made).

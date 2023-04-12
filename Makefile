@@ -63,3 +63,9 @@ SRC_CMD_PATH := ./cmd/rpl
 include Golang.cmd.mk
 include Golang.def.mk
 include Golang.cdk.mk
+
+#: begin debian packaging branch changes
+PACKAGING_NAME := replace
+-include Debian.mk
+export
+#: end debian packaging branch changes

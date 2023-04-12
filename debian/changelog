@@ -1,3 +1,18 @@
+replace (0.2.4) unstable; urgency=medium
+
+  * tagged v0.2.4 release build - 6bb8646dd0ba95c10b39fa060f623e3b04db9fa1
+  * upstream changes:
+   * 6bb8646 Makefile, main.go: version updated to v0.2.4
+   * 1d30c21 README.md: latest --help output
+   * 31206fb main.go: refactored and cleaned up command line flags, added categories, enable bash completion and use short option handling; code cosmetic changes
+   * 8f17d77 main.go: don't update APP_NAME and APP_TITLE with basename of executable
+   * a3dc496 Makefile: UNTAGGED_COMMIT is now trunk instead of 0000000000
+   * 4bfb74d go.mod: urfave/cli v2.25.1; tidy; updated bash completion script
+   * f16c630 Golang.def.mk: updated to v0.1.2
+   * dee845a Golang.cmd.mk: updated to v0.1.5
+
+ -- The Go-Curses Team <go.enjin.org+curses@gmail.com>  Wed, 12 Apr 2023 13:31:28 -0400
+
 replace (0.2.3) unstable; urgency=medium
 
   * initial v0.2.3 release

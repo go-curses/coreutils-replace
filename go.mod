@@ -10,7 +10,7 @@ require (
 	github.com/go-curses/corelibs/notify v0.0.0-20220802182645-a9fea252d76e
 	github.com/go-curses/corelibs/path v0.0.0-20220802182645-a9fea252d76e
 	github.com/go-curses/ctk v0.5.6
-	github.com/urfave/cli/v2 v2.14.1
+	github.com/urfave/cli/v2 v2.25.1
 )
 
 require (

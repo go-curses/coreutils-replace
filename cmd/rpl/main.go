@@ -2,7 +2,6 @@ package main
 
 import (
 	"os"
-	"path/filepath"
 
 	"github.com/urfave/cli/v2"
 
@@ -18,7 +17,7 @@ var (
 	APP_NAME    = "rpl"
 	APP_USAGE   = "search and replace"
 	APP_DESC    = "command line search and replace"
-	APP_VERSION = "0.2.3"
+	APP_VERSION = "0.2.4"
 	APP_RELEASE = "trunk"
 	APP_TAG     = "rpl"
 	APP_TITLE   = "rpl"
@@ -41,8 +40,6 @@ var (
 )
 
 func init() {
-	APP_NAME = filepath.Base(os.Args[0])
-	APP_TITLE = APP_NAME
 	cdk.Build.Profiling = cstrings.IsTrue(IncludeProfiling)
 	cdk.Build.LogFile = cstrings.IsTrue(IncludeLogFile)
 	cdk.Build.LogFormat = cstrings.IsTrue(IncludeLogFormat)
@@ -68,86 +65,118 @@ func main() {
 	)
 
 	app.CLI().ArgsUsage = ""
-	app.CLI().HideHelpCommand = true
 	app.CLI().UsageText = APP_NAME + " [options] <search> <replace> <path> [path...]"
+	app.CLI().HideHelpCommand = true
+	app.CLI().EnableBashCompletion = true
+	app.CLI().UseShortOptionHandling = true
+	cli.HelpFlag = &cli.BoolFlag{
+		Category: "General",
+		Name:     "help",
+		Usage:    "display command-line usage information",
+		Aliases:  []string{"h", "usage"},
+	}
+	cli.VersionFlag = &cli.BoolFlag{
+		Category: "General",
+		Name:     "version",
+		Usage:    "display the version",
+		Aliases:  []string{"V"},
+	}
 
 	app.CLI().Flags = append(
 		app.CLI().Flags,
+
 		&cli.BoolFlag{
-			Name:    "regex",
-			Usage:   "search and replace arguments are regular expressions",
-			Aliases: []string{"P"},
+			Category: "Configuration",
+			Name:     "recurse",
+			Usage:    "recurse into sub-directories",
+			Aliases:  []string{"R"},
 		},
 		&cli.BoolFlag{
-			Name:    "multi-line",
-			Usage:   "set the multi-line (?m) regexp flag (implies -P)",
-			Aliases: []string{"m"},
+			Category: "Configuration",
+			Name:     "dry-run",
+			Usage:    "report what would have otherwise been done",
+			Aliases:  []string{"n"},
 		},
 		&cli.BoolFlag{
-			Name:    "dot-match-nl",
-			Usage:   "set the dot-match-nl (?s) regexp flag (implies -P)",
-			Aliases: []string{"s"},
+			Category: "Configuration",
+			Name:     "all",
+			Usage:    "include things that start with a \".\"",
+			Aliases:  []string{"a"},
 		},
 		&cli.BoolFlag{
-			Name:    "multi-line-dot-match-nl",
-			Usage:   "convenience flag to set -m and -s (implies -P)",
-			Aliases: []string{"ms", "p"},
+			Category: "Configuration",
+			Name:     "interactive",
+			Usage:    "selectively apply replacement edits",
+			Aliases:  []string{"I"},
 		},
 		&cli.BoolFlag{
-			Name:    "multi-line-dot-match-nl-insensitive",
-			Usage:   "convenience flag to set -m, -s and -i (implies -P)",
-			Aliases: []string{"msi"},
-		},
-		&cli.BoolFlag{
-			Name:    "recurse",
-			Usage:   "recurse into sub-directories",
-			Aliases: []string{"R"},
-		},
-		&cli.BoolFlag{
-			Name:    "dry-run",
-			Usage:   "report what would have otherwise been done",
-			Aliases: []string{"n"},
-		},
-		&cli.BoolFlag{
-			Name:    "all",
-			Usage:   "include files and directories that start with a \".\"",
-			Aliases: []string{"a"},
-		},
-		&cli.BoolFlag{
-			Name:    "ignore-case",
-			Usage:   "perform a case-insensitive search",
-			Aliases: []string{"i"},
-		},
-		&cli.BoolFlag{
-			Name:    "interactive",
-			Usage:   "selectively apply replacement edits",
-			Aliases: []string{"I"},
-		},
-		&cli.BoolFlag{
-			Name:    "backup",
-			Usage:   "make backups before replacing content",
-			Aliases: []string{"b"},
+			Category: "Configuration",
+			Name:     "backup",
+			Usage:    "make backups before replacing content",
+			Aliases:  []string{"b"},
 		},
 		&cli.StringFlag{
-			Name:    "backup-extension",
-			Usage:   "specify the backup file suffix to use",
-			Aliases: []string{"B"},
-			Value:   ".bak",
+			Category: "Configuration",
+			Name:     "backup-extension",
+			Usage:    "specify the backup file suffix to use",
+			Aliases:  []string{"B"},
+			Value:    ".bak",
 		},
 		&cli.BoolFlag{
-			Name:    "show-diff",
-			Usage:   "include unified diffs of all changes in the output",
-			Aliases: []string{"D"},
+			Category: "Configuration",
+			Name:     "show-diff",
+			Usage:    "include unified diffs of all changes in the output",
+			Aliases:  []string{"D"},
+		},
+
+		&cli.BoolFlag{
+			Category: "Expressions",
+			Name:     "regex",
+			Usage:    "search and replace arguments are regular expressions",
+			Aliases:  []string{"P"},
 		},
 		&cli.BoolFlag{
-			Name:    "quiet",
-			Usage:   "run silently, ignored if --dry-run is also used",
-			Aliases: []string{"q"},
+			Category: "Expressions",
+			Name:     "multi-line",
+			Usage:    "set the multi-line (?m) regexp flag (implies -P)",
+			Aliases:  []string{"m"},
 		},
 		&cli.BoolFlag{
-			Name:    "verbose",
-			Usage:   "run loudly, ignored if --quiet is also used",
-			Aliases: []string{"v"},
+			Category: "Expressions",
+			Name:     "dot-match-nl",
+			Usage:    "set the dot-match-nl (?s) regexp flag (implies -P)",
+			Aliases:  []string{"s"},
+		},
+		&cli.BoolFlag{
+			Category: "Expressions",
+			Name:     "multi-line-dot-match-nl",
+			Usage:    "convenience flag to set -m and -s (implies -P)",
+			Aliases:  []string{"ms", "p"},
+		},
+		&cli.BoolFlag{
+			Category: "Expressions",
+			Name:     "multi-line-dot-match-nl-insensitive",
+			Usage:    "convenience flag to set -m, -s and -i (implies -P)",
+			Aliases:  []string{"msi"},
+		},
+		&cli.BoolFlag{
+			Category: "Expressions",
+			Name:     "ignore-case",
+			Usage:    "perform a case-insensitive search",
+			Aliases:  []string{"i"},
+		},
+
+		&cli.BoolFlag{
+			Category: "General",
+			Name:     "quiet",
+			Usage:    "run silently, ignored if --dry-run is also used",
+			Aliases:  []string{"q"},
+		},
+		&cli.BoolFlag{
+			Category: "General",
+			Name:     "verbose",
+			Usage:    "run loudly, ignored if --quiet is also used",
+			Aliases:  []string{"v"},
 		},
 	)
 

@@ -2,7 +2,6 @@ package main
 
 import (
 	"os"
-	"path/filepath"
 
 	"github.com/urfave/cli/v2"
 
@@ -41,8 +40,6 @@ var (
 )
 
 func init() {
-	APP_NAME = filepath.Base(os.Args[0])
-	APP_TITLE = APP_NAME
 	cdk.Build.Profiling = cstrings.IsTrue(IncludeProfiling)
 	cdk.Build.LogFile = cstrings.IsTrue(IncludeLogFile)
 	cdk.Build.LogFormat = cstrings.IsTrue(IncludeLogFormat)

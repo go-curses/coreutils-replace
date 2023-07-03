@@ -1,3 +1,10 @@
+replace (0.2.4a) unstable; urgency=medium
+
+  * packaging changes:
+   * removed broken bash autocomplete
+
+ -- The Go-Curses Team <go.enjin.org+curses@gmail.com>  Mon, 03 Jul 2023 16:34:54 -0400
+
 replace (0.2.4) unstable; urgency=medium
 
   * tagged v0.2.4 release build - 6bb8646dd0ba95c10b39fa060f623e3b04db9fa1

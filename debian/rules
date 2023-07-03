@@ -28,7 +28,6 @@ override_dh_auto_install:
 		echo "error: unsupported --host-arch=${DEB_HOST_ARCH}"; \
 		false; \
 	fi
-	@$(MAKE) install-autocomplete
 
 override_dh_shlibdeps:
 

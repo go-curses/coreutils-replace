@@ -435,7 +435,7 @@ func performWork() (o, e string) {
 					if gOptions.showDiff {
 						unified := delta.UnifiedEdits()
 						if unified != "" {
-							diffOut += fmt.Sprintf(unified)
+							diffOut += unified
 							if gOptions.verbose {
 								e += fmt.Sprintf("# %v: %d changes made\n", gSourceFiles[idx], numKept)
 							}

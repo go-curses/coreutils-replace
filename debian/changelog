@@ -1,3 +1,17 @@
+replace (0.2.5) unstable; urgency=medium
+
+  * tagged v0.2.5 release build - 59e273015210d25a26e2b0803443b4a995237fb6
+  * upstream changes:
+   * 59e2730 Makefile: setting UNTAGGED_VERSION to v0.2.5
+   * 2b3416c replace (main.go): set APP_VERSION to 0.2.5
+   * 683270d go.mod: all modules updated; tidy
+   * ba7eea9 replace (work): bugfix for --show-diff using the unified diff text as a sprintf format string argument
+   * f0162ed _testing: added fmt-test.md to test for --show-diff output errors
+   * 47b4a8d bash_autocomplete: removing (broken) autocomplete script
+   * ed1e0a4 cmd/rpl (work): use a better plain-text check (takes mime parent types into account); code cosmetic changes
+
+ -- The Go-Curses Team <go.enjin.org+curses@gmail.com>  Sat, 02 Dec 2023 12:24:21 -0500
+
 replace (0.2.4a) unstable; urgency=medium
 
   * packaging changes:

@@ -49,23 +49,33 @@ func findAllFiles(argv ...string) (files []string) {
 				gWorkErrors = append(gWorkErrors, fmt.Errorf("%v: ignoring directory", src))
 			}
 		} else if fileInfo.Mode().IsRegular() {
-			if kind, err := mimetype.DetectFile(src); err == nil {
-				if mime := kind.String(); len(mime) >= 4 && mime[:4] == "text" {
-					if fileInfo.Size() >= MaxInteractiveFileSize {
-						if gOptions.verbose {
-							gWorkErrors = append(gWorkErrors, fmt.Errorf("%v: size of %d is greater than %d bytes", src, fileInfo.Size(), MaxInteractiveFileSize))
-						}
-					} else {
-						files = append(files, src)
+			if isPlainText(src) {
+				if fileInfo.Size() >= MaxInteractiveFileSize {
+					if gOptions.verbose {
+						gWorkErrors = append(gWorkErrors, fmt.Errorf("%v: size of %d is greater than %d bytes", src, fileInfo.Size(), MaxInteractiveFileSize))
 					}
-				} else if gOptions.verbose {
-					gWorkErrors = append(gWorkErrors, fmt.Errorf("%v: not plain text", src))
+				} else {
+					files = append(files, src)
 				}
-			} else {
-				gWorkErrors = append(gWorkErrors, fmt.Errorf("%v: %v", src, err))
+			} else if gOptions.verbose {
+				gWorkErrors = append(gWorkErrors, fmt.Errorf("%v: not plain text", src))
 			}
 		} else if gOptions.verbose {
 			gWorkErrors = append(gWorkErrors, fmt.Errorf("%v: not a file or directory", src))
+		}
+	}
+	return
+}
+
+func isPlainText(src string) (isPlain bool) {
+	if kind, err := mimetype.DetectFile(src); err == nil {
+		if isPlain = kind.Is("text/plain"); isPlain {
+			return
+		}
+		for parent := kind.Parent(); parent != nil; parent = parent.Parent() {
+			if isPlain = parent.Is("text/plain"); isPlain {
+				return
+			}
 		}
 	}
 	return
@@ -425,7 +435,7 @@ func performWork() (o, e string) {
 					if gOptions.showDiff {
 						unified := delta.UnifiedEdits()
 						if unified != "" {
-							diffOut += fmt.Sprintf(unified)
+							diffOut += unified
 							if gOptions.verbose {
 								e += fmt.Sprintf("# %v: %d changes made\n", gSourceFiles[idx], numKept)
 							}

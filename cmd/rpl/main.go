@@ -17,7 +17,7 @@ var (
 	APP_NAME    = "rpl"
 	APP_USAGE   = "search and replace"
 	APP_DESC    = "command line search and replace"
-	APP_VERSION = "0.2.4"
+	APP_VERSION = "0.2.5"
 	APP_RELEASE = "trunk"
 	APP_TAG     = "rpl"
 	APP_TITLE   = "rpl"

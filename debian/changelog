@@ -1,3 +1,12 @@
+replace (0.2.6) unstable; urgency=medium
+
+  * tagged v0.2.6 release build - 84de8157e7862433547bcca911b065be04253dd1
+  * upstream changes:
+   * 84de815 Makefile: setting UNTAGGED_VERSION to v0.2.6
+   * b62b642 go.mod: cdk v0.5.17; ctk v0.5.9; all modules updated; tidy
+
+ -- The Go-Curses Team <go.enjin.org+curses@gmail.com>  Tue, 19 Dec 2023 16:20:32 -0500
+
 replace (0.2.5) unstable; urgency=medium
 
   * tagged v0.2.5 release build - 59e273015210d25a26e2b0803443b4a995237fb6

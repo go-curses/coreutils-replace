@@ -6,12 +6,12 @@ toolchain go1.21.0
 
 require (
 	github.com/gabriel-vasile/mimetype v1.4.3
-	github.com/go-curses/cdk v0.5.17
-	github.com/go-curses/corelibs/diff v0.0.0-20231219194207-3b102ad673ae
-	github.com/go-curses/corelibs/errors v0.0.0-20231219194207-3b102ad673ae
-	github.com/go-curses/corelibs/notify v0.0.0-20231219194207-3b102ad673ae
-	github.com/go-curses/corelibs/path v0.0.0-20231219194207-3b102ad673ae
-	github.com/go-curses/ctk v0.5.9
+	github.com/go-curses/cdk v0.5.18
+	github.com/go-curses/corelibs/diff v0.0.0-20231219214929-f75ec564e8fb
+	github.com/go-curses/corelibs/errors v0.0.0-20231219214929-f75ec564e8fb
+	github.com/go-curses/corelibs/notify v0.0.0-20231219214929-f75ec564e8fb
+	github.com/go-curses/corelibs/path v0.0.0-20231219214929-f75ec564e8fb
+	github.com/go-curses/ctk v0.5.10
 	github.com/urfave/cli/v2 v2.26.0
 )
 
@@ -23,7 +23,7 @@ require (
 	github.com/felixge/fgprof v0.9.3 // indirect
 	github.com/gdamore/encoding v1.0.0 // indirect
 	github.com/go-curses/term v1.2.2-gocurses.1 // indirect
-	github.com/go-curses/terminfo v1.0.0 // indirect
+	github.com/go-curses/terminfo v1.1.0 // indirect
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
 	github.com/google/pprof v0.0.0-20211214055906-6f57359322fd // indirect
 	github.com/gopherjs/gopherjs v1.17.2 // indirect

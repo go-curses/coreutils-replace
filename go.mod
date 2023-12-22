@@ -6,12 +6,12 @@ toolchain go1.21.0
 
 require (
 	github.com/gabriel-vasile/mimetype v1.4.3
-	github.com/go-curses/cdk v0.5.18
-	github.com/go-curses/corelibs/diff v0.0.0-20231219214929-f75ec564e8fb
-	github.com/go-curses/corelibs/errors v0.0.0-20231219214929-f75ec564e8fb
-	github.com/go-curses/corelibs/notify v0.0.0-20231219214929-f75ec564e8fb
-	github.com/go-curses/corelibs/path v0.0.0-20231219214929-f75ec564e8fb
-	github.com/go-curses/ctk v0.5.10
+	github.com/go-curses/cdk v0.5.19
+	github.com/go-curses/corelibs/diff v0.0.0-20231222210326-a72ab16264c4
+	github.com/go-curses/corelibs/errors v0.0.0-20231222210326-a72ab16264c4
+	github.com/go-curses/corelibs/notify v0.0.0-20231222210326-a72ab16264c4
+	github.com/go-curses/corelibs/path v0.0.0-20231222210326-a72ab16264c4
+	github.com/go-curses/ctk v0.5.11
 	github.com/urfave/cli/v2 v2.26.0
 )
 
@@ -45,6 +45,7 @@ require (
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2 // indirect
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	golang.org/x/crypto v0.17.0 // indirect
+	golang.org/x/exp v0.0.0-20231219180239-dc181d75b848 // indirect
 	golang.org/x/net v0.19.0 // indirect
 	golang.org/x/sys v0.15.0 // indirect
 	golang.org/x/term v0.15.0 // indirect

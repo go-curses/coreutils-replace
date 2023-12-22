@@ -1,3 +1,14 @@
+replace (0.2.8) unstable; urgency=medium
+
+  * tagged v0.2.8 release build - 6d297c4016e2bcf623191093f9363a87d10e1484
+  * upstream changes:
+   * 6d297c4 Makefile: setting UNTAGGED_VERSION to v0.2.8
+   * d05fdc3 go.mod: cdk v0.5.19; ctk v0.5.11; corelibs latest; tidy
+   * f8649ee Golang.cmd.mk: update to v0.1.6
+   * 139fb87 Golang.cdk.mk: update to v0.1.1
+
+ -- The Go-Curses Team <go.enjin.org+curses@gmail.com>  Fri, 22 Dec 2023 16:54:12 -0500
+
 replace (0.2.7) unstable; urgency=medium
 
   * tagged v0.2.7 release build - 18a1b2c549a1a97b91a8115a7f433f85f616de04

@@ -3,21 +3,37 @@ package main
 import (
 	"os"
 
-	"github.com/urfave/cli/v2"
-
 	"github.com/go-curses/cdk"
 	cstrings "github.com/go-curses/cdk/lib/strings"
 
 	"github.com/go-curses/corelibs/notify"
 
-	"github.com/go-curses/ctk"
+	"github.com/go-curses/coreutils-replace/ui"
 )
 
 var (
-	APP_NAME    = "rpl"
-	APP_USAGE   = "search and replace"
-	APP_DESC    = "command line search and replace"
-	APP_VERSION = "0.2.5"
+	APP_NAME  = "rpl"
+	APP_USAGE = "text search and replace utility"
+	APP_DESC  = `rpl is a command line utility for searching and replacing text in one or more
+text files.
+
+When invoked with the --show-diff flag, a unified diff is generated and
+printed to STDOUT with any other info or error notices printed to STDERR.
+
+rpl has an interactive mode with a curses user interface for walking through
+all files matching the search parameter. When in interactive mode, and the
+unified diff output is requested, the diff is printed to STDERR upon rpl
+exiting the user interface.
+
+Examples:
+
+ # recursively change "search" to "replaced" in all matching files:
+ rpl -R -D "search" "replaced" > /tmp/search-replaced.patch
+
+ # same as above but interactively:
+ rpl -I -R -D "search" "replaced" 2> /tmp/search-replaced.patch
+`
+	APP_VERSION = "0.5.0"
 	APP_RELEASE = "trunk"
 	APP_TAG     = "rpl"
 	APP_TITLE   = "rpl"
@@ -54,138 +70,17 @@ func init() {
 
 func main() {
 	cdk.Init()
-	app := ctk.NewApplication(
+	if err := ui.NewUI(
 		APP_NAME,
 		APP_USAGE,
 		APP_DESC,
-		APP_VERSION+" ("+APP_RELEASE+")",
+		APP_VERSION,
+		APP_RELEASE,
 		APP_TAG,
 		APP_TITLE,
 		"/dev/tty",
-	)
-
-	app.CLI().ArgsUsage = ""
-	app.CLI().UsageText = APP_NAME + " [options] <search> <replace> <path> [path...]"
-	app.CLI().HideHelpCommand = true
-	app.CLI().EnableBashCompletion = true
-	app.CLI().UseShortOptionHandling = true
-	cli.HelpFlag = &cli.BoolFlag{
-		Category: "General",
-		Name:     "help",
-		Usage:    "display command-line usage information",
-		Aliases:  []string{"h", "usage"},
-	}
-	cli.VersionFlag = &cli.BoolFlag{
-		Category: "General",
-		Name:     "version",
-		Usage:    "display the version",
-		Aliases:  []string{"V"},
-	}
-
-	app.CLI().Flags = append(
-		app.CLI().Flags,
-
-		&cli.BoolFlag{
-			Category: "Configuration",
-			Name:     "recurse",
-			Usage:    "recurse into sub-directories",
-			Aliases:  []string{"R"},
-		},
-		&cli.BoolFlag{
-			Category: "Configuration",
-			Name:     "dry-run",
-			Usage:    "report what would have otherwise been done",
-			Aliases:  []string{"n"},
-		},
-		&cli.BoolFlag{
-			Category: "Configuration",
-			Name:     "all",
-			Usage:    "include things that start with a \".\"",
-			Aliases:  []string{"a"},
-		},
-		&cli.BoolFlag{
-			Category: "Configuration",
-			Name:     "interactive",
-			Usage:    "selectively apply replacement edits",
-			Aliases:  []string{"I"},
-		},
-		&cli.BoolFlag{
-			Category: "Configuration",
-			Name:     "backup",
-			Usage:    "make backups before replacing content",
-			Aliases:  []string{"b"},
-		},
-		&cli.StringFlag{
-			Category: "Configuration",
-			Name:     "backup-extension",
-			Usage:    "specify the backup file suffix to use",
-			Aliases:  []string{"B"},
-			Value:    ".bak",
-		},
-		&cli.BoolFlag{
-			Category: "Configuration",
-			Name:     "show-diff",
-			Usage:    "include unified diffs of all changes in the output",
-			Aliases:  []string{"D"},
-		},
-
-		&cli.BoolFlag{
-			Category: "Expressions",
-			Name:     "regex",
-			Usage:    "search and replace arguments are regular expressions",
-			Aliases:  []string{"P"},
-		},
-		&cli.BoolFlag{
-			Category: "Expressions",
-			Name:     "multi-line",
-			Usage:    "set the multi-line (?m) regexp flag (implies -P)",
-			Aliases:  []string{"m"},
-		},
-		&cli.BoolFlag{
-			Category: "Expressions",
-			Name:     "dot-match-nl",
-			Usage:    "set the dot-match-nl (?s) regexp flag (implies -P)",
-			Aliases:  []string{"s"},
-		},
-		&cli.BoolFlag{
-			Category: "Expressions",
-			Name:     "multi-line-dot-match-nl",
-			Usage:    "convenience flag to set -m and -s (implies -P)",
-			Aliases:  []string{"ms", "p"},
-		},
-		&cli.BoolFlag{
-			Category: "Expressions",
-			Name:     "multi-line-dot-match-nl-insensitive",
-			Usage:    "convenience flag to set -m, -s and -i (implies -P)",
-			Aliases:  []string{"msi"},
-		},
-		&cli.BoolFlag{
-			Category: "Expressions",
-			Name:     "ignore-case",
-			Usage:    "perform a case-insensitive search",
-			Aliases:  []string{"i"},
-		},
-
-		&cli.BoolFlag{
-			Category: "General",
-			Name:     "quiet",
-			Usage:    "run silently, ignored if --dry-run is also used",
-			Aliases:  []string{"q"},
-		},
-		&cli.BoolFlag{
-			Category: "General",
-			Name:     "verbose",
-			Usage:    "run loudly, ignored if --quiet is also used",
-			Aliases:  []string{"v"},
-		},
-	)
-
-	app.Connect(cdk.SignalPrepareStartup, "rpl-prepare-startup-handler", prepareStartup)
-	app.Connect(cdk.SignalPrepare, "rpl-prepare-handler", prepare)
-	app.Connect(cdk.SignalStartup, "rpl-startup-handler", startup)
-	app.Connect(cdk.SignalShutdown, "rpl-shutdown-handler", shutdown)
-
-	if err := app.Run(os.Args); err != nil {
+		notifier,
+	).Run(os.Args); err != nil {
 		notifier.Error("%v\n", err)
 		os.Exit(1)
 	}

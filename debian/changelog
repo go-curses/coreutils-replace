@@ -1,3 +1,18 @@
+replace (0.5.0) unstable; urgency=medium
+
+  * tagged v0.5.0 release build - 0edc92b9a9a7305be8a76fc16fb84445dad27e6c
+  * upstream changes:
+   * 0edc92b Makefile: setting UNTAGGED_VERSION to v0.5.0
+   * 12a8855 go.mod: corelibs latest; tidy
+   * f930dcb cmd: migrated to new UI package, updated documentation
+   * a38e7b5 ui: migrated old ctk code to new UI construct, uses replace.Worker to manage all underlying workload; ui cosmetic changes
+   * 84955b3 replace: added cli flag definitions; implemented new Worker type for controlled processing of replacement work; implemented new Iterator type for processing per-file work
+   * abfb464 Makefile: GOPKG_KEYS setup for all corelibs used
+   * 818944b _testing: added another content test case (word test twice in the same line)
+   * b1724a9 cmd: purging pre v0.5.0 code
+
+ -- The Go-Curses Team <go.enjin.org+curses@gmail.com>  Tue, 26 Dec 2023 16:27:02 -0500
+
 replace (0.2.8) unstable; urgency=medium
 
   * tagged v0.2.8 release build - 6d297c4016e2bcf623191093f9363a87d10e1484

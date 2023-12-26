@@ -1,18 +1,17 @@
 module github.com/go-curses/coreutils-replace
 
-go 1.21
-
-toolchain go1.21.0
+go 1.21.0
 
 require (
-	github.com/gabriel-vasile/mimetype v1.4.3
+	github.com/ganbarodigital/go_glob v1.0.0
 	github.com/go-curses/cdk v0.5.19
-	github.com/go-curses/corelibs/diff v0.0.0-20231222210326-a72ab16264c4
-	github.com/go-curses/corelibs/errors v0.0.0-20231222210326-a72ab16264c4
-	github.com/go-curses/corelibs/notify v0.0.0-20231222210326-a72ab16264c4
-	github.com/go-curses/corelibs/path v0.0.0-20231222210326-a72ab16264c4
+	github.com/go-curses/corelibs/diff v0.0.0-20231226200921-ab656d8a4a54
+	github.com/go-curses/corelibs/filewriter v0.0.0-20231226200921-ab656d8a4a54
+	github.com/go-curses/corelibs/notify v0.0.0-20231226200921-ab656d8a4a54
+	github.com/go-curses/corelibs/path v0.0.0-20231226200921-ab656d8a4a54
 	github.com/go-curses/ctk v0.5.11
 	github.com/urfave/cli/v2 v2.26.0
+	github.com/wneessen/go-fileperm v0.2.1
 )
 
 require (
@@ -20,8 +19,13 @@ require (
 	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/creack/pty v1.1.21 // indirect
+	github.com/djherbis/times v1.6.0 // indirect
 	github.com/felixge/fgprof v0.9.3 // indirect
+	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/gdamore/encoding v1.0.0 // indirect
+	github.com/go-curses/corelibs/regexps v0.0.0-20231226200519-4b5ba0347b79 // indirect
+	github.com/go-curses/corelibs/slices v0.0.0-20231226200331-c1808bac46ba // indirect
+	github.com/go-curses/corelibs/strings v0.0.0-20231226200519-4b5ba0347b79 // indirect
 	github.com/go-curses/term v1.2.2-gocurses.1 // indirect
 	github.com/go-curses/terminfo v1.1.0 // indirect
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
@@ -32,6 +36,7 @@ require (
 	github.com/jackdoe/go-gpmctl v0.0.0-20231210204613-737e8a242925 // indirect
 	github.com/jtolio/gls v4.20.0+incompatible // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
+	github.com/maruel/natural v1.1.1 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mattn/go-runewidth v0.0.15 // indirect
@@ -44,6 +49,7 @@ require (
 	github.com/tg123/go-htpasswd v1.2.2 // indirect
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2 // indirect
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
+	github.com/yookoala/realpath v1.0.0 // indirect
 	golang.org/x/crypto v0.17.0 // indirect
 	golang.org/x/exp v0.0.0-20231219180239-dc181d75b848 // indirect
 	golang.org/x/net v0.19.0 // indirect

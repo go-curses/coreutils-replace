@@ -1,0 +1,15 @@
+
+#diff-view,
+#diff-view:normal,
+#diff-view:prelight,
+#diff-view:active,
+#diff-view:selected,
+#diff-view:insensitive,
+#diff-text,
+#diff-text:normal,
+#diff-text:prelight,
+#diff-text:active,
+#diff-text:selected,
+#diff-text:insensitive {
+    background-color: darkblue;
+}

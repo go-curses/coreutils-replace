@@ -29,11 +29,9 @@ import (
 )
 
 type Worker struct {
-	Regex      bool
-	MultiLine  bool
-	DotMatchNl bool
-	//MultiLineDotMatchNl            bool
-	//MultiLineDotMatchNlInsensitive bool
+	Regex           bool
+	MultiLine       bool
+	DotMatchNl      bool
 	Recurse         bool
 	DryRun          bool
 	All             bool
@@ -89,14 +87,6 @@ func MakeWorker(ctx *cli.Context, notifier *notify.Notifier) (w *Worker, eventFl
 		w.Backup = true
 	}
 
-	if ctx.Bool("msi") {
-		w.MultiLine = true
-		w.DotMatchNl = true
-		w.IgnoreCase = true
-	} else if ctx.Bool("ms") {
-		w.MultiLine = true
-		w.DotMatchNl = true
-	}
 	if !w.Regex {
 		w.Regex = w.DotMatchNl || w.MultiLine
 	}
@@ -140,19 +130,14 @@ func MakeWorker(ctx *cli.Context, notifier *notify.Notifier) (w *Worker, eventFl
 	}
 	w.Notifier.Set(level, o, e)
 
-	if ctx.IsSet("x") {
-		if patterns := ctx.StringSlice("x"); len(patterns) > 0 {
-			for _, pattern := range patterns {
-				g := glob.NewGlob(pattern)
-				if _, err = g.Match("./test/file.txt"); err != nil {
-					err = fmt.Errorf("-x %q error: %w", pattern, err)
-					return
-				}
-				w.Exclude = append(w.Exclude, g)
+	if patterns := ctx.StringSlice("x"); len(patterns) > 0 {
+		for _, pattern := range patterns {
+			g := glob.NewGlob(pattern)
+			if _, err = g.Match("./test/file.txt"); err != nil {
+				err = fmt.Errorf("-x %q error: %w", pattern, err)
+				return
 			}
-		} else {
-			err = fmt.Errorf("-x requires a glob pattern value")
-			return
+			w.Exclude = append(w.Exclude, g)
 		}
 	}
 
@@ -209,8 +194,6 @@ func (w *Worker) String() (s string) {
 	s += fmt.Sprintf("regex=%v;", w.Regex)
 	s += fmt.Sprintf("multiLine=%v;", w.MultiLine)
 	s += fmt.Sprintf("dotMatchNl=%v;", w.DotMatchNl)
-	//s += fmt.Sprintf("multiLineDotMatchNl=%v;", w.MultiLineDotMatchNl)
-	//s += fmt.Sprintf("multiLineDotMatchNlInsensitive=%v;", w.MultiLineDotMatchNlInsensitive)
 	s += fmt.Sprintf("recurse=%v;", w.Recurse)
 	s += fmt.Sprintf("dryRun=%v;", w.DryRun)
 	s += fmt.Sprintf("all=%v;", w.All)

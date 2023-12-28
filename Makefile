@@ -21,8 +21,8 @@
 #export
 
 BIN_NAME := rpl
-UNTAGGED_VERSION := v0.5.0
-UNTAGGED_COMMIT := 0edc92b9a9
+UNTAGGED_VERSION := v0.5.1
+UNTAGGED_COMMIT := trunk
 
 SHELL := /bin/bash
 RUN_ARGS := --help

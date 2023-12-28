@@ -20,7 +20,7 @@ import (
 )
 
 func RegexpReplace(search *regexp.Regexp, replace, contents string) (modified string) {
-	modified = search.ReplaceAllString(contents, string([]byte(replace)))
+	modified = search.ReplaceAllString(contents, replace)
 	return
 }
 

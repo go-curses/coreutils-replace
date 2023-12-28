@@ -29,6 +29,9 @@ import (
 	"github.com/go-curses/coreutils-replace"
 )
 
+//go:embed rpl.help.tmpl
+var gAppHelpTemplate string
+
 type ViewType uint8
 
 const (
@@ -85,6 +88,7 @@ func NewUI(name, usage, description, version, release, tag, title, ttyPath strin
 	c.HideHelpCommand = true
 	c.EnableBashCompletion = true
 	c.UseShortOptionHandling = true
+	c.CustomAppHelpTemplate = gAppHelpTemplate
 
 	cli.HelpFlag = &cli.BoolFlag{
 		Category: "General",

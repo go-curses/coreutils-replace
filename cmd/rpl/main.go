@@ -14,7 +14,8 @@ import (
 var (
 	APP_NAME  = "rpl"
 	APP_USAGE = "text search and replace utility"
-	APP_DESC  = `rpl is a command line utility for searching and replacing text in one or more
+	APP_DESC  = `
+rpl is a command line utility for searching and replacing text in one or more
 text files.
 
 When invoked with the --show-diff flag, a unified diff is generated and
@@ -28,12 +29,12 @@ exiting the user interface.
 Examples:
 
  # recursively change "search" to "replaced" in all matching files:
- rpl -R -D "search" "replaced" > /tmp/search-replaced.patch
+ rpl -R -D "search" "replaced" . > /tmp/search-replaced.patch
 
  # same as above but interactively:
- rpl -I -R -D "search" "replaced" 2> /tmp/search-replaced.patch
+ rpl -I -R -D "search" "replaced" . 2> /tmp/search-replaced.patch
 `
-	APP_VERSION = "0.5.0"
+	APP_VERSION = "0.5.1"
 	APP_RELEASE = "trunk"
 	APP_TAG     = "rpl"
 	APP_TITLE   = "rpl"

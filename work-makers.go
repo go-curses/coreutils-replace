@@ -23,13 +23,13 @@ func MakeRegexp(search string, o *Worker) (rx *regexp.Regexp, err error) {
 
 	var rxFlags []string
 
-	if o.MultiLine /*|| o.MultiLineDotMatchNl || o.MultiLineDotMatchNlInsensitive*/ {
+	if o.MultiLine {
 		rxFlags = append(rxFlags, "m")
 	}
-	if o.DotMatchNl /*|| o.MultiLineDotMatchNl || o.MultiLineDotMatchNlInsensitive*/ {
+	if o.DotMatchNl {
 		rxFlags = append(rxFlags, "s")
 	}
-	if o.IgnoreCase /*|| o.MultiLineDotMatchNlInsensitive*/ {
+	if o.IgnoreCase {
 		rxFlags = append(rxFlags, "i")
 	}
 

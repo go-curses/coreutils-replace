@@ -49,7 +49,6 @@ var (
 			Name:     "bak",
 			Usage:    "specify the backup file suffix to use (implies -b)",
 			Aliases:  []string{"B"},
-			Value:    DefaultBackupExtension,
 		},
 		&cli.BoolFlag{
 			Category: "Configuration",

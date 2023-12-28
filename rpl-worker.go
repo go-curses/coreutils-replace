@@ -130,19 +130,14 @@ func MakeWorker(ctx *cli.Context, notifier *notify.Notifier) (w *Worker, eventFl
 	}
 	w.Notifier.Set(level, o, e)
 
-	if ctx.IsSet("x") {
-		if patterns := ctx.StringSlice("x"); len(patterns) > 0 {
-			for _, pattern := range patterns {
-				g := glob.NewGlob(pattern)
-				if _, err = g.Match("./test/file.txt"); err != nil {
-					err = fmt.Errorf("-x %q error: %w", pattern, err)
-					return
-				}
-				w.Exclude = append(w.Exclude, g)
+	if patterns := ctx.StringSlice("x"); len(patterns) > 0 {
+		for _, pattern := range patterns {
+			g := glob.NewGlob(pattern)
+			if _, err = g.Match("./test/file.txt"); err != nil {
+				err = fmt.Errorf("-x %q error: %w", pattern, err)
+				return
 			}
-		} else {
-			err = fmt.Errorf("-x requires a glob pattern value")
-			return
+			w.Exclude = append(w.Exclude, g)
 		}
 	}
 

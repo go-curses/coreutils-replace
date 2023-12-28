@@ -87,7 +87,7 @@ var (
 			Category: "Expressions",
 			Name:     "regex",
 			Usage:    "search and replace arguments are regular expressions",
-			Aliases:  []string{"P"},
+			Aliases:  []string{"p"},
 		},
 		&cli.BoolFlag{
 			Category: "Expressions",
@@ -100,18 +100,6 @@ var (
 			Name:     "dot-match-nl",
 			Usage:    "set the dot-match-nl (?s) regexp flag (implies -P)",
 			Aliases:  []string{"s"},
-		},
-		&cli.BoolFlag{
-			Category: "Expressions",
-			Name:     "ms",
-			Usage:    "convenience flag to set -m and -s",
-			Aliases:  []string{"p"},
-		},
-		&cli.BoolFlag{
-			Category: "Expressions",
-			Name:     "msi",
-			Usage:    "convenience flag to set -m, -s and -i",
-			Aliases:  []string{"pi"},
 		},
 
 		// general flags

@@ -34,7 +34,7 @@ Examples:
  # same as above but interactively:
  rpl -I -R -D "search" "replaced" . 2> /tmp/search-replaced.patch
 `
-	APP_VERSION = "0.5.0"
+	APP_VERSION = "0.5.1"
 	APP_RELEASE = "trunk"
 	APP_TAG     = "rpl"
 	APP_TITLE   = "rpl"

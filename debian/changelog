@@ -1,3 +1,20 @@
+replace (0.5.1) unstable; urgency=medium
+
+  * tagged v0.5.1 release build - fa5b22f225dfd7237e477d21b1bd6f7a0f7a1d54
+  * upstream changes:
+   * fa5b22f Makefile: setting UNTAGGED_VERSION to v0.5.1
+   * 07455de cmd: set APP_VERSION to 0.5.1
+   * 2b6b05a go.mod: corelibs latest; cli v2.27.0; tidy
+   * 4eabd0f ui: new custom app help template added
+   * 556195b cmd: cleanup and correct app description text
+   * 588aeca rpl (worker): simplify -x handling
+   * df5c4d4 work (replace): remove unnecesary string([]byte()) casting
+   * f1f6183 rpl (worker), work (makers): remove --ms and --msi things; commented code purged
+   * d07456d rpl (flags): remove --ms and --msi because -ms and -msi work just fine; set --regex alias to -p
+   * 83bb7c4 rpl (flags): bugfix - remove default flag value for --bak
+
+ -- The Go-Curses Team <go.enjin.org+curses@gmail.com>  Thu, 28 Dec 2023 13:42:41 -0500
+
 replace (0.5.0) unstable; urgency=medium
 
   * tagged v0.5.0 release build - 0edc92b9a9a7305be8a76fc16fb84445dad27e6c

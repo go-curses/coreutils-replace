@@ -2,16 +2,29 @@ NAME:
    {{template "helpNameTemplate" .}}
 
 USAGE:
-   {{wrap .UsageText 3}}{{if .Version}}{{if not .HideVersion}}
+   {{wrap .UsageText 3}}
 
 VERSION:
-   {{.Version}}{{end}}{{end}}{{if .Description}}
+   {{.Version}}
 
 DESCRIPTION:
-   {{template "descriptionTemplate" .}}{{end}}
-{{- if len .Authors}}
+   rpl is a command line utility for searching and replacing text.
 
-AUTHOR{{template "authorsTemplate" .}}{{end}}
+   When invoked with the --show-diff flag, a unified diff is generated and
+   printed to STDOUT with any other info or error notices printed to STDERR.
+
+   rpl has an interactive mode with a curses user interface for walking through
+   all files matching the search parameter. When in interactive mode, and the
+   unified diff output is requested, the diff is printed to STDERR upon rpl
+   exiting the curses user interface.
+
+   Examples:
+
+    # recursively change "search" to "replaced" in all matching files:
+    rpl -rd "search" "replaced" . > /tmp/search-replaced.patch
+
+    # same as above but interactively:
+    rpl -rdI "search" "replaced" . 2> /tmp/search-replaced.patch
 
 OPTIONS:
    Configuration
@@ -41,6 +54,4 @@ OPTIONS:
    --quiet, -q            run silently, ignored if --nop is also used
    --verbose, -v          run loudly, ignored if --quiet is also used
    --version, -V          display the version
-{{if .Copyright}}
-COPYRIGHT:
-   {{template "copyrightTemplate" .}}{{end}}
+{{/* this comment ensures there is a trailing newline */}}

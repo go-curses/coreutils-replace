@@ -39,7 +39,7 @@ USAGE:
    rpl [options] <search> <replace> <path> [path...]
 
 VERSION:
-   v0.5.2 (trunk)
+   v0.5.3 (trunk)
 
 DESCRIPTION:
    rpl is a command line utility for searching and replacing text.

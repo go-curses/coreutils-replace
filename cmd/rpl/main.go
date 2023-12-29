@@ -15,7 +15,7 @@ var (
 	APP_NAME    = "rpl"
 	APP_USAGE   = "text search and replace utility"
 	APP_DESC    = `rpl is a command line utility for searching and replacing text`
-	APP_VERSION = "0.5.2"
+	APP_VERSION = "0.5.3"
 	APP_RELEASE = "trunk"
 	APP_TAG     = "rpl"
 	APP_TITLE   = "rpl"

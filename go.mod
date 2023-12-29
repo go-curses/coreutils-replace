@@ -6,9 +6,9 @@ require (
 	github.com/ganbarodigital/go_glob v1.0.0
 	github.com/go-curses/cdk v0.5.19
 	github.com/go-curses/corelibs/diff v0.0.0-20231228181752-8fb18cee0baa
-	github.com/go-curses/corelibs/filewriter v0.0.0-20231228182924-3cd6afd3be2a
+	github.com/go-curses/corelibs/filewriter v0.0.0-20231229173315-2e62b18a16fb
 	github.com/go-curses/corelibs/notify v0.0.0-20231228181752-8fb18cee0baa
-	github.com/go-curses/corelibs/path v0.0.0-20231228182924-3cd6afd3be2a
+	github.com/go-curses/corelibs/path v0.0.0-20231229173315-2e62b18a16fb
 	github.com/go-curses/ctk v0.5.11
 	github.com/urfave/cli/v2 v2.27.0
 	github.com/wneessen/go-fileperm v0.2.1
@@ -23,9 +23,9 @@ require (
 	github.com/felixge/fgprof v0.9.3 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/gdamore/encoding v1.0.0 // indirect
-	github.com/go-curses/corelibs/regexps v0.0.0-20231228182924-3cd6afd3be2a // indirect
-	github.com/go-curses/corelibs/slices v0.0.0-20231228182924-3cd6afd3be2a // indirect
-	github.com/go-curses/corelibs/strings v0.0.0-20231228182924-3cd6afd3be2a // indirect
+	github.com/go-curses/corelibs/regexps v0.0.0-20231229173315-2e62b18a16fb // indirect
+	github.com/go-curses/corelibs/slices v0.0.0-20231229173315-2e62b18a16fb // indirect
+	github.com/go-curses/corelibs/strings v0.0.0-20231229173315-2e62b18a16fb // indirect
 	github.com/go-curses/term v1.2.2-gocurses.1 // indirect
 	github.com/go-curses/terminfo v1.1.0 // indirect
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect

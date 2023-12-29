@@ -1,3 +1,13 @@
+replace (0.5.2) unstable; urgency=medium
+
+  * tagged v0.5.2 release build - 3f19c87c9bfe1060b358210007eb697438b54fdf
+  * upstream changes:
+   * 3f19c87 Makefile: setting UNTAGGED_VERSION to v0.5.2
+   * 0af734e cmd: setting APP_VERSION to 0.5.2
+   * 0b93b82 rpl (iter): path.BackupAndOverwrite second argument is just the extension now, fixes custom backup extension not being used correctly
+
+ -- The Go-Curses Team <go.enjin.org+curses@gmail.com>  Fri, 29 Dec 2023 12:41:08 -0500
+
 replace (0.5.1) unstable; urgency=medium
 
   * tagged v0.5.1 release build - fa5b22f225dfd7237e477d21b1bd6f7a0f7a1d54

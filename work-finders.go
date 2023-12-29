@@ -48,13 +48,13 @@ func FindAllIncluded(exclude []*glob.Glob, targets []string) (found []string) {
 	for _, target := range targets {
 
 		if path.IsFile(target) {
-			if IsIncluded(exclude, target) {
+			if path.IsPlainText(target) && IsIncluded(exclude, target) {
 				found = append(found, target)
 			}
 		} else if path.IsDir(target) {
 			more, _ := path.ListAllFiles(target)
 			for _, file := range more {
-				if IsIncluded(exclude, file) {
+				if path.IsPlainText(file) && IsIncluded(exclude, file) {
 					found = append(found, file)
 				}
 			}

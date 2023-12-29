@@ -42,9 +42,7 @@ VERSION:
    v0.5.2 (trunk)
 
 DESCRIPTION:
-
-   rpl is a command line utility for searching and replacing text in one or more
-   text files.
+   rpl is a command line utility for searching and replacing text.
 
    When invoked with the --show-diff flag, a unified diff is generated and
    printed to STDOUT with any other info or error notices printed to STDERR.
@@ -52,7 +50,7 @@ DESCRIPTION:
    rpl has an interactive mode with a curses user interface for walking through
    all files matching the search parameter. When in interactive mode, and the
    unified diff output is requested, the diff is printed to STDERR upon rpl
-   exiting the user interface.
+   exiting the curses user interface.
 
    Examples:
 
@@ -61,7 +59,6 @@ DESCRIPTION:
 
     # same as above but interactively:
     rpl -rdI "search" "replaced" . 2> /tmp/search-replaced.patch
-
 
 OPTIONS:
    Configuration

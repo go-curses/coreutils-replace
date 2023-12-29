@@ -127,7 +127,7 @@ func (i *Iterator) ApplyChanges(delta *diff.Diff) (count int, unified string, er
 		} else {
 			extension = DefaultBackupExtension
 		}
-		err = path.BackupAndOverwrite(i.w.Matched[i.pos], i.w.Matched[i.pos]+extension, modified)
+		err = path.BackupAndOverwrite(i.w.Matched[i.pos], extension, modified)
 		return
 	}
 

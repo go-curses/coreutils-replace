@@ -1,3 +1,16 @@
+replace (0.5.3) unstable; urgency=medium
+
+  * tagged v0.5.3 release build - 37c694033aa01196020e312362dc81ccd2e3abf8
+  * upstream changes:
+   * 37c6940 Makefile, README.md, cmd: update version to 0.5.3
+   * 5e88138 README.md: more help text updates for latest changes
+   * e01538d cmd, ui (help.tmpl): moved app description to help template; cleaned up help template, updated examples to use correct flags; code cosmetic changes
+   * f8c5606 work (finders): bugfix for incorrectly treating binary files as plain-text
+   * 379b951 README.md: added debian and brew installation sections; updated help text section
+   * b398f76 ui (help.tmpl): updates for -P alias renamed to -p
+
+ -- The Go-Curses Team <go.enjin.org+curses@gmail.com>  Fri, 29 Dec 2023 13:25:50 -0500
+
 replace (0.5.2) unstable; urgency=medium
 
   * tagged v0.5.2 release build - 3f19c87c9bfe1060b358210007eb697438b54fdf

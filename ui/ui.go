@@ -26,7 +26,7 @@ import (
 	"github.com/go-curses/cdk"
 	"github.com/go-curses/ctk"
 
-	"github.com/go-curses/coreutils-replace"
+	replace "github.com/go-curses/coreutils-replace"
 )
 
 //go:embed rpl.help.tmpl

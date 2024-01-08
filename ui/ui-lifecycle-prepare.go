@@ -19,7 +19,7 @@ import (
 
 	cenums "github.com/go-curses/cdk/lib/enums"
 	"github.com/go-curses/cdk/log"
-	"github.com/go-curses/coreutils-replace"
+	replace "github.com/go-curses/coreutils-replace"
 )
 
 // prepareStartup happens immediately upon cli action func

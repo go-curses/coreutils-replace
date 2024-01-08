@@ -15,12 +15,13 @@
 package replace
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"regexp"
 
-	glob "github.com/ganbarodigital/go_glob"
 	"github.com/urfave/cli/v2"
 
 	"github.com/go-corelibs/filewriter"
@@ -29,12 +30,19 @@ import (
 	cenums "github.com/go-curses/cdk/lib/enums"
 )
 
+var (
+	MaxFileCount = 10000
+)
+
+var (
+	ErrNotFound = errors.New("not found")
+)
+
 type Worker struct {
 	Regex           bool
-	MultiLine       bool
 	DotMatchNl      bool
 	Recurse         bool
-	DryRun          bool
+	Nop             bool
 	All             bool
 	IgnoreCase      bool
 	Backup          bool
@@ -51,8 +59,13 @@ type Worker struct {
 	Search  string
 	Pattern *regexp.Regexp
 	Replace string
-	Exclude []*glob.Glob
+	Stdin   bool
+	Null    bool
+	AddFile []string
+	Include Globs
+	Exclude Globs
 
+	Paths   []string
 	Targets []string
 	Files   []string
 	Matched []string
@@ -65,31 +78,70 @@ type Worker struct {
 
 func MakeWorker(ctx *cli.Context, notifier notify.Notifier) (w *Worker, eventFlag cenums.EventFlag, err error) {
 	w = &Worker{
-		Regex:           ctx.Bool("regex"),
-		MultiLine:       ctx.Bool("multi-line"),
+		Regex:           ctx.Bool("regex") || ctx.Bool("dot-match-nl"),
 		DotMatchNl:      ctx.Bool("dot-match-nl"),
 		Recurse:         ctx.Bool("recurse"),
-		DryRun:          ctx.Bool("nop"),
+		Nop:             ctx.Bool("nop"),
 		All:             ctx.Bool("all"),
 		IgnoreCase:      ctx.Bool("ignore-case"),
-		Backup:          ctx.Bool("backup"),
-		BackupExtension: ctx.String("bak"),
+		Backup:          ctx.Bool("backup") || ctx.String("backup-extension") != "",
+		BackupExtension: ctx.String("backup-extension"),
 		ShowDiff:        ctx.Bool("show-diff"),
 		Interactive:     ctx.Bool("interactive"),
 		Quiet:           ctx.Bool("quiet"),
 		Verbose:         ctx.Bool("verbose"),
+		Null:            ctx.Bool("null"),
+		AddFile:         ctx.StringSlice("file"),
 		Context:         ctx,
 		Argv:            ctx.Args().Slice(),
 		Argc:            ctx.NArg(),
 		Notifier:        notifier,
 	}
 
-	if w.BackupExtension != "" {
-		w.Backup = true
+	if err = w.init(ctx); err != nil {
+		return
 	}
 
-	if !w.Regex {
-		w.Regex = w.DotMatchNl || w.MultiLine
+	if w.Argc < 2 {
+		cli.ShowAppHelpAndExit(ctx, 1)
+		eventFlag = cenums.EVENT_STOP
+		return
+	}
+
+	w.Search, w.Replace = w.Argv[0], w.Argv[1]
+	if w.Argc > 2 {
+		if w.Stdin = w.Argv[2] == "-"; w.Stdin {
+			w.Paths = w.Argv[3:]
+		} else {
+			w.Paths = w.Argv[2:]
+		}
+	}
+	if len(w.Paths) == 0 && !ctx.IsSet("file") {
+		w.Paths = []string{"."}
+	}
+
+	if w.Regex {
+		if w.Pattern, err = MakeRegexp(w.Search, w); err != nil {
+			err = fmt.Errorf("error compiling %q: %w", w.Search, err)
+			eventFlag = cenums.EVENT_STOP
+			return
+		}
+	}
+
+	return
+}
+
+func (w *Worker) init(ctx *cli.Context) (err error) {
+
+	if w.Exclude, err = ParseGlobs(ctx.StringSlice("exclude")); err != nil {
+		return
+	} else if w.Include, err = ParseGlobs(ctx.StringSlice("include")); err != nil {
+		return
+	}
+
+	if !w.All {
+		more, _ := ParseGlobs([]string{"*~"})
+		w.Exclude = append(w.Exclude, more...)
 	}
 
 	var o, e io.Writer
@@ -103,7 +155,7 @@ func MakeWorker(ctx *cli.Context, notifier notify.Notifier) (w *Worker, eventFla
 		level = notify.Info
 	}
 	if w.Interactive {
-		// stdout is in use by curses, so if os.Stderr is piped, use that, otherwise need to write to a temp file
+		// stdout is in use by curses, so if os.Stderr is piped, use that, otherwise write to a temp file
 		var stat os.FileInfo
 		if stat, err = os.Stderr.Stat(); err != nil {
 			err = fmt.Errorf("error calling os.Stderr.Stat: %w", err)
@@ -132,46 +184,94 @@ func MakeWorker(ctx *cli.Context, notifier notify.Notifier) (w *Worker, eventFla
 		e = os.Stderr
 	}
 
-	if patterns := ctx.StringSlice("x"); len(patterns) > 0 {
-		for _, pattern := range patterns {
-			g := glob.NewGlob(pattern)
-			if _, err = g.Match("./test/file.txt"); err != nil {
-				err = fmt.Errorf("-x %q error: %w", pattern, err)
-				return
-			}
-			w.Exclude = append(w.Exclude, g)
-		}
+	w.Notifier.ModifyLevel(level).
+		ModifyOut(o).
+		ModifyErr(e)
+
+	return
+}
+
+func (w *Worker) InitTargets(fn FindAllMatchingFn) (tooMany bool) {
+	if fn == nil {
+		fn = func(file string, matched bool, err error) {}
 	}
 
-	if w.Argc < 3 {
-		cli.ShowAppHelpAndExit(ctx, 1)
-		eventFlag = cenums.EVENT_STOP
+	lookup := make(map[string]struct{})
+	add := func(target string) (tooMany bool) {
+		if abs, err := filepath.Abs(target); err == nil {
+			if _, present := lookup[abs]; !present {
+				if path.Exists(abs) {
+					lookup[abs] = struct{}{}
+					w.Targets = append(w.Targets, abs)
+					//w.Notifier.Error("# does exist: %q\n", abs)
+				} else {
+					fn(abs, false, ErrNotFound)
+					if w.Verbose {
+						w.Notifier.Error("# does not exist: %q\n", abs)
+					}
+				}
+			}
+		} else {
+			fn(target, false, err)
+			if w.Verbose {
+				w.Notifier.Error("# invalid path: %q: %s\n", abs, err)
+			}
+		}
+		tooMany = len(w.Targets) > MaxFileCount
 		return
 	}
-	w.Search, w.Replace = w.Argv[0], w.Argv[1]
-	w.Targets = w.Argv[2:]
 
-	if w.Regex {
-		if w.Pattern, err = MakeRegexp(w.Search, w); err != nil {
-			err = fmt.Errorf("error compiling regular expression: %w", err)
+	// add any path arguments given
+	for _, target := range w.Paths {
+		add(target)
+	}
+
+	// scan and add any "additional files" given
+	for _, target := range w.AddFile {
+		var ee error
+		if tooMany, ee = ScanFileLines(target, func(line string) (stop bool) {
+			stop = add(line)
+			return
+		}); ee != nil {
+			w.Notifier.Error("# error scanning --file %q: %v", target, ee)
 		}
 	}
 
-	return
-}
+	// scan and add from os.Stdin
+	if w.Stdin {
+		if w.Null {
+			// using null-terminated paths
+			tooMany = ScanNulls(os.Stdin, func(line string) (stop bool) {
+				stop = add(line)
+				return
+			})
+		} else {
+			// using one path per line
+			tooMany = ScanLines(os.Stdin, func(line string) (stop bool) {
+				stop = add(line)
+				return
+			})
+		}
+	}
 
-func (w *Worker) Init(fn FindAllMatchingFn) {
-	if w.Regex {
-		w.Files, w.Matched = FindAllMatchingRegexp(w.Pattern, w.Targets, w.Exclude, fn)
-	} else if w.IgnoreCase {
-		w.Files, w.Matched = FindAllMatchingStringInsensitive(w.Search, w.Targets, w.Exclude, fn)
-	} else {
-		w.Files, w.Matched = FindAllMatchingString(w.Search, w.Targets, w.Exclude, fn)
+	if tooMany {
+		w.Notifier.Error("# error: too many files, try batches of %d or less\n", MaxFileCount)
 	}
 	return
 }
 
-func (w *Worker) Start() (iter *Iterator) {
+func (w *Worker) FindMatching(fn FindAllMatchingFn) {
+	if w.Regex {
+		w.Files, w.Matched = FindAllMatchingRegexp(w.Pattern, w.Targets, w.All, w.Include, w.Exclude, fn)
+	} else if w.IgnoreCase {
+		w.Files, w.Matched = FindAllMatchingStringInsensitive(w.Search, w.Targets, w.All, w.Include, w.Exclude, fn)
+	} else {
+		w.Files, w.Matched = FindAllMatchingString(w.Search, w.Targets, w.All, w.Include, w.Exclude, fn)
+	}
+	return
+}
+
+func (w *Worker) StartIterating() (iter *Iterator) {
 	if len(w.Matched) > 0 {
 		iter = &Iterator{
 			w:   w,
@@ -181,12 +281,12 @@ func (w *Worker) Start() (iter *Iterator) {
 	return
 }
 
-func (w *Worker) FileWriterOut() (fwo filewriter.Writer) {
+func (w *Worker) FileWriterOut() (fwo filewriter.FileWriter) {
 	fwo = w.fwo
 	return
 }
 
-func (w *Worker) FileWriterErr() (fwe filewriter.Writer) {
+func (w *Worker) FileWriterErr() (fwe filewriter.FileWriter) {
 	fwe = w.fwe
 	return
 }
@@ -194,10 +294,9 @@ func (w *Worker) FileWriterErr() (fwe filewriter.Writer) {
 func (w *Worker) String() (s string) {
 	s += "Worker{"
 	s += fmt.Sprintf("regex=%v;", w.Regex)
-	s += fmt.Sprintf("multiLine=%v;", w.MultiLine)
 	s += fmt.Sprintf("dotMatchNl=%v;", w.DotMatchNl)
 	s += fmt.Sprintf("recurse=%v;", w.Recurse)
-	s += fmt.Sprintf("dryRun=%v;", w.DryRun)
+	s += fmt.Sprintf("nop=%v;", w.Nop)
 	s += fmt.Sprintf("all=%v;", w.All)
 	s += fmt.Sprintf("ignoreCase=%v;", w.IgnoreCase)
 	s += fmt.Sprintf("backup=%v;", w.Backup)
@@ -206,6 +305,9 @@ func (w *Worker) String() (s string) {
 	s += fmt.Sprintf("interactive=%v;", w.Interactive)
 	s += fmt.Sprintf("quiet=%v;", w.Quiet)
 	s += fmt.Sprintf("verbose=%v;", w.Verbose)
+	s += fmt.Sprintf("files=%+v;", w.AddFile)
+	s += fmt.Sprintf("exclude=%v;", w.Exclude.String())
+	s += fmt.Sprintf("include=%v;", w.Include.String())
 	s += "}"
 	return
 }

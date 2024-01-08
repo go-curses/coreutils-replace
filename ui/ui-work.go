@@ -19,6 +19,8 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/go-corelibs/diff"
+
 	"github.com/go-curses/cdk/lib/math"
 )
 
@@ -142,8 +144,8 @@ func (u *CUI) processNextWork() {
 
 	u.delta.KeepAll()
 	unified := u.delta.UnifiedEdits()
-
-	if err = u.DiffLabel.SetMarkup(tangoDiff(unified)); err != nil {
+	markup := diff.TangoRender.RenderDiff(unified)
+	if err = u.DiffLabel.SetMarkup(markup); err != nil {
 		u.DiffLabel.LogErr(err)
 	}
 	u.DiffLabel.SetSizeRequest(u.DiffLabel.GetPlainTextInfo())
@@ -172,15 +174,22 @@ func (u *CUI) processNextEdit() {
 		u.group += 1
 		if u.group < u.delta.EditGroupsLen() {
 			unified := u.delta.EditGroup(u.group)
-			if err := u.DiffLabel.SetMarkup(tangoDiff(unified)); err != nil {
-				u.DiffLabel.LogErr(err)
-			}
-			u.DiffLabel.SetSizeRequest(u.DiffLabel.GetPlainTextInfo())
+			u.updateDiffLabel(unified)
 			u.displayEditView()
 		} else {
+			unified := u.delta.UnifiedEdits()
+			u.updateDiffLabel(unified)
 			u.displayFileView()
 		}
 	}
+}
+
+func (u *CUI) updateDiffLabel(unified string) {
+	markup := diff.TangoRender.RenderDiff(unified)
+	if err := u.DiffLabel.SetMarkup(markup); err != nil {
+		u.DiffLabel.LogErr(err)
+	}
+	u.DiffLabel.SetSizeRequest(u.DiffLabel.GetPlainTextInfo())
 }
 
 func (u *CUI) skipCurrentWork() {

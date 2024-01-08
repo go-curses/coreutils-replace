@@ -21,9 +21,9 @@ import (
 
 	"github.com/urfave/cli/v2"
 
+	"github.com/go-corelibs/diff"
+	"github.com/go-corelibs/notify"
 	"github.com/go-curses/cdk"
-	"github.com/go-curses/corelibs/diff"
-	"github.com/go-curses/corelibs/notify"
 	"github.com/go-curses/ctk"
 
 	"github.com/go-curses/coreutils-replace"
@@ -64,7 +64,7 @@ type CUI struct {
 
 	LastError error
 
-	notifier *notify.Notifier
+	notifier notify.Notifier
 	worker   *replace.Worker
 	iter     *replace.Iterator
 	delta    *diff.Diff
@@ -75,7 +75,7 @@ type CUI struct {
 	sync.RWMutex
 }
 
-func NewUI(name, usage, description, version, release, tag, title, ttyPath string, notifier *notify.Notifier) (u *CUI) {
+func NewUI(name, usage, description, version, release, tag, title, ttyPath string, notifier notify.Notifier) (u *CUI) {
 
 	u = &CUI{
 		App:      ctk.NewApplication(name, usage, description, version, tag, title, ttyPath),

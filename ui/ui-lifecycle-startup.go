@@ -102,7 +102,7 @@ func (u *CUI) startup(data []interface{}, argv ...interface{}) cenums.EventFlag 
 		u.SkipEditButton = ctk.NewButtonWithMnemonic("_Skip Change <F3>")
 		u.SkipEditButton.Hide()
 		u.SkipEditButton.SetHasTooltip(true)
-		u.SkipEditButton.SetTooltipText("skip the changes presented below")
+		u.SkipEditButton.SetTooltipText("skip this group of changes")
 		u.SkipEditButton.Connect(ctk.SignalActivate, "rpl-skip-edit-handler", func(data []interface{}, argv ...interface{}) cenums.EventFlag {
 			u.SkipEditButton.LogDebug("clicked")
 			u.WorkAccel.Activate(cdk.KeyF3, 0)
@@ -113,7 +113,7 @@ func (u *CUI) startup(data []interface{}, argv ...interface{}) cenums.EventFlag 
 		u.KeepEditButton = ctk.NewButtonWithMnemonic("_Keep Change <F4>")
 		u.KeepEditButton.Hide()
 		u.KeepEditButton.SetHasTooltip(true)
-		u.KeepEditButton.SetTooltipText("keep the changes presented below")
+		u.KeepEditButton.SetTooltipText("keep this group of changes")
 		u.KeepEditButton.Connect(ctk.SignalActivate, "rpl-keep-edit-handler", func(data []interface{}, argv ...interface{}) cenums.EventFlag {
 			u.KeepEditButton.LogDebug("clicked")
 			u.WorkAccel.Activate(cdk.KeyF4, 0)
@@ -124,7 +124,7 @@ func (u *CUI) startup(data []interface{}, argv ...interface{}) cenums.EventFlag 
 		u.SkipButton = ctk.NewButtonWithMnemonic("_Skip <F8>")
 		u.SkipButton.Hide()
 		u.SkipButton.SetHasTooltip(true)
-		u.SkipButton.SetTooltipText("skip the selected changes and proceed")
+		u.SkipButton.SetTooltipText("skip the file changes and proceed")
 		u.SkipButton.Connect(ctk.SignalActivate, "rpl-skip-handler", func(data []interface{}, argv ...interface{}) cenums.EventFlag {
 			u.SkipButton.LogDebug("clicked")
 			u.WorkAccel.Activate(cdk.KeyF8, 0)
@@ -135,7 +135,7 @@ func (u *CUI) startup(data []interface{}, argv ...interface{}) cenums.EventFlag 
 		u.ApplyButton = ctk.NewButtonWithMnemonic("_Apply <F9>")
 		u.ApplyButton.Hide()
 		u.ApplyButton.SetHasTooltip(true)
-		u.ApplyButton.SetTooltipText("write the selected changes and exit")
+		u.ApplyButton.SetTooltipText("write the file changes and proceed")
 		u.ApplyButton.Connect(ctk.SignalActivate, "rpl-apply-handler", func(data []interface{}, argv ...interface{}) cenums.EventFlag {
 			u.ApplyButton.LogDebug("clicked")
 			u.WorkAccel.Activate(cdk.KeyF9, 0)

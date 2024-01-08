@@ -15,7 +15,7 @@
 # limitations under the License.
 
 GOLANG_MAKEFILE_KEYS += CMD
-GOLANG_CMD_MK_VERSION := v0.1.6
+GOLANG_CMD_MK_VERSION := v0.1.7
 
 .PHONY: __golang __tidy __local __unlocal __be_update
 .PHONY: __vet __test __cover __generate
@@ -50,7 +50,14 @@ INSTALL_BIN_PATH := ${DESTDIR}${prefix}/bin
 INSTALL_ETC_PATH := ${DESTDIR}${prefix_etc}
 INSTALL_AUTOCOMPLETE_PATH := ${INSTALL_ETC_PATH}/bash_completion.d
 
+GOIMPORTS_LIST ?= github.com/go-curses,github.com/go-corelibs
+
+GOCONVEY_HOST ?= 0.0.0.0
+GOCONVEY_PORT ?= 8080
+
 _INTERNAL_BUILD_LOG_ ?= /dev/null
+
+-include Golang.lib.mk
 
 define __clean
 	for FOUND in $(1); do \
@@ -115,6 +122,42 @@ $(shell \
 		false; \
 	fi; \
 	echo "$${GO_BIN}" \
+)
+endef
+
+define __gofmt_bin
+$(shell \
+	export ENJENV_BIN=`which enjenv`; \
+	if [ -n "$${ENJENV_BIN}" -a -x "$${ENJENV_BIN}" ]; then \
+		export ENJENV_PATH=`"$${ENJENV_BIN}"`; \
+		if [ -n "$${ENJENV_PATH}" -a "$${ENJENV_PATH}/activate" ]; then \
+			( source "$${ENJENV_PATH}/activate" 2>&1 ) > /dev/null; \
+		fi; \
+	fi; \
+	export GOFMT_BIN=`which gofmt`; \
+	if [ -z "$${GOFMT_BIN}" -o ! -x "$${GOFMT_BIN}" ]; then \
+		echo "error: missing gofmt binary" 1>&2; \
+		false; \
+	fi; \
+	echo "$${GOFMT_BIN}" \
+)
+endef
+
+define __goimports_bin
+$(shell \
+	export ENJENV_BIN=`which enjenv`; \
+	if [ -n "$${ENJENV_BIN}" -a -x "$${ENJENV_BIN}" ]; then \
+		export ENJENV_PATH=`"$${ENJENV_BIN}"`; \
+		if [ -n "$${ENJENV_PATH}" -a "$${ENJENV_PATH}/activate" ]; then \
+			( source "$${ENJENV_PATH}/activate" 2>&1 ) > /dev/null; \
+		fi; \
+	fi; \
+	export GOIMPORTS_BIN=`which goimports`; \
+	if [ -z "$${GOIMPORTS_BIN}" -o ! -x "$${GOIMPORTS_BIN}" ]; then \
+		echo "error: missing goimports binary" 1>&2; \
+		false; \
+	fi; \
+	echo "$${GOIMPORTS_BIN}" \
 )
 endef
 
@@ -246,9 +289,59 @@ __golang:
 		false; \
 	fi
 
+__deps: __golang
+	@echo "# installing dependencies"
+	@echo "#: goconvey"
+	@$(call __go_bin) install github.com/smartystreets/goconvey@latest
+	@echo "#: govulncheck"
+	@$(call __go_bin) install golang.org/x/vuln/cmd/govulncheck@latest
+	@echo "#: gocyclo"
+	@$(call __go_bin) install github.com/fzipp/gocyclo/cmd/gocyclo@latest
+	@echo "#: ineffassign"
+	@$(call __go_bin) install github.com/gordonklaus/ineffassign@latest
+	@echo "#: misspell"
+	@$(call __go_bin) install github.com/client9/misspell/cmd/misspell@latest
+	@echo "#: go get ./..."
+	@$(call __go_bin) get ./...
+
 __tidy: __golang
 	@echo "# go mod tidy"
 	@$(call __go_bin) mod tidy
+
+__fmt: __golang
+	@echo "# gofmt -s"
+	@$(call __gofmt_bin) -w -s `find * -name "*.go"`
+	@echo "# goimports"
+	@$(call __goimports_bin) -w \
+		-local "$(GOIMPORTS_LIST)" \
+		`find * -name "*.go"`
+
+__reportcard: export GOFMT_BIN=$(call __gofmt_bin)
+__reportcard: __golang
+	@echo "# code sanity and style report"
+	@echo "#: go vet"
+	@$(call __go_bin) vet ./...
+	@echo "#: gocyclo"
+	@gocyclo -over 15 `find * -name "*.go"` || true
+	@echo "#: ineffassign"
+	@ineffassign ./...
+	@echo "#: misspell"
+	@misspell ./...
+	@echo "#: gofmt -s"
+	@echo -e -n `find * -name "*.go" | while read SRC; do \
+	  ${GOFMT_BIN} -s "$${SRC}" > "$${SRC}.fmts"; \
+	  if ! cmp "$${SRC}" "$${SRC}.fmts" 2> /dev/null; then \
+	    echo "can simplify: $${SRC}\\n"; \
+	  fi; \
+	  rm -f "$${SRC}.fmts"; \
+	done`
+	@echo "#: govulncheck"
+	@echo -e -n `govulncheck ./... \
+	  | egrep '^Vulnerability #' \
+	  | sort -u -V \
+	  | while read LINE; do \
+	    echo "$${LINE}\n"; \
+	  done`
 
 __local: __golang
 	@`echo "_make_extra_locals" >> ${_INTERNAL_BUILD_LOG_}`
@@ -272,15 +365,20 @@ __vet: __golang
 	@echo -n "# go vet ./..."
 	@go vet ./... && echo " done" || echo " error"
 
-__test: vet
-	@echo "# go test -v ./..."
-	@go test -v ./...
+__test:
+	@echo "# go test -race -v ./..."
+	@go test -race -v ./...
 
-__cover: __golang
-	@echo "# go test -cover -coverprofile=coverage.out ./..."
-	@go test -cover -coverprofile=coverage.out ./...
-	@echo "# go tool cover -html=coverage.out"
-	@go tool cover -html=coverage.out
+__coverage: __golang
+	@echo "# generating coverage reports -v ./..."
+	@go test -race -coverprofile=coverage.out -covermode=atomic -coverpkg=./... -v ./...
+	@go tool cover -html=coverage.out -o=coverage.html
+
+__goconvey:
+	@echo "# running goconvey http://${GOCONVEY_HOST}:${GOCONVEY_PORT}"
+	@echo "# press <CTRL+c> to stop (takes a moment to exit)"
+	@goconvey -host=${GOCONVEY_HOST} -port=${GOCONVEY_PORT} \
+		-launchBrowser=false -depth=-1
 
 __generate:
 	@echo "# go generate -v ./..."

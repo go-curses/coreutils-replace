@@ -26,12 +26,13 @@ import (
 )
 
 type FindAllMatcherFn func(data []byte) (matched bool)
-type FindAllMatchingFn func(file string, matched bool)
+type FindAllMatchingFn func(file string, matched bool, err error)
 
-func IsIncluded(exclude []*glob.Glob, input string) (included bool) {
-	if included = len(exclude) == 0; included {
+func IsIncluded(include, exclude []*glob.Glob, input string) (included bool) {
+	if included = len(exclude) == 0 && len(include) == 0; included {
 		return
 	}
+
 	for _, g := range exclude {
 		if excluded, err := g.Match(input); err == nil {
 			if included = !excluded; !included {
@@ -41,64 +42,93 @@ func IsIncluded(exclude []*glob.Glob, input string) (included bool) {
 			log.ErrorF("error matching: glob=%q; input=%q; err=%q", g.Pattern(), input, err)
 		}
 	}
+
+	// was not explicitly excluded
+	if included = len(include) == 0; included {
+		// and no include globs to constrain
+		return
+	}
+
+	// must be explicitly included
+
+	var err error
+	for _, i := range include {
+		if included, err = i.Match(input); err == nil && included {
+			return
+		} else {
+			log.ErrorF("error matching: glob=%q; input=%q; err=%q", i.Pattern(), input, err)
+		}
+	}
+
 	return
 }
 
-func FindAllIncluded(exclude []*glob.Glob, targets []string) (found []string) {
+func FindAllIncluded(targets []string, includeHidden bool, include, exclude []*glob.Glob) (found []string) {
 	for _, target := range targets {
 
 		if path.IsFile(target) {
-			if path.IsPlainText(target) && IsIncluded(exclude, target) {
+			// process file path
+			if !includeHidden && path.IsHidden(target) {
+				continue
+			} else if path.IsPlainText(target) && IsIncluded(include, exclude, target) {
 				found = append(found, target)
 			}
 		} else if path.IsDir(target) {
-			more, _ := path.ListAllFiles(target)
-			for _, file := range more {
-				if path.IsPlainText(file) && IsIncluded(exclude, file) {
+			// process dir path
+			files, _ := path.ListFiles(target, includeHidden)
+			for _, file := range files {
+				if !includeHidden && path.IsHidden(file) {
+					continue
+				} else if path.IsPlainText(file) && IsIncluded(include, exclude, file) {
 					found = append(found, file)
 				}
 			}
+			dirs, _ := path.ListDirs(target, includeHidden)
+			more := FindAllIncluded(dirs, includeHidden, include, exclude)
+			found = append(found, more...)
 		}
 
 	}
 	return
 }
 
-func FindAllMatcher(targets []string, exclude []*glob.Glob, fn FindAllMatchingFn, matcher FindAllMatcherFn) (files, matches []string) {
+func FindAllMatcher(targets []string, includeHidden bool, include, exclude []*glob.Glob, fn FindAllMatchingFn, matcher FindAllMatcherFn) (files, matches []string) {
 	if fn == nil {
-		fn = func(file string, matched bool) {}
+		fn = func(file string, matched bool, err error) {}
 	}
-	for _, file := range FindAllIncluded(exclude, targets) {
-		var matched bool
+	for _, file := range FindAllIncluded(targets, includeHidden, include, exclude) {
 		files = append(files, file)
-		if data, err := os.ReadFile(file); err == nil {
+		var err error
+		var data []byte
+		var matched bool
+		if data, err = os.ReadFile(file); err == nil {
 			if matched = matcher(data); matched {
 				matches = append(matches, file)
 			}
 		}
-		fn(file, matched)
+		fn(file, matched, err)
 	}
 	return
 }
 
-func FindAllMatchingString(search string, targets []string, exclude []*glob.Glob, fn FindAllMatchingFn) (files, matches []string) {
-	files, matches = FindAllMatcher(targets, exclude, fn, func(data []byte) (matched bool) {
+func FindAllMatchingString(search string, targets []string, includeHidden bool, include, exclude []*glob.Glob, fn FindAllMatchingFn) (files, matches []string) {
+	files, matches = FindAllMatcher(targets, includeHidden, include, exclude, fn, func(data []byte) (matched bool) {
 		matched = strings.Contains(string(data), search)
 		return
 	})
 	return
 }
 
-func FindAllMatchingStringInsensitive(search string, targets []string, exclude []*glob.Glob, fn FindAllMatchingFn) (files, matches []string) {
-	files, matches = FindAllMatcher(targets, exclude, fn, func(data []byte) (matched bool) {
+func FindAllMatchingStringInsensitive(search string, targets []string, includeHidden bool, include, exclude []*glob.Glob, fn FindAllMatchingFn) (files, matches []string) {
+	files, matches = FindAllMatcher(targets, includeHidden, include, exclude, fn, func(data []byte) (matched bool) {
 		matched = strings.Contains(strings.ToLower(string(data)), strings.ToLower(search))
 		return
 	})
 	return
 }
 
-func FindAllMatchingRegexp(search *regexp.Regexp, targets []string, exclude []*glob.Glob, fn FindAllMatchingFn) (files, matches []string) {
-	files, matches = FindAllMatcher(targets, exclude, fn, func(data []byte) (matched bool) {
+func FindAllMatchingRegexp(search *regexp.Regexp, targets []string, includeHidden bool, include, exclude []*glob.Glob, fn FindAllMatchingFn) (files, matches []string) {
+	files, matches = FindAllMatcher(targets, includeHidden, include, exclude, fn, func(data []byte) (matched bool) {
 		matched = search.Match(data)
 		return
 	})

@@ -77,7 +77,7 @@ func (i *Iterator) Replace() (original, modified string, delta *diff.Diff, err e
 	return
 }
 
-func (i *Iterator) Apply() (count int, unified string, err error) {
+func (i *Iterator) Apply() (count int, unified, backup string, err error) {
 	if !i.Valid() {
 		err = io.EOF
 		return
@@ -87,11 +87,11 @@ func (i *Iterator) Apply() (count int, unified string, err error) {
 		return
 	}
 	delta.KeepAll()
-	count, unified, err = i.ApplyChanges(delta)
+	count, unified, backup, err = i.ApplyChanges(delta)
 	return
 }
 
-func (i *Iterator) ApplyChanges(delta *diff.Diff) (count int, unified string, err error) {
+func (i *Iterator) ApplyChanges(delta *diff.Diff) (count int, unified, backup string, err error) {
 	if !i.Valid() {
 		err = io.EOF
 		return
@@ -108,24 +108,34 @@ func (i *Iterator) ApplyChanges(delta *diff.Diff) (count int, unified string, er
 	}
 	unified = delta.UnifiedEdits()
 
+	var backupExtension, backupSeparator string
+	if i.w.Backup {
+		if i.w.BackupExtension != "" {
+			backupSeparator = "."
+			backupExtension = i.w.BackupExtension
+		} else {
+			backupSeparator = DefaultBackupSeparator
+			backupExtension = DefaultBackupExtension
+		}
+	}
+
 	var fp fileperm.PermUser
 	if fp, err = fileperm.New(i.w.Matched[i.pos]); err != nil {
 		return
 	} else if !fp.UserWritable() {
 		err = errors.New("file write permission denied")
 		return
-	} else if i.w.DryRun {
+	} else if i.w.Nop {
+		if i.w.Backup { // simulate backup filename
+			for backup = path.BackupName(i.w.Matched[i.pos], backupExtension, backupSeparator); path.Exists(backup); {
+				backup = path.BackupName(backup, backupExtension, backupSeparator)
+			}
+		}
 		return
 	}
 
 	if i.w.Backup {
-		var extension string
-		if i.w.BackupExtension != "" {
-			extension = i.w.BackupExtension
-		} else {
-			extension = DefaultBackupExtension
-		}
-		err = path.BackupAndOverwrite(i.w.Matched[i.pos], extension, modified)
+		backup, err = path.BackupAndOverwrite(i.w.Matched[i.pos], modified, backupExtension, backupSeparator)
 		return
 	}
 

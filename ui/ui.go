@@ -84,7 +84,7 @@ func NewUI(name, usage, description, version, release, tag, title, ttyPath strin
 	c := u.App.CLI()
 	c.Version = version + " (" + release + ")"
 	c.ArgsUsage = ""
-	c.UsageText = name + " [options] <search> <replace> <path> [path...]"
+	c.UsageText = name + " [options] <search> <replace> [path...]"
 	c.HideHelpCommand = true
 	c.EnableBashCompletion = true
 	c.UseShortOptionHandling = true

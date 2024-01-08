@@ -20,6 +20,20 @@ import (
 	glob "github.com/ganbarodigital/go_glob"
 )
 
+type Globs []*glob.Glob
+
+func (g Globs) String() (list string) {
+	list += "["
+	for idx, gg := range g {
+		if idx > 0 {
+			list += ","
+		}
+		list += fmt.Sprintf("%q", gg.Pattern())
+	}
+	list += "]"
+	return
+}
+
 func ParseGlobs(patterns []string) (globs []*glob.Glob, err error) {
 	for _, pattern := range patterns {
 		g := glob.NewGlob(pattern)

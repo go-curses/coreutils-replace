@@ -10,7 +10,7 @@ require (
 	github.com/go-corelibs/path v1.0.1
 	github.com/go-curses/cdk v0.5.19
 	github.com/go-curses/ctk v0.5.11
-	github.com/urfave/cli/v2 v2.27.0
+	github.com/urfave/cli/v2 v2.27.1
 	github.com/wneessen/go-fileperm v0.2.1
 )
 

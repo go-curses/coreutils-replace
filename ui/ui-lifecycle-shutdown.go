@@ -49,11 +49,15 @@ func (u *CUI) shutdown(data []interface{}, argv ...interface{}) cenums.EventFlag
 		return cenums.EVENT_PASS
 	}
 
-	u.worker.Init(nil)
+	if tooMany := u.worker.InitTargets(nil); tooMany {
+		return cenums.EVENT_PASS
+	}
+
+	u.worker.FindMatching(nil)
 
 	if u.worker.Verbose {
 		var format string
-		if u.worker.DryRun {
+		if u.worker.Nop {
 			format = "# [nop] would replace"
 		} else {
 			format = "# replacing"
@@ -73,19 +77,25 @@ func (u *CUI) shutdown(data []interface{}, argv ...interface{}) cenums.EventFlag
 		)
 	}
 
-	for iter := u.worker.Start(); iter.Valid(); iter.Next() {
+	for iter := u.worker.StartIterating(); iter.Valid(); iter.Next() {
 		var count int
-		var unified string
+		var unified, backup string
 		var err error
-		if count, unified, err = iter.Apply(); err != nil {
+		if count, unified, backup, err = iter.Apply(); err != nil {
 			u.notifier.Error("# %q error: %v\n", err)
 			continue
 		}
 
-		if u.worker.DryRun {
-			u.notifier.Error("# [dry-run] would have made %d edits to: %v\n", count, iter.Name())
+		if u.worker.Nop {
+			if backup != "" {
+				u.notifier.Error("# [nop] would have backed up %q to %q\n", iter.Name(), backup)
+			}
+			u.notifier.Error("# [nop] would have made %d edits to: %q\n", count, iter.Name())
 		} else {
-			u.notifier.Error("# made %d edits to: %v\n", count, iter.Name())
+			if backup != "" {
+				u.notifier.Error("# backed up %q to %q\n", iter.Name(), backup)
+			}
+			u.notifier.Error("# made %d edits to: %q\n", count, iter.Name())
 		}
 
 		if u.worker.ShowDiff {

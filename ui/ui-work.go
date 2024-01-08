@@ -25,6 +25,7 @@ import (
 )
 
 const (
+	gFileError = `ℯ`
 	gFileMatch = `🗸`
 	gFileSkip  = `🗴`
 )
@@ -72,20 +73,14 @@ func (u *CUI) updateEditWorkStatus() {
 func (u *CUI) initWork() {
 	w, _ := u.Display.Screen().Size()
 	maxLen := math.FloorI((w/2)-2, 10)
-	u.worker.Init(func(file string, matched bool) {
-		var name string
-		if size := len(file); size > maxLen {
-			name = "..." + file[size-maxLen:]
-		} else {
-			name = file
-		}
-		if matched {
-			u.StatusLabel.SetLabel(gFileMatch + " " + name)
-		} else {
-			u.StatusLabel.SetLabel(gFileSkip + " " + name)
-		}
-		u.requestDrawAndShow()
-		time.Sleep(time.Millisecond * 10)
+	if tooMany := u.worker.InitTargets(func(file string, matched bool, err error) {
+		u.initWorkTarget(maxLen, file, matched, err)
+	}); tooMany {
+		u.requestQuit()
+		return
+	}
+	u.worker.FindMatching(func(file string, matched bool, err error) {
+		u.initWorkTarget(maxLen, file, matched, err)
 	})
 	u.StatusLabel.SetLabel("")
 	u.StateSpinner.StopSpinning()
@@ -93,26 +88,49 @@ func (u *CUI) initWork() {
 	u.startWork()
 }
 
+func (u *CUI) initWorkTarget(maxLen int, file string, matched bool, err error) {
+	var name string
+	if size := len(file); size > maxLen {
+		name = "..." + file[size-maxLen:]
+	} else {
+		name = file
+	}
+	if err != nil {
+		u.StatusLabel.SetLabel(gFileError + " " + err.Error())
+	} else if matched {
+		u.StatusLabel.SetLabel(gFileMatch + " " + name)
+	} else {
+		u.StatusLabel.SetLabel(gFileSkip + " " + name)
+	}
+	u.requestDrawAndShow()
+	time.Sleep(time.Millisecond * 10)
+}
+
 func (u *CUI) startWork() {
-	u.iter = u.worker.Start()
+	u.iter = u.worker.StartIterating()
 	if len(u.worker.Matched) > 0 {
 		u.processNextWork()
+		return
 	} else if len(u.worker.Files) > 0 {
 		u.MainLabel.SetText(fmt.Sprintf("no files have %q to replace!", u.worker.Search))
 	} else {
 		u.MainLabel.SetText("no files found")
 	}
+	u.requestDrawAndShow()
 	return
 }
 
 func (u *CUI) applyAndProcessNextWork() {
 	if u.iter != nil && u.delta != nil {
-		if u.worker.DryRun {
+		if u.worker.Nop {
 			u.notifier.Info(u.delta.UnifiedEdits())
 		} else {
-			if _, unified, err := u.iter.ApplyChanges(u.delta); err != nil {
+			if _, unified, backup, err := u.iter.ApplyChanges(u.delta); err != nil {
 				u.notifier.Error("# error applying changes to %q: %v", u.iter.Name(), err)
 			} else {
+				if u.worker.Verbose && backup != "" {
+					u.notifier.Error("# backed up %q to %q\n", u.iter.Name(), backup)
+				}
 				u.notifier.Info(unified)
 			}
 		}

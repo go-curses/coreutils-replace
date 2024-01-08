@@ -53,7 +53,7 @@ func (u *CUI) prepare(data []interface{}, argv ...interface{}) cenums.EventFlag 
 	} else {
 		u.worker = worker
 	}
-	log.DebugF("prepared worker=%v", u.worker)
+	log.DebugF("prepared worker=%v", u.worker.String())
 
 	if u.worker.Interactive {
 		log.DebugF("starting interactive rpl")

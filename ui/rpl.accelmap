@@ -1,8 +1,7 @@
 <rpl-window>/File/Edit = F2
 <rpl-window>/File/SkipEdit = F3
 <rpl-window>/File/KeepEdit = F4
-<rpl-window>/File/Skip = F7
-<rpl-window>/File/Keep = F8
+<rpl-window>/File/Skip = F8
 <rpl-window>/File/Apply = F9
 <rpl-window>/File/Quit = F10
 <rpl-window>/File/Exit = <CTRL>c

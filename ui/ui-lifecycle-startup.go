@@ -121,13 +121,13 @@ func (u *CUI) startup(data []interface{}, argv ...interface{}) cenums.EventFlag 
 		})
 		workButtonsArea.PackStart(u.KeepEditButton, false, false, 0)
 
-		u.SkipButton = ctk.NewButtonWithMnemonic("_Skip <F7>")
+		u.SkipButton = ctk.NewButtonWithMnemonic("_Skip <F8>")
 		u.SkipButton.Hide()
 		u.SkipButton.SetHasTooltip(true)
 		u.SkipButton.SetTooltipText("skip the selected changes and proceed")
 		u.SkipButton.Connect(ctk.SignalActivate, "rpl-skip-handler", func(data []interface{}, argv ...interface{}) cenums.EventFlag {
 			u.SkipButton.LogDebug("clicked")
-			u.WorkAccel.Activate(cdk.KeyF7, 0)
+			u.WorkAccel.Activate(cdk.KeyF8, 0)
 			return cenums.EVENT_PASS
 		})
 		workButtonsArea.PackStart(u.SkipButton, false, false, 0)

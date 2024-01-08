@@ -21,11 +21,8 @@ import (
 
 func MakeRegexp(search string, o *Worker) (rx *regexp.Regexp, err error) {
 
-	var rxFlags []string
+	rxFlags := []string{"m"} // always multi-line
 
-	if o.MultiLine {
-		rxFlags = append(rxFlags, "m")
-	}
 	if o.DotMatchNl {
 		rxFlags = append(rxFlags, "s")
 	}

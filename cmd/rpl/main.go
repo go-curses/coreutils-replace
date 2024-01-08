@@ -6,7 +6,7 @@ import (
 	"github.com/go-curses/cdk"
 	cstrings "github.com/go-curses/cdk/lib/strings"
 
-	"github.com/go-curses/corelibs/notify"
+	"github.com/go-corelibs/notify"
 
 	"github.com/go-curses/coreutils-replace/ui"
 )
@@ -34,7 +34,7 @@ var (
 	IncludeLogTimestamps      = "false"
 	IncludeLogTimestampFormat = "false"
 	IncludeLogOutput          = "false"
-	notifier                  *notify.Notifier
+	notifier                  notify.Notifier
 )
 
 func init() {
@@ -47,7 +47,7 @@ func init() {
 	cdk.Build.LogTimestamps = cstrings.IsTrue(IncludeLogTimestamps)
 	cdk.Build.LogTimestampFormat = cstrings.IsTrue(IncludeLogTimestampFormat)
 	cdk.Build.LogOutput = cstrings.IsTrue(IncludeLogOutput)
-	notifier = notify.New(notify.Info)
+	notifier = notify.New(notify.Info).Make()
 }
 
 func main() {

@@ -19,7 +19,8 @@ import (
 )
 
 var (
-	DefaultBackupExtension = ".bak"
+	DefaultBackupExtension = "~"
+	DefaultBackupSeparator = "~"
 )
 
 var (
@@ -29,37 +30,31 @@ var (
 		&cli.BoolFlag{
 			Category: "Configuration",
 			Name:     "nop",
-			Usage:    "report what would have otherwise been done",
 			Aliases:  []string{"n"},
 		},
 		&cli.BoolFlag{
 			Category: "Configuration",
 			Name:     "interactive",
-			Usage:    "selectively apply changes per file",
-			Aliases:  []string{"I"},
+			Aliases:  []string{"e"},
 		},
 		&cli.BoolFlag{
 			Category: "Configuration",
 			Name:     "backup",
-			Usage:    "make backups before replacing content",
 			Aliases:  []string{"b"},
 		},
 		&cli.StringFlag{
 			Category: "Configuration",
-			Name:     "bak",
-			Usage:    "specify the backup file suffix to use (implies -b)",
+			Name:     "backup-extension",
 			Aliases:  []string{"B"},
 		},
 		&cli.BoolFlag{
 			Category: "Configuration",
 			Name:     "show-diff",
-			Usage:    "include unified diffs of all changes in the output",
 			Aliases:  []string{"d"},
 		},
 		&cli.BoolFlag{
 			Category: "Configuration",
 			Name:     "ignore-case",
-			Usage:    "perform a case-insensitive search (literal or regex)",
 			Aliases:  []string{"i"},
 		},
 
@@ -67,38 +62,43 @@ var (
 		&cli.BoolFlag{
 			Category: "File Selection",
 			Name:     "recurse",
-			Usage:    "recurse into sub-directories",
 			Aliases:  []string{"r"},
 		},
 		&cli.BoolFlag{
 			Category: "File Selection",
 			Name:     "all",
-			Usage:    `include files that start with a "."`,
 			Aliases:  []string{"a"},
+		},
+		&cli.BoolFlag{
+			Category: "File Selection",
+			Name:     "null",
+			Aliases:  []string{"0"},
 		},
 		&cli.StringSliceFlag{
 			Category: "File Selection",
-			Name:     "x",
-			Usage:    "exclude files matching glob patterns",
+			Name:     "file",
+			Aliases:  []string{"f"},
+		},
+		&cli.StringSliceFlag{
+			Category: "File Selection",
+			Name:     "exclude",
+			Aliases:  []string{"X"},
+		},
+		&cli.StringSliceFlag{
+			Category: "File Selection",
+			Name:     "include",
+			Aliases:  []string{"I"},
 		},
 
 		// regular expressions
 		&cli.BoolFlag{
 			Category: "Expressions",
 			Name:     "regex",
-			Usage:    "search and replace arguments are regular expressions",
 			Aliases:  []string{"p"},
 		},
 		&cli.BoolFlag{
 			Category: "Expressions",
-			Name:     "multi-line",
-			Usage:    "set the multi-line (?m) regexp flag (implies -P)",
-			Aliases:  []string{"m"},
-		},
-		&cli.BoolFlag{
-			Category: "Expressions",
 			Name:     "dot-match-nl",
-			Usage:    "set the dot-match-nl (?s) regexp flag (implies -P)",
 			Aliases:  []string{"s"},
 		},
 
@@ -106,13 +106,11 @@ var (
 		&cli.BoolFlag{
 			Category: "General",
 			Name:     "quiet",
-			Usage:    "run silently, ignored if --nop is also used",
 			Aliases:  []string{"q"},
 		},
 		&cli.BoolFlag{
 			Category: "General",
 			Name:     "verbose",
-			Usage:    "run loudly, ignored if --quiet is also used",
 			Aliases:  []string{"v"},
 		},
 	}

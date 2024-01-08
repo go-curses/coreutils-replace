@@ -4,11 +4,11 @@ go 1.21.0
 
 require (
 	github.com/ganbarodigital/go_glob v1.0.0
+	github.com/go-corelibs/diff v1.0.2
+	github.com/go-corelibs/filewriter v1.0.1
+	github.com/go-corelibs/notify v1.0.2
+	github.com/go-corelibs/path v1.0.1
 	github.com/go-curses/cdk v0.5.19
-	github.com/go-curses/corelibs/diff v0.0.0-20231228181752-8fb18cee0baa
-	github.com/go-curses/corelibs/filewriter v0.0.0-20231229173315-2e62b18a16fb
-	github.com/go-curses/corelibs/notify v0.0.0-20231228181752-8fb18cee0baa
-	github.com/go-curses/corelibs/path v0.0.0-20231229173315-2e62b18a16fb
 	github.com/go-curses/ctk v0.5.11
 	github.com/urfave/cli/v2 v2.27.0
 	github.com/wneessen/go-fileperm v0.2.1
@@ -23,9 +23,8 @@ require (
 	github.com/felixge/fgprof v0.9.3 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/gdamore/encoding v1.0.0 // indirect
-	github.com/go-curses/corelibs/regexps v0.0.0-20231229173315-2e62b18a16fb // indirect
-	github.com/go-curses/corelibs/slices v0.0.0-20231229173315-2e62b18a16fb // indirect
-	github.com/go-curses/corelibs/strings v0.0.0-20231229173315-2e62b18a16fb // indirect
+	github.com/go-corelibs/maps v1.0.0 // indirect
+	github.com/go-corelibs/maths v1.0.0 // indirect
 	github.com/go-curses/term v1.2.2-gocurses.1 // indirect
 	github.com/go-curses/terminfo v1.1.0 // indirect
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
@@ -45,12 +44,12 @@ require (
 	github.com/pkg/profile v1.7.0 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
+	github.com/sergi/go-diff v1.3.1 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/tdewolff/parse/v2 v2.7.7 // indirect
 	github.com/tg123/go-htpasswd v1.2.2 // indirect
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2 // indirect
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
-	github.com/yookoala/realpath v1.0.0 // indirect
 	golang.org/x/crypto v0.17.0 // indirect
 	golang.org/x/exp v0.0.0-20231219180239-dc181d75b848 // indirect
 	golang.org/x/net v0.19.0 // indirect

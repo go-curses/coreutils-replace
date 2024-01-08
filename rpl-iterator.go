@@ -45,9 +45,7 @@ func (i *Iterator) Next() {
 }
 
 func (i *Iterator) Valid() (valid bool) {
-	if i != nil {
-		valid = i.pos >= 0 && i.pos < len(i.w.Matched)
-	}
+	valid = i != nil && i.pos >= 0 && i.pos < len(i.w.Matched)
 	return
 }
 

@@ -18,7 +18,7 @@ import (
 	"os"
 	"regexp"
 
-	"github.com/go-curses/corelibs/diff"
+	"github.com/go-corelibs/diff"
 )
 
 func ProcessTargetString(search, replace, target string) (original, modified string, delta *diff.Diff, err error) {

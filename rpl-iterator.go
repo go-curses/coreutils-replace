@@ -21,8 +21,8 @@ import (
 
 	"github.com/wneessen/go-fileperm"
 
-	"github.com/go-curses/corelibs/diff"
-	"github.com/go-curses/corelibs/path"
+	"github.com/go-corelibs/diff"
+	"github.com/go-corelibs/path"
 )
 
 type Iterator struct {

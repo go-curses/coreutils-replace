@@ -21,8 +21,8 @@ import (
 
 	glob "github.com/ganbarodigital/go_glob"
 
+	"github.com/go-corelibs/path"
 	"github.com/go-curses/cdk/log"
-	"github.com/go-curses/corelibs/path"
 )
 
 type FindAllMatcherFn func(data []byte) (matched bool)

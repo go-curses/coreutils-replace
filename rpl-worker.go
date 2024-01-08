@@ -23,9 +23,10 @@ import (
 	glob "github.com/ganbarodigital/go_glob"
 	"github.com/urfave/cli/v2"
 
+	"github.com/go-corelibs/filewriter"
+	"github.com/go-corelibs/notify"
+	"github.com/go-corelibs/path"
 	cenums "github.com/go-curses/cdk/lib/enums"
-	"github.com/go-curses/corelibs/filewriter"
-	"github.com/go-curses/corelibs/notify"
 )
 
 type Worker struct {
@@ -56,13 +57,13 @@ type Worker struct {
 	Files   []string
 	Matched []string
 
-	Notifier *notify.Notifier
+	Notifier notify.Notifier
 
-	fwo filewriter.Writer
-	fwe filewriter.Writer
+	fwo filewriter.FileWriter
+	fwe filewriter.FileWriter
 }
 
-func MakeWorker(ctx *cli.Context, notifier *notify.Notifier) (w *Worker, eventFlag cenums.EventFlag, err error) {
+func MakeWorker(ctx *cli.Context, notifier notify.Notifier) (w *Worker, eventFlag cenums.EventFlag, err error) {
 	w = &Worker{
 		Regex:           ctx.Bool("regex"),
 		MultiLine:       ctx.Bool("multi-line"),
@@ -112,14 +113,16 @@ func MakeWorker(ctx *cli.Context, notifier *notify.Notifier) (w *Worker, eventFl
 			o = os.Stderr
 		} else {
 			// can't actually write to stderr because it's likely to the same terminal as curses
-			if w.fwo, err = filewriter.NewTempFileWriter(fmt.Sprintf("rpl-%d-*.out", os.Getpid())); err != nil {
+			pattern := fmt.Sprintf("rpl-%d-*.out", os.Getpid())
+			if w.fwo, err = filewriter.New().UseTemp(pattern).Make(); err != nil {
 				err = fmt.Errorf("error making new stdout temp file writer: %w", err)
 				return
 			}
 			o = w.fwo
 		}
 		// stderr is always to a temp file when interactive
-		if w.fwe, err = filewriter.NewTempFileWriter(fmt.Sprintf("rpl-%d-*.err", os.Getpid())); err != nil {
+		pattern := fmt.Sprintf("rpl-%d-*.err", os.Getpid())
+		if w.fwe, err = filewriter.New().UseTemp(pattern).Make(); err != nil {
 			err = fmt.Errorf("error making new stderr temp file writer: %w", err)
 			return
 		}
@@ -128,7 +131,6 @@ func MakeWorker(ctx *cli.Context, notifier *notify.Notifier) (w *Worker, eventFl
 		o = os.Stdout
 		e = os.Stderr
 	}
-	w.Notifier.Set(level, o, e)
 
 	if patterns := ctx.StringSlice("x"); len(patterns) > 0 {
 		for _, pattern := range patterns {

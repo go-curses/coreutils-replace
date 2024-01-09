@@ -32,7 +32,9 @@ import (
 )
 
 var (
-	MaxFileCount = 10000
+	MaxFileCount   = 10000
+	TempErrPattern = fmt.Sprintf("rpl-%d.*.err", os.Getpid())
+	TempOutPattern = fmt.Sprintf("rpl-%d.*.out", os.Getpid())
 )
 
 var (
@@ -79,20 +81,20 @@ type Worker struct {
 
 func MakeWorker(ctx *cli.Context, notifier notify.Notifier) (w *Worker, eventFlag cenums.EventFlag, err error) {
 	w = &Worker{
-		Regex:           ctx.Bool("regex") || ctx.Bool("dot-match-nl"),
-		DotMatchNl:      ctx.Bool("dot-match-nl"),
-		Recurse:         ctx.Bool("recurse"),
-		Nop:             ctx.Bool("nop"),
-		All:             ctx.Bool("all"),
-		IgnoreCase:      ctx.Bool("ignore-case"),
-		Backup:          ctx.Bool("backup") || ctx.String("backup-extension") != "",
-		BackupExtension: ctx.String("backup-extension"),
-		ShowDiff:        ctx.Bool("show-diff"),
-		Interactive:     ctx.Bool("interactive"),
-		Quiet:           ctx.Bool("quiet"),
-		Verbose:         ctx.Bool("verbose"),
-		Null:            ctx.Bool("null"),
-		AddFile:         ctx.StringSlice("file"),
+		Regex:           ctx.Bool(RegexFlag) || ctx.Bool(DotMatchNlFlag),
+		DotMatchNl:      ctx.Bool(DotMatchNlFlag),
+		Recurse:         ctx.Bool(RecurseFlag),
+		Nop:             ctx.Bool(NopFlag),
+		All:             ctx.Bool(AllFlag),
+		IgnoreCase:      ctx.Bool(IgnoreCaseFlag),
+		Backup:          ctx.Bool(BackupFlag) || ctx.String(BackupExtensionFlag) != "",
+		BackupExtension: ctx.String(BackupExtensionFlag),
+		ShowDiff:        ctx.Bool(ShowDiffFlag),
+		Interactive:     ctx.Bool(InteractiveFlag),
+		Quiet:           ctx.Bool(QuietFlag),
+		Verbose:         ctx.Bool(VerboseFlag),
+		Null:            ctx.Bool(NullFlag),
+		AddFile:         ctx.StringSlice(FileFlag),
 		Context:         ctx,
 		Argv:            ctx.Args().Slice(),
 		Argc:            ctx.NArg(),
@@ -117,7 +119,7 @@ func MakeWorker(ctx *cli.Context, notifier notify.Notifier) (w *Worker, eventFla
 			w.Paths = w.Argv[2:]
 		}
 	}
-	if len(w.Paths) == 0 && !ctx.IsSet("file") {
+	if len(w.Paths) == 0 && !ctx.IsSet(FileFlag) {
 		w.Paths = []string{"."}
 	}
 
@@ -134,9 +136,9 @@ func MakeWorker(ctx *cli.Context, notifier notify.Notifier) (w *Worker, eventFla
 
 func (w *Worker) init(ctx *cli.Context) (err error) {
 
-	if w.Exclude, err = ParseGlobs(ctx.StringSlice("exclude")); err != nil {
+	if w.Exclude, err = ParseGlobs(ctx.StringSlice(ExcludeFlag)); err != nil {
 		return
-	} else if w.Include, err = ParseGlobs(ctx.StringSlice("include")); err != nil {
+	} else if w.Include, err = ParseGlobs(ctx.StringSlice(IncludeFlag)); err != nil {
 		return
 	}
 
@@ -166,16 +168,14 @@ func (w *Worker) init(ctx *cli.Context) (err error) {
 			o = os.Stderr
 		} else {
 			// can't actually write to stderr because it's likely to the same terminal as curses
-			pattern := fmt.Sprintf("rpl-%d-*.out", os.Getpid())
-			if w.fwo, err = filewriter.New().UseTemp(pattern).Make(); err != nil {
+			if w.fwo, err = filewriter.New().UseTemp(TempOutPattern).Make(); err != nil {
 				err = fmt.Errorf("error making new stdout temp file writer: %w", err)
 				return
 			}
 			o = w.fwo
 		}
 		// stderr is always to a temp file when interactive
-		pattern := fmt.Sprintf("rpl-%d-*.err", os.Getpid())
-		if w.fwe, err = filewriter.New().UseTemp(pattern).Make(); err != nil {
+		if w.fwe, err = filewriter.New().UseTemp(TempErrPattern).Make(); err != nil {
 			err = fmt.Errorf("error making new stderr temp file writer: %w", err)
 			return
 		}

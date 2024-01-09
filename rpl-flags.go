@@ -23,94 +23,113 @@ var (
 	DefaultBackupSeparator = "~"
 )
 
+const (
+	NopFlag             = "nop"
+	InteractiveFlag     = "interactive"
+	BackupFlag          = "backup"
+	BackupExtensionFlag = "backupExtension"
+	ShowDiffFlag        = "showDiff"
+	IgnoreCaseFlag      = "ignoreCase"
+	RecurseFlag         = "recurse"
+	AllFlag             = "all"
+	NullFlag            = "null"
+	FileFlag            = "file"
+	ExcludeFlag         = "exclude"
+	IncludeFlag         = "include"
+	RegexFlag           = "regex"
+	DotMatchNlFlag      = "dotMatchNl"
+	QuietFlag           = "quiet"
+	VerboseFlag         = "verbose"
+)
+
 var (
 	CliFlags = []cli.Flag{
 
 		// configurations
 		&cli.BoolFlag{
 			Category: "Configuration",
-			Name:     "nop",
+			Name:     NopFlag,
 			Aliases:  []string{"n"},
 		},
 		&cli.BoolFlag{
 			Category: "Configuration",
-			Name:     "interactive",
+			Name:     InteractiveFlag,
 			Aliases:  []string{"e"},
 		},
 		&cli.BoolFlag{
 			Category: "Configuration",
-			Name:     "backup",
+			Name:     BackupFlag,
 			Aliases:  []string{"b"},
 		},
 		&cli.StringFlag{
 			Category: "Configuration",
-			Name:     "backup-extension",
+			Name:     BackupExtensionFlag,
 			Aliases:  []string{"B"},
 		},
 		&cli.BoolFlag{
 			Category: "Configuration",
-			Name:     "show-diff",
+			Name:     ShowDiffFlag,
 			Aliases:  []string{"d"},
 		},
 		&cli.BoolFlag{
 			Category: "Configuration",
-			Name:     "ignore-case",
+			Name:     IgnoreCaseFlag,
 			Aliases:  []string{"i"},
 		},
 
 		// file selection things
 		&cli.BoolFlag{
 			Category: "File Selection",
-			Name:     "recurse",
+			Name:     RecurseFlag,
 			Aliases:  []string{"r"},
 		},
 		&cli.BoolFlag{
 			Category: "File Selection",
-			Name:     "all",
+			Name:     AllFlag,
 			Aliases:  []string{"a"},
 		},
 		&cli.BoolFlag{
 			Category: "File Selection",
-			Name:     "null",
+			Name:     NullFlag,
 			Aliases:  []string{"0"},
 		},
 		&cli.StringSliceFlag{
 			Category: "File Selection",
-			Name:     "file",
+			Name:     FileFlag,
 			Aliases:  []string{"f"},
 		},
 		&cli.StringSliceFlag{
 			Category: "File Selection",
-			Name:     "exclude",
+			Name:     ExcludeFlag,
 			Aliases:  []string{"X"},
 		},
 		&cli.StringSliceFlag{
 			Category: "File Selection",
-			Name:     "include",
+			Name:     IncludeFlag,
 			Aliases:  []string{"I"},
 		},
 
 		// regular expressions
 		&cli.BoolFlag{
 			Category: "Expressions",
-			Name:     "regex",
+			Name:     RegexFlag,
 			Aliases:  []string{"p"},
 		},
 		&cli.BoolFlag{
 			Category: "Expressions",
-			Name:     "dot-match-nl",
+			Name:     DotMatchNlFlag,
 			Aliases:  []string{"s"},
 		},
 
 		// general flags
 		&cli.BoolFlag{
 			Category: "General",
-			Name:     "quiet",
+			Name:     QuietFlag,
 			Aliases:  []string{"q"},
 		},
 		&cli.BoolFlag{
 			Category: "General",
-			Name:     "verbose",
+			Name:     VerboseFlag,
 			Aliases:  []string{"v"},
 		},
 	}

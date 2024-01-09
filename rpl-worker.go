@@ -27,6 +27,7 @@ import (
 	"github.com/go-corelibs/filewriter"
 	"github.com/go-corelibs/notify"
 	"github.com/go-corelibs/path"
+	"github.com/go-corelibs/scanners"
 	cenums "github.com/go-curses/cdk/lib/enums"
 )
 
@@ -229,7 +230,7 @@ func (w *Worker) InitTargets(fn FindAllMatchingFn) (tooMany bool) {
 	// scan and add any "additional files" given
 	for _, target := range w.AddFile {
 		var ee error
-		if tooMany, ee = ScanFileLines(target, func(line string) (stop bool) {
+		if tooMany, ee = scanners.ScanFileLines(target, func(line string) (stop bool) {
 			stop = add(line)
 			return
 		}); ee != nil {
@@ -241,13 +242,13 @@ func (w *Worker) InitTargets(fn FindAllMatchingFn) (tooMany bool) {
 	if w.Stdin {
 		if w.Null {
 			// using null-terminated paths
-			tooMany = ScanNulls(os.Stdin, func(line string) (stop bool) {
+			tooMany = scanners.ScanNulls(os.Stdin, func(line string) (stop bool) {
 				stop = add(line)
 				return
 			})
 		} else {
 			// using one path per line
-			tooMany = ScanLines(os.Stdin, func(line string) (stop bool) {
+			tooMany = scanners.ScanLines(os.Stdin, func(line string) (stop bool) {
 				stop = add(line)
 				return
 			})

@@ -74,13 +74,13 @@ func (u *CUI) initWork() {
 	w, _ := u.Display.Screen().Size()
 	maxLen := math.FloorI((w/2)-2, 10)
 	if tooMany := u.worker.InitTargets(func(file string, matched bool, err error) {
-		u.initWorkTarget(maxLen, file, matched, err)
+		u.initWorkUpdateStatus(maxLen, file, matched, err)
 	}); tooMany {
 		u.requestQuit()
 		return
 	}
 	u.worker.FindMatching(func(file string, matched bool, err error) {
-		u.initWorkTarget(maxLen, file, matched, err)
+		u.initWorkUpdateStatus(maxLen, file, matched, err)
 	})
 	u.StatusLabel.SetLabel("")
 	u.StateSpinner.StopSpinning()
@@ -88,7 +88,7 @@ func (u *CUI) initWork() {
 	u.startWork()
 }
 
-func (u *CUI) initWorkTarget(maxLen int, file string, matched bool, err error) {
+func (u *CUI) initWorkUpdateStatus(maxLen int, file string, matched bool, err error) {
 	var name string
 	if size := len(file); size > maxLen {
 		name = "..." + file[size-maxLen:]

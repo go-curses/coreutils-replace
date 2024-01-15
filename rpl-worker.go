@@ -15,58 +15,52 @@
 package replace
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 	"regexp"
 
-	"github.com/urfave/cli/v2"
-
 	"github.com/go-corelibs/filewriter"
+	"github.com/go-corelibs/globs"
 	"github.com/go-corelibs/notify"
 	"github.com/go-corelibs/path"
 	"github.com/go-corelibs/scanners"
-	cenums "github.com/go-curses/cdk/lib/enums"
-)
-
-var (
-	MaxFileCount   = 10000
-	TempErrPattern = fmt.Sprintf("rpl-%d.*.err", os.Getpid())
-	TempOutPattern = fmt.Sprintf("rpl-%d.*.out", os.Getpid())
-)
-
-var (
-	ErrNotFound = errors.New("not found")
 )
 
 type Worker struct {
 	Regex           bool
+	MultiLine       bool
 	DotMatchNl      bool
 	Recurse         bool
 	Nop             bool
 	All             bool
 	IgnoreCase      bool
+	PreserveCase    bool
+	BinAsText       bool
+	RelativePath    string
 	Backup          bool
 	BackupExtension string
+	NoLimits        bool
 	ShowDiff        bool
 	Interactive     bool
+	Pause           bool
 	Quiet           bool
 	Verbose         bool
 
-	Context *cli.Context
-	Argv    []string
-	Argc    int
+	Argv []string
+	Argc int
 
-	Search  string
-	Pattern *regexp.Regexp
-	Replace string
-	Stdin   bool
-	Null    bool
-	AddFile []string
-	Include Globs
-	Exclude Globs
+	Search      string
+	Pattern     *regexp.Regexp
+	Replace     string
+	Stdin       bool
+	Null        bool
+	AddFile     []string
+	Include     globs.Globs
+	IncludeArgs []string
+	Exclude     globs.Globs
+	ExcludeArgs []string
 
 	Paths   []string
 	Targets []string
@@ -77,78 +71,43 @@ type Worker struct {
 
 	fwo filewriter.FileWriter
 	fwe filewriter.FileWriter
+
+	initLookup map[string]struct{}
 }
 
-func MakeWorker(ctx *cli.Context, notifier notify.Notifier) (w *Worker, eventFlag cenums.EventFlag, err error) {
-	w = &Worker{
-		Regex:           ctx.Bool(RegexFlag) || ctx.Bool(DotMatchNlFlag),
-		DotMatchNl:      ctx.Bool(DotMatchNlFlag),
-		Recurse:         ctx.Bool(RecurseFlag),
-		Nop:             ctx.Bool(NopFlag),
-		All:             ctx.Bool(AllFlag),
-		IgnoreCase:      ctx.Bool(IgnoreCaseFlag),
-		Backup:          ctx.Bool(BackupFlag) || ctx.String(BackupExtensionFlag) != "",
-		BackupExtension: ctx.String(BackupExtensionFlag),
-		ShowDiff:        ctx.Bool(ShowDiffFlag),
-		Interactive:     ctx.Bool(InteractiveFlag),
-		Quiet:           ctx.Bool(QuietFlag),
-		Verbose:         ctx.Bool(VerboseFlag),
-		Null:            ctx.Bool(NullFlag),
-		AddFile:         ctx.StringSlice(FileFlag),
-		Context:         ctx,
-		Argv:            ctx.Args().Slice(),
-		Argc:            ctx.NArg(),
-		Notifier:        notifier,
-	}
-
-	if err = w.init(ctx); err != nil {
+func (w *Worker) getBackupExtension() (extension string) {
+	if extension = w.BackupExtension; extension != "" {
 		return
 	}
+	extension = DefaultBackupExtension
+	return
+}
 
-	if w.Argc < 2 {
-		cli.ShowAppHelpAndExit(ctx, 1)
-		eventFlag = cenums.EVENT_STOP
-		return
-	}
-
-	w.Search, w.Replace = w.Argv[0], w.Argv[1]
-	if w.Argc > 2 {
-		if w.Stdin = w.Argv[2] == "-"; w.Stdin {
-			w.Paths = w.Argv[3:]
-		} else {
-			w.Paths = w.Argv[2:]
-		}
-	}
-	if len(w.Paths) == 0 && !ctx.IsSet(FileFlag) {
-		w.Paths = []string{"."}
-	}
+func (w *Worker) Init() (err error) {
 
 	if w.Regex {
-		if w.Pattern, err = MakeRegexp(w.Search, w); err != nil {
+		if w.Pattern, err = MakeRegexp(w.Search, w.MultiLine, w.DotMatchNl, w.IgnoreCase); err != nil {
 			err = fmt.Errorf("error compiling %q: %w", w.Search, err)
-			eventFlag = cenums.EVENT_STOP
 			return
 		}
 	}
 
-	return
-}
-
-func (w *Worker) init(ctx *cli.Context) (err error) {
-
-	if w.Exclude, err = ParseGlobs(ctx.StringSlice(ExcludeFlag)); err != nil {
+	if w.Exclude, err = globs.Parse(w.ExcludeArgs...); err != nil {
+		err = fmt.Errorf("--exclude %w", err)
 		return
-	} else if w.Include, err = ParseGlobs(ctx.StringSlice(IncludeFlag)); err != nil {
+	} else if w.Include, err = globs.Parse(w.IncludeArgs...); err != nil {
+		err = fmt.Errorf("--include %w", err)
 		return
 	}
 
 	if !w.All {
-		more, _ := ParseGlobs([]string{"*~"})
+		more, _ := globs.Parse("*" + w.getBackupExtension())
 		w.Exclude = append(w.Exclude, more...)
 	}
 
 	var o, e io.Writer
 	var level notify.Level
+
 	if w.Quiet {
 		w.Verbose = false
 		level = notify.Quiet
@@ -157,117 +116,154 @@ func (w *Worker) init(ctx *cli.Context) (err error) {
 	} else {
 		level = notify.Info
 	}
+
 	if w.Interactive {
-		// stdout is in use by curses, so if os.Stderr is piped, use that, otherwise write to a temp file
+		// stdout is in use by curses, so the idea of stderr becomes the
+		// notifier stdout with the notifier stderr always a temp file; if the
+		// actual os.Stderr is a named pipe, use that for the notifier stdout,
+		// otherwise use a temp file. Using the named pipe mode allows the
+		// diffs to be output while the UI is doing stuff, which is nice
 		var stat os.FileInfo
-		if stat, err = os.Stderr.Stat(); err != nil {
-			err = fmt.Errorf("error calling os.Stderr.Stat: %w", err)
-			return
-		} else if stat.Mode()&os.ModeNamedPipe != 0 {
-			// user has piped the output of Stderr
-			o = os.Stderr
-		} else {
-			// can't actually write to stderr because it's likely to the same terminal as curses
+		if stat, err = os.Stderr.Stat(); err == nil {
+			if stat.Mode()&os.ModeNamedPipe != 0 {
+				// user has piped the output of Stderr
+				o = os.Stderr
+			}
+		}
+
+		if o == nil {
 			if w.fwo, err = filewriter.New().UseTemp(TempOutPattern).Make(); err != nil {
-				err = fmt.Errorf("error making new stdout temp file writer: %w", err)
+				err = fmt.Errorf("stdout filewriter error: %w", err)
 				return
 			}
 			o = w.fwo
 		}
+
 		// stderr is always to a temp file when interactive
 		if w.fwe, err = filewriter.New().UseTemp(TempErrPattern).Make(); err != nil {
-			err = fmt.Errorf("error making new stderr temp file writer: %w", err)
+			err = fmt.Errorf("stderr filewriter error: %w", err)
 			return
 		}
 		e = w.fwe
+
 	} else {
 		o = os.Stdout
 		e = os.Stderr
 	}
 
-	w.Notifier.ModifyLevel(level).
-		ModifyOut(o).
-		ModifyErr(e)
+	if w.Notifier == nil {
+		w.Notifier = notify.New(level).
+			SetOut(o).
+			SetErr(e).
+			Make()
+	} else {
+		w.Notifier.
+			ModifyLevel(level).
+			ModifyOut(o).
+			ModifyErr(e)
+	}
+
+	if w.NoLimits && !w.Quiet {
+		w.Notifier.Error("%s\n", gNoLimitsWarning)
+	}
 
 	return
 }
 
-func (w *Worker) InitTargets(fn FindAllMatchingFn) (tooMany bool) {
+func (w *Worker) addTargetFile(target string) (tooMany bool, err error) {
+	var resolved string
+
+	if resolved, err = filepath.Abs(target); err != nil {
+		err = fmt.Errorf("%q - %w", target, err)
+		return
+	}
+
+	if w.RelativePath != "" {
+		if w.RelativePath == "." {
+			if w.RelativePath, err = os.Getwd(); err != nil {
+				err = fmt.Errorf("%q - %w", target, err)
+				return
+			}
+		}
+		if resolved, err = filepath.Rel(w.RelativePath, resolved); err != nil {
+			err = fmt.Errorf("%q - %w", target, err)
+			return
+		}
+	}
+
+	if _, present := w.initLookup[resolved]; !present {
+		if path.Exists(resolved) {
+			w.initLookup[resolved] = struct{}{}
+			w.Targets = append(w.Targets, resolved)
+		} else {
+			err = fmt.Errorf("%w: %q", ErrNotFound, resolved)
+			return
+		}
+	}
+	tooMany = !w.NoLimits && len(w.Targets) > MaxFileCount
+	return
+}
+
+func (w *Worker) scanTargetFn(line string) (stop bool) {
+	var eee error
+	if stop, eee = w.addTargetFile(line); eee != nil {
+		w.Notifier.Error("# error: %v\n", eee)
+	}
+	return
+}
+
+func (w *Worker) InitTargets(fn FindAllMatchingFn) (err error) {
 	if fn == nil {
 		fn = func(file string, matched bool, err error) {}
 	}
 
-	lookup := make(map[string]struct{})
-	add := func(target string) (tooMany bool) {
-		if abs, err := filepath.Abs(target); err == nil {
-			if _, present := lookup[abs]; !present {
-				if path.Exists(abs) {
-					lookup[abs] = struct{}{}
-					w.Targets = append(w.Targets, abs)
-					//w.Notifier.Error("# does exist: %q\n", abs)
-				} else {
-					fn(abs, false, ErrNotFound)
-					if w.Verbose {
-						w.Notifier.Error("# does not exist: %q\n", abs)
-					}
-				}
-			}
-		} else {
-			fn(target, false, err)
-			if w.Verbose {
-				w.Notifier.Error("# invalid path: %q: %s\n", abs, err)
-			}
-		}
-		tooMany = len(w.Targets) > MaxFileCount
-		return
-	}
+	w.initLookup = make(map[string]struct{})
 
 	// add any path arguments given
 	for _, target := range w.Paths {
-		add(target)
+		if tooMany, ee := w.addTargetFile(target); tooMany {
+			return ErrTooManyFiles
+		} else if ee != nil {
+			if fn(target, false, err); w.Verbose {
+				w.Notifier.Error("# error: %v\n", ee)
+			}
+		}
 	}
 
 	// scan and add any "additional files" given
 	for _, target := range w.AddFile {
-		var ee error
-		if tooMany, ee = scanners.ScanFileLines(target, func(line string) (stop bool) {
-			stop = add(line)
-			return
-		}); ee != nil {
+		if stopped, ee := scanners.ScanFileLines(target, w.scanTargetFn); ee != nil {
 			w.Notifier.Error("# error scanning --file %q: %v", target, ee)
+		} else if stopped {
+			return ErrTooManyFiles
 		}
 	}
 
-	// scan and add from os.Stdin
 	if w.Stdin {
+		// scan and add from os.Stdin
 		if w.Null {
 			// using null-terminated paths
-			tooMany = scanners.ScanNulls(os.Stdin, func(line string) (stop bool) {
-				stop = add(line)
-				return
-			})
+			if scanners.ScanNulls(os.Stdin, w.scanTargetFn) {
+				return ErrTooManyFiles
+			}
 		} else {
 			// using one path per line
-			tooMany = scanners.ScanLines(os.Stdin, func(line string) (stop bool) {
-				stop = add(line)
-				return
-			})
+			if scanners.ScanLines(os.Stdin, w.scanTargetFn) {
+				return ErrTooManyFiles
+			}
 		}
 	}
 
-	if tooMany {
-		w.Notifier.Error("# error: too many files, try batches of %d or less\n", MaxFileCount)
-	}
 	return
 }
 
-func (w *Worker) FindMatching(fn FindAllMatchingFn) {
+func (w *Worker) FindMatching(fn FindAllMatchingFn) (err error) {
 	if w.Regex {
-		w.Files, w.Matched = FindAllMatchingRegexp(w.Pattern, w.Targets, w.All, w.Include, w.Exclude, fn)
-	} else if w.IgnoreCase {
-		w.Files, w.Matched = FindAllMatchingStringInsensitive(w.Search, w.Targets, w.All, w.Include, w.Exclude, fn)
+		w.Files, w.Matched, err = FindAllMatchingRegexp(w.Pattern, w.Targets, w.All, w.NoLimits, w.BinAsText, w.Include, w.Exclude, fn)
+	} else if w.PreserveCase || w.IgnoreCase {
+		w.Files, w.Matched, err = FindAllMatchingStringInsensitive(w.Search, w.Targets, w.All, w.NoLimits, w.BinAsText, w.Include, w.Exclude, fn)
 	} else {
-		w.Files, w.Matched = FindAllMatchingString(w.Search, w.Targets, w.All, w.Include, w.Exclude, fn)
+		w.Files, w.Matched, err = FindAllMatchingString(w.Search, w.Targets, w.All, w.NoLimits, w.BinAsText, w.Include, w.Exclude, fn)
 	}
 	return
 }
@@ -295,11 +291,15 @@ func (w *Worker) FileWriterErr() (fwe filewriter.FileWriter) {
 func (w *Worker) String() (s string) {
 	s += "Worker{"
 	s += fmt.Sprintf("regex=%v;", w.Regex)
+	s += fmt.Sprintf("multiLine=%v;", w.MultiLine)
 	s += fmt.Sprintf("dotMatchNl=%v;", w.DotMatchNl)
 	s += fmt.Sprintf("recurse=%v;", w.Recurse)
 	s += fmt.Sprintf("nop=%v;", w.Nop)
 	s += fmt.Sprintf("all=%v;", w.All)
 	s += fmt.Sprintf("ignoreCase=%v;", w.IgnoreCase)
+	s += fmt.Sprintf("preserveCase=%v;", w.PreserveCase)
+	s += fmt.Sprintf("binAsText=%v;", w.BinAsText)
+	s += fmt.Sprintf("noLimits=%v;", w.NoLimits)
 	s += fmt.Sprintf("backup=%v;", w.Backup)
 	s += fmt.Sprintf("backupExtension=%v;", w.BackupExtension)
 	s += fmt.Sprintf("showDiff=%v;", w.ShowDiff)

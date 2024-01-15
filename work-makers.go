@@ -19,14 +19,17 @@ import (
 	"strings"
 )
 
-func MakeRegexp(search string, o *Worker) (rx *regexp.Regexp, err error) {
+func MakeRegexp(search string, multiLine, dotMatchNl, ignoreCase bool) (rx *regexp.Regexp, err error) {
 
-	rxFlags := []string{"m"} // always multi-line
+	var rxFlags []string
 
-	if o.DotMatchNl {
+	if multiLine {
+		rxFlags = append(rxFlags, "m")
+	}
+	if dotMatchNl {
 		rxFlags = append(rxFlags, "s")
 	}
-	if o.IgnoreCase {
+	if ignoreCase {
 		rxFlags = append(rxFlags, "i")
 	}
 

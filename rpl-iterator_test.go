@@ -97,7 +97,7 @@ func TestIterator(t *testing.T) {
 		So(iter.Valid(), ShouldEqual, false)
 		So(iter.Pos(), ShouldEqual, len(w.Matched))
 
-		original, modified, count, delta, err = iter.Replace()
+		_, _, _, _, err = iter.Replace()
 		So(err, ShouldEqual, io.EOF)
 	})
 }

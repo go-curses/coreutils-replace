@@ -1,3 +1,58 @@
+replace (0.9.0) unstable; urgency=medium
+
+  * tagged v0.9.0 release build - 54d8df895411dcce17770c611f0a3d50f1a50036
+  * upstream changes:
+   * 54d8df8 README.md: updated for v0.9.0 release; added go and reportcard badges
+   * fb21e0a Makefile,cmd: setting version to v0.9.0
+   * 22a3940 go.mod: cdk v0.5.20; ctk v0.5.12; all modules updated; tidy
+   * 8d19a3e ui: reduce gocyclo count for shutdown handler
+   * 0ad72a3 Worker: reduce gocyclo count for Init
+   * d6f16a0 Iterator (test); cleanup ineffassigns
+   * 7be30d2 Makefile: set coverage.* for CLEAN_FILES
+   * 91749cf .gitignore: added /coverage.*
+   * 9c6fa48 Makefile: updates for main.AppVersion and main.AppRelease variable name changes
+   * 910f795 Golang.cmd.mk: updated to v0.1.8
+   * ccc1b7a Golang.cdk.mk: updated to v0.1.2
+   * 84b63f7 Golang.lib.mk: updated to v0.1.3
+   * 5a5a1d7 cmd: renamed variables to be more Go-centric (CamelCased); implemented cdk profiling support; implemented rudimentary panic recovery; remove old Include* build flags; wrote large section of documentation with many example rpl use cases; code cosmetic changes
+   * 8bca062 ui: majore refactoring, updates for latest replace changes; implement a file listing splash stage (use --pause to stop there); major UI cleanups; better error handling; renamed buttons and UI elements; renamed main label to top label and added a footer label; break out UI label updaters to their own funcs and ui-updaters.go file; -h is now --usage and --help (no alias) is complete documentation; better flag name handling; implemented new preserve-case mode; code and UI cosmetic changes
+   * 89d935f replace (tests): partial (82%) test coverage
+   * 2e31572 replace: major refactoring; migrate to go-corelibs/{replace,globs}; implement better change counts; implement --preserve-case; reanmed Apply to ApplyAll, ApplyChanges to ApplySpecific(delta); if no --file and no paths in argv, auto-include . path; better backup filename handling; deduplicate code; catch too-many files cases; better binary file detection; better file search error messaging; --regex is now applied per-line-per-file, re-implement --multi-line which changes regex mode to (?m) and operates on the entire file; code cosmetic changes
+   * f41c0e6 rpl,ui (flags): moved flags to ui package; split flags to named instances; added categories to all flags; update cdk flag categories; implement a cli.FlagStringer to carve up the --help flags output
+   * 477aef5 rpl (path globs): purge old globs parser func which was migrated to go-corelibs/globs
+   * bdcf575 work: purge old process and replace functions which were migrated to go-corelibs/replace
+   * 3d66f13 _testing: added stress-test files
+   * c352d80 ui (work): rename initWorkTarget to initWorkUpdateStatus for clarity
+   * da1db75 rpl (worker): extract TempOutPattern and TempErrPattern globals
+   * 1827a2d rpl: migrate Scan{Nulls,Lines,FileLenes} to github.com/go-corelibs/scanners; purge old code
+   * eaabda4 go.mod: cli v2.27.1; tidy
+   * 24ebbe3 go.mod: migrate to go-corelibs official; tidy
+   * ffc3e66 cmd,ui,replace: gofmt -s; goimports
+   * f8f6e77 ui: clarify tooltip messaging
+   * ae12704 ui: change skip button F7 to F8; remove Keep button because only Apply (no longer batching up all changes in memory for global approval); updates for latest replace.Worker changes; if --verbose, notify backup file names; on startup indiciate find errors in status label; code cosmetic changes
+   * 05fe9cc ui: update UsageText to indicate paths are optional
+   * d869b45 ui (help.tmpl): completely rewritten, includes lots of examples, all flags updated
+   * 0703d80 work (makers): always add (?m) to regex search patterns
+   * a47144d work (finders): support --include globs; FindAllMatchingFn receives err too; handle hidden paths better
+   * a109ff7 rpl (iterator): Apply and ApplyChanges now return backup file name (if -b or -B); updates for latest Worker changes
+   * 12b5e85 rpl (worker): updates for flags changes; updates for go-corelibs migrations; support os.Stdin files (newline and null terminated); support --file lists; allow no path args to imply currect directory; simplfy and reduce gocyclo counts; support ignoring backup files unless --all; notify file-finding errors if --verbose; suport --exclude better; support --include; code cosmetic changes
+   * d8c93d0 rpl (path globs): added Globs slice type for .String aesthetics
+   * 5f832c9 rpl (iterator): simplify Valid()
+   * e71ebd6 rpl (path globs): added ParseGlobs utility, not likely moving this to go-corelibs/path at some point
+   * 18bce71 rpl (scanners): added ScanNulls, ScanLines and ScanFileLines, note: likely moving these to a go-corelibs/scanners repo
+   * ca763c6 rpl (flags): change default backup extension to ~; remove all Usage keys from cli.Flags; --interactive short-flag renamed to -e; --bak renamed to --backup-extension; added --null (-0), --file (-f); -x renamed to --exclude (-X); added --include (-I); removed --multi-line
+   * 4af81b0 ui: migrate to github.com/go-corelibs/{diff,notify}; migrate from old tangodDiff to formal diff.TangoRender
+   * 0103b4b {rpl,work}-*.go: migrate to github.com/go-corelibs/{diff,path,notify,filewriter}
+   * 94321ac cmd: migrate to github.com/go-corelibs/notify
+   * ffac18e Makefile: use AUTO_CORELIBS
+   * 5a4f983 ui (strings): puring tangoDiff code, migrating to diff.TangoRender
+   * 7595fc8 Golang.cmd.mk: updated to v0.1.7
+   * 7993d49 Golang.def.mk: updated to v0.1.3
+   * 6bb66b2 Golang.lib.mk: added v0.1.1
+   * 8e07105 _testing: added more test content
+
+ -- The Go-Curses Team <go.enjin.org+curses@gmail.com>  Mon, 15 Jan 2024 16:20:08 -0500
+
 replace (0.5.3) unstable; urgency=medium
 
   * tagged v0.5.3 release build - 37c694033aa01196020e312362dc81ccd2e3abf8

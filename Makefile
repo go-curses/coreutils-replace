@@ -22,7 +22,7 @@
 
 BIN_NAME := rpl
 UNTAGGED_VERSION := v0.9.0
-UNTAGGED_COMMIT := trunk
+UNTAGGED_COMMIT := 54d8df89
 
 SHELL := /bin/bash
 RUN_ARGS := --help

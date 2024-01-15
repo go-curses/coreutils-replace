@@ -18,7 +18,7 @@ import (
 
 var (
 	AppName    = "rpl"
-	AppVersion = "1.0.0"
+	AppVersion = "0.9.0"
 	AppRelease = "trunk"
 	AppTag     = "rpl"
 	AppTitle   = "rpl"

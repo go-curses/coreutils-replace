@@ -53,23 +53,30 @@ func (u *CUI) shutdown(data []interface{}, argv ...interface{}) cenums.EventFlag
 		return cenums.EVENT_PASS
 	}
 
+	return u.shutdownRunCLI()
+}
+
+func (u *CUI) shutdownRunMatchingFn(file string, matched bool, err error) {
+	if err != nil {
+		if u.worker.Verbose && errors.Is(err, replace.ErrLargeFile) {
+			u.notifier.Error("# ignoring large file (max %v): %q\n", humanize.Bytes(uint64(replace.MaxFileSize)), file)
+		} else if u.worker.Verbose && errors.Is(err, replace.ErrBinaryFile) {
+			u.notifier.Error("# ignoring binary file: %q\n", file)
+		} else {
+			u.notifier.Error("# error: %v - %q\n", err, file)
+		}
+		return
+	}
+}
+
+func (u *CUI) shutdownRunCLI() cenums.EventFlag {
+
 	if err := u.worker.InitTargets(nil); err != nil {
 		u.notifier.Error("# error: %v\n", err)
 		return cenums.EVENT_PASS
 	}
 
-	if err := u.worker.FindMatching(func(file string, matched bool, err error) {
-		if err != nil {
-			if u.worker.Verbose && errors.Is(err, replace.ErrLargeFile) {
-				u.notifier.Error("# ignoring large file (max %v): %q\n", humanize.Bytes(uint64(replace.MaxFileSize)), file)
-			} else if u.worker.Verbose && errors.Is(err, replace.ErrBinaryFile) {
-				u.notifier.Error("# ignoring binary file: %q\n", file)
-			} else {
-				u.notifier.Error("# error: %v - %q\n", err, file)
-			}
-			return
-		}
-	}); err != nil {
+	if err := u.worker.FindMatching(u.shutdownRunMatchingFn); err != nil {
 		u.notifier.Error("# error: %v\n", err)
 		return cenums.EVENT_PASS
 	}

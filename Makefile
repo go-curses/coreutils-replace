@@ -39,10 +39,12 @@ CLEAN_FILES     ?= ${BIN_NAME} ${BIN_NAME}.*.* coverage.out pprof.*
 DISTCLEAN_FILES ?=
 REALCLEAN_FILES ?=
 
-BUILD_VERSION_VAR := main.APP_VERSION
-BUILD_RELEASE_VAR := main.APP_RELEASE
+BUILD_VERSION_VAR := main.AppVersion
+BUILD_RELEASE_VAR := main.AppRelease
 
 SRC_CMD_PATH := ./cmd/rpl
+
+INCLUDE_CDK_LOG_FLAGS := false
 
 include Golang.cmd.mk
 include Golang.def.mk

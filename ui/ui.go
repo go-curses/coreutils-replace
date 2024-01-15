@@ -16,13 +16,14 @@ package ui
 
 import (
 	_ "embed"
-	"sort"
+	"os"
 	"sync"
 
 	"github.com/urfave/cli/v2"
 
 	"github.com/go-corelibs/diff"
 	"github.com/go-corelibs/notify"
+	"github.com/go-corelibs/slices"
 	"github.com/go-curses/cdk"
 	"github.com/go-curses/ctk"
 
@@ -44,18 +45,20 @@ type CUI struct {
 	App  ctk.Application
 	Args []string
 
-	Display        cdk.Display
-	Window         ctk.Window
-	MainLabel      ctk.Label
-	DiffView       ctk.ScrolledViewport
-	DiffLabel      ctk.Label
-	WorkAccel      ctk.AccelGroup
-	EditButton     ctk.Button
-	KeepEditButton ctk.Button
-	SkipEditButton ctk.Button
-	SkipButton     ctk.Button
-	ApplyButton    ctk.Button
-	QuitButton     ctk.Button
+	Display            cdk.Display
+	Window             ctk.Window
+	HeaderLabel        ctk.Label
+	FooterLabel        ctk.Label
+	DiffView           ctk.ScrolledViewport
+	DiffLabel          ctk.Label
+	WorkAccel          ctk.AccelGroup
+	ContinueButton     ctk.Button
+	SelectGroupsButton ctk.Button
+	KeepGroupButton    ctk.Button
+	SkipGroupButton    ctk.Button
+	SkipButton         ctk.Button
+	ApplyButton        ctk.Button
+	QuitButton         ctk.Button
 
 	ActionArea ctk.HButtonBox
 
@@ -68,14 +71,19 @@ type CUI struct {
 	worker   *replace.Worker
 	iter     *replace.Iterator
 	delta    *diff.Diff
+	count    int
 	group    int
+
+	pause bool
+
+	results cFindResults
 
 	view ViewType
 
 	sync.RWMutex
 }
 
-func NewUI(name, usage, description, version, release, tag, title, ttyPath string, notifier notify.Notifier) (u *CUI) {
+func NewUI(name, usage, description, manual, version, release, tag, title, ttyPath string, notifier notify.Notifier) (u *CUI) {
 
 	u = &CUI{
 		App:      ctk.NewApplication(name, usage, description, version, tag, title, ttyPath),
@@ -88,23 +96,45 @@ func NewUI(name, usage, description, version, release, tag, title, ttyPath strin
 	c.HideHelpCommand = true
 	c.EnableBashCompletion = true
 	c.UseShortOptionHandling = true
-	c.CustomAppHelpTemplate = gAppHelpTemplate
 
-	cli.HelpFlag = &cli.BoolFlag{
-		Category: "General",
-		Name:     "help",
-		Usage:    "display command-line usage information",
-		Aliases:  []string{"h"},
-	}
-	cli.VersionFlag = &cli.BoolFlag{
-		Category: "General",
-		Name:     "version",
-		Usage:    "display the version",
-		Aliases:  []string{"V"},
+	if slices.Within("--"+HelpFlag.Name, os.Args[1:]) {
+		c.Description += manual
+	} else {
+		c.Description = ""
+		NoLimitsFlag.Category = ""
+		NoLimitsFlag.Hidden = true
 	}
 
-	c.Flags = append(c.Flags, replace.CliFlags...)
-	sort.Sort(cli.FlagsByName(c.Flags))
+	cli.HelpFlag = UsageFlag
+	cli.VersionFlag = VersionFlag
+
+	c.Flags = append(c.Flags,
+		BackupFlag,
+		BackupExtensionFlag,
+		IgnoreCaseFlag,
+		PreserveCaseFlag,
+		NopFlag,
+		NoLimitsFlag,
+
+		ShowDiffFlag,
+		InteractiveFlag,
+		PauseFlag,
+
+		RecurseFlag,
+		AllFlag,
+		NullFlag,
+		FileFlag,
+		ExcludeFlag,
+		IncludeFlag,
+
+		RegexFlag,
+		MultiLineFlag,
+		DotMatchNlFlag,
+
+		HelpFlag,
+		QuietFlag,
+		VerboseFlag,
+	)
 
 	u.App.Connect(cdk.SignalPrepareStartup, "ui-prepare-startup-handler", u.prepareStartup)
 	u.App.Connect(cdk.SignalPrepare, "ui-prepare-handler", u.prepare)

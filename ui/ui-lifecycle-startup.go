@@ -43,7 +43,6 @@ func (u *CUI) makeWindowTitle() (title string) {
 	for _, arg := range u.Args[1:] {
 		if foundSearch {
 			add(arg)
-			title += " ..."
 			break
 		}
 		foundSearch = arg == u.worker.Search
@@ -69,83 +68,15 @@ func (u *CUI) startup(data []interface{}, argv ...interface{}) cenums.EventFlag 
 		vbox := u.Window.GetVBox()
 		vbox.SetSpacing(1)
 
-		u.MainLabel = ctk.NewLabel("Starting up...")
-		u.MainLabel.Show()
-		u.MainLabel.SetUseMarkup(true)
-		u.MainLabel.SetSizeRequest(-1, -1)
-		u.MainLabel.SetAlignment(0.5, 0.5)
-		u.MainLabel.SetJustify(cenums.JUSTIFY_CENTER)
-		u.MainLabel.SetLineWrap(true)
-		u.MainLabel.SetLineWrapMode(cenums.WRAP_CHAR)
-		vbox.PackStart(u.MainLabel, false, false, 0)
-
-		workButtonsArea := ctk.NewHBox(false, 1)
-		workButtonsArea.Show()
-		workButtonsArea.SetSizeRequest(-1, 1)
-		vbox.PackStart(workButtonsArea, false, false, 0)
-
-		waLeftSep := ctk.NewSeparator()
-		waLeftSep.Show()
-		workButtonsArea.PackStart(waLeftSep, true, true, 0)
-
-		u.EditButton = ctk.NewButtonWithMnemonic("_Edit <F2>")
-		u.EditButton.Hide()
-		u.EditButton.SetHasTooltip(true)
-		u.EditButton.SetTooltipText("edit the selected changes")
-		u.EditButton.Connect(ctk.SignalActivate, "rpl-edit-handler", func(data []interface{}, argv ...interface{}) cenums.EventFlag {
-			u.EditButton.LogDebug("clicked")
-			u.WorkAccel.Activate(cdk.KeyF2, 0)
-			return cenums.EVENT_PASS
-		})
-		workButtonsArea.PackStart(u.EditButton, false, false, 0)
-
-		u.SkipEditButton = ctk.NewButtonWithMnemonic("_Skip Change <F3>")
-		u.SkipEditButton.Hide()
-		u.SkipEditButton.SetHasTooltip(true)
-		u.SkipEditButton.SetTooltipText("skip this group of changes")
-		u.SkipEditButton.Connect(ctk.SignalActivate, "rpl-skip-edit-handler", func(data []interface{}, argv ...interface{}) cenums.EventFlag {
-			u.SkipEditButton.LogDebug("clicked")
-			u.WorkAccel.Activate(cdk.KeyF3, 0)
-			return cenums.EVENT_PASS
-		})
-		workButtonsArea.PackStart(u.SkipEditButton, false, false, 0)
-
-		u.KeepEditButton = ctk.NewButtonWithMnemonic("_Keep Change <F4>")
-		u.KeepEditButton.Hide()
-		u.KeepEditButton.SetHasTooltip(true)
-		u.KeepEditButton.SetTooltipText("keep this group of changes")
-		u.KeepEditButton.Connect(ctk.SignalActivate, "rpl-keep-edit-handler", func(data []interface{}, argv ...interface{}) cenums.EventFlag {
-			u.KeepEditButton.LogDebug("clicked")
-			u.WorkAccel.Activate(cdk.KeyF4, 0)
-			return cenums.EVENT_PASS
-		})
-		workButtonsArea.PackStart(u.KeepEditButton, false, false, 0)
-
-		u.SkipButton = ctk.NewButtonWithMnemonic("_Skip <F8>")
-		u.SkipButton.Hide()
-		u.SkipButton.SetHasTooltip(true)
-		u.SkipButton.SetTooltipText("skip the file changes and proceed")
-		u.SkipButton.Connect(ctk.SignalActivate, "rpl-skip-handler", func(data []interface{}, argv ...interface{}) cenums.EventFlag {
-			u.SkipButton.LogDebug("clicked")
-			u.WorkAccel.Activate(cdk.KeyF8, 0)
-			return cenums.EVENT_PASS
-		})
-		workButtonsArea.PackStart(u.SkipButton, false, false, 0)
-
-		u.ApplyButton = ctk.NewButtonWithMnemonic("_Apply <F9>")
-		u.ApplyButton.Hide()
-		u.ApplyButton.SetHasTooltip(true)
-		u.ApplyButton.SetTooltipText("write the file changes and proceed")
-		u.ApplyButton.Connect(ctk.SignalActivate, "rpl-apply-handler", func(data []interface{}, argv ...interface{}) cenums.EventFlag {
-			u.ApplyButton.LogDebug("clicked")
-			u.WorkAccel.Activate(cdk.KeyF9, 0)
-			return cenums.EVENT_PASS
-		})
-		workButtonsArea.PackStart(u.ApplyButton, false, false, 0)
-
-		waRightSep := ctk.NewSeparator()
-		waRightSep.Show()
-		workButtonsArea.PackStart(waRightSep, true, true, 0)
+		u.HeaderLabel = ctk.NewLabel("Starting up...")
+		u.HeaderLabel.Show()
+		u.HeaderLabel.SetUseMarkup(true)
+		u.HeaderLabel.SetSizeRequest(-1, -1)
+		u.HeaderLabel.SetAlignment(0.5, 0.5)
+		u.HeaderLabel.SetJustify(cenums.JUSTIFY_CENTER)
+		u.HeaderLabel.SetLineWrap(true)
+		u.HeaderLabel.SetLineWrapMode(cenums.WRAP_CHAR)
+		vbox.PackStart(u.HeaderLabel, false, false, 0)
 
 		u.DiffView = ctk.NewScrolledViewport()
 		u.DiffView.SetName("diff-view")
@@ -162,6 +93,95 @@ func (u *CUI) startup(data []interface{}, argv ...interface{}) cenums.EventFlag 
 		u.DiffLabel.SetLineWrap(false)
 		u.DiffLabel.SetLineWrapMode(cenums.WRAP_NONE)
 		u.DiffView.Add(u.DiffLabel)
+
+		u.FooterLabel = ctk.NewLabel("")
+		u.FooterLabel.Hide()
+		u.FooterLabel.SetUseMarkup(true)
+		u.FooterLabel.SetSizeRequest(-1, -1)
+		u.FooterLabel.SetAlignment(0.5, 0.5)
+		u.FooterLabel.SetJustify(cenums.JUSTIFY_CENTER)
+		u.FooterLabel.SetLineWrap(true)
+		u.FooterLabel.SetLineWrapMode(cenums.WRAP_CHAR)
+		vbox.PackStart(u.FooterLabel, false, false, 0)
+
+		workButtonsArea := ctk.NewHBox(false, 1)
+		workButtonsArea.Show()
+		workButtonsArea.SetSizeRequest(-1, 1)
+		vbox.PackStart(workButtonsArea, false, false, 0)
+
+		waLeftSep := ctk.NewSeparator()
+		waLeftSep.Show()
+		workButtonsArea.PackStart(waLeftSep, true, true, 0)
+
+		u.ContinueButton = ctk.NewButtonWithMnemonic("_Continue")
+		u.ContinueButton.Hide()
+		u.ContinueButton.SetHasTooltip(true)
+		u.ContinueButton.SetTooltipText("begin the process of selecting and\napplying changes for each file")
+		u.ContinueButton.Connect(ctk.SignalActivate, "rpl-begin-handler", func(data []interface{}, argv ...interface{}) cenums.EventFlag {
+			u.ContinueButton.LogDebug("clicked")
+			u.startWork()
+			return cenums.EVENT_PASS
+		})
+		workButtonsArea.PackStart(u.ContinueButton, false, false, 0)
+
+		u.SelectGroupsButton = ctk.NewButtonWithMnemonic("Select _Groups <F2>")
+		u.SelectGroupsButton.Hide()
+		u.SelectGroupsButton.SetHasTooltip(true)
+		u.SelectGroupsButton.SetTooltipText("edit the selected changes")
+		u.SelectGroupsButton.Connect(ctk.SignalActivate, "rpl-edit-handler", func(data []interface{}, argv ...interface{}) cenums.EventFlag {
+			u.SelectGroupsButton.LogDebug("clicked")
+			u.WorkAccel.Activate(cdk.KeyF2, 0)
+			return cenums.EVENT_PASS
+		})
+		workButtonsArea.PackStart(u.SelectGroupsButton, false, false, 0)
+
+		u.SkipGroupButton = ctk.NewButtonWithMnemonic("_Skip Group <F3>")
+		u.SkipGroupButton.Hide()
+		u.SkipGroupButton.SetHasTooltip(true)
+		u.SkipGroupButton.SetTooltipText("skip this group of changes")
+		u.SkipGroupButton.Connect(ctk.SignalActivate, "rpl-skip-edit-handler", func(data []interface{}, argv ...interface{}) cenums.EventFlag {
+			u.SkipGroupButton.LogDebug("clicked")
+			u.WorkAccel.Activate(cdk.KeyF3, 0)
+			return cenums.EVENT_PASS
+		})
+		workButtonsArea.PackStart(u.SkipGroupButton, false, false, 0)
+
+		u.KeepGroupButton = ctk.NewButtonWithMnemonic("_Keep Group <F4>")
+		u.KeepGroupButton.Hide()
+		u.KeepGroupButton.SetHasTooltip(true)
+		u.KeepGroupButton.SetTooltipText("keep this group of changes")
+		u.KeepGroupButton.Connect(ctk.SignalActivate, "rpl-keep-edit-handler", func(data []interface{}, argv ...interface{}) cenums.EventFlag {
+			u.KeepGroupButton.LogDebug("clicked")
+			u.WorkAccel.Activate(cdk.KeyF4, 0)
+			return cenums.EVENT_PASS
+		})
+		workButtonsArea.PackStart(u.KeepGroupButton, false, false, 0)
+
+		u.SkipButton = ctk.NewButtonWithMnemonic("_Skip File <F8>")
+		u.SkipButton.Hide()
+		u.SkipButton.SetHasTooltip(true)
+		u.SkipButton.SetTooltipText("skip the file changes and proceed")
+		u.SkipButton.Connect(ctk.SignalActivate, "rpl-skip-handler", func(data []interface{}, argv ...interface{}) cenums.EventFlag {
+			u.SkipButton.LogDebug("clicked")
+			u.WorkAccel.Activate(cdk.KeyF8, 0)
+			return cenums.EVENT_PASS
+		})
+		workButtonsArea.PackStart(u.SkipButton, false, false, 0)
+
+		u.ApplyButton = ctk.NewButtonWithMnemonic("Save _File <F9>")
+		u.ApplyButton.Hide()
+		u.ApplyButton.SetHasTooltip(true)
+		u.ApplyButton.SetTooltipText("write the file changes and proceed")
+		u.ApplyButton.Connect(ctk.SignalActivate, "rpl-apply-handler", func(data []interface{}, argv ...interface{}) cenums.EventFlag {
+			u.ApplyButton.LogDebug("clicked")
+			u.WorkAccel.Activate(cdk.KeyF9, 0)
+			return cenums.EVENT_PASS
+		})
+		workButtonsArea.PackStart(u.ApplyButton, false, false, 0)
+
+		waRightSep := ctk.NewSeparator()
+		waRightSep.Show()
+		workButtonsArea.PackStart(waRightSep, true, true, 0)
 
 		u.ActionArea = ctk.NewHButtonBox(false, 1)
 		u.ActionArea.Show()

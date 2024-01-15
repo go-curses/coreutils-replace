@@ -19,9 +19,9 @@ import (
 )
 
 func (u *CUI) requestEdit(argv ...interface{}) (handled bool) {
-	if u.EditButton.IsVisible() {
+	if u.SelectGroupsButton.IsVisible() {
 		log.DebugF("edit-accel called")
-		u.EditButton.GrabFocus()
+		u.SelectGroupsButton.GrabFocus()
 		u.delta.SkipAll()
 		u.group = -1
 		u.processNextEdit()
@@ -30,9 +30,9 @@ func (u *CUI) requestEdit(argv ...interface{}) (handled bool) {
 }
 
 func (u *CUI) requestSkipEdit(argv ...interface{}) (handled bool) {
-	if u.SkipEditButton.IsVisible() {
+	if u.SkipGroupButton.IsVisible() {
 		log.DebugF("skip-edit-accel called")
-		u.SkipEditButton.GrabFocus()
+		u.SkipGroupButton.GrabFocus()
 		u.skipCurrentEdit()
 		u.processNextEdit()
 	}
@@ -40,9 +40,9 @@ func (u *CUI) requestSkipEdit(argv ...interface{}) (handled bool) {
 }
 
 func (u *CUI) requestKeepEdit(argv ...interface{}) (handled bool) {
-	if u.KeepEditButton.IsVisible() {
+	if u.KeepGroupButton.IsVisible() {
 		log.DebugF("keep-edit-accel called")
-		u.KeepEditButton.GrabFocus()
+		u.KeepGroupButton.GrabFocus()
 		u.keepCurrentEdit()
 		u.processNextEdit()
 	}
@@ -63,7 +63,7 @@ func (u *CUI) requestApply(argv ...interface{}) (handled bool) {
 	if u.ApplyButton.IsVisible() {
 		log.DebugF("apply-accel called")
 		u.ApplyButton.GrabFocus()
-		u.ApplyButton.SetPressed(true)
+		//u.ApplyButton.SetPressed(true)
 		u.applyAndProcessNextWork()
 	}
 	return
@@ -77,6 +77,7 @@ func (u *CUI) requestQuit() {
 }
 
 func (u *CUI) requestDrawAndShow() {
+	u.Window.Resize()
 	u.Display.RequestDraw()
 	u.Display.RequestShow()
 }

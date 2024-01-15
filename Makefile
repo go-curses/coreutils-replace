@@ -35,7 +35,7 @@ GOPKG_KEYS ?= CDK CTK
 
 AUTO_CORELIBS := true
 
-CLEAN_FILES     ?= ${BIN_NAME} ${BIN_NAME}.*.* coverage.out pprof.*
+CLEAN_FILES     ?= ${BIN_NAME} ${BIN_NAME}.*.* coverage.* pprof.*
 DISTCLEAN_FILES ?=
 REALCLEAN_FILES ?=
 

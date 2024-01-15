@@ -105,6 +105,14 @@ func (w *Worker) Init() (err error) {
 		w.Exclude = append(w.Exclude, more...)
 	}
 
+	if err = w.setupNotifier(); err == nil && w.NoLimits && !w.Quiet {
+		w.Notifier.Error("%s\n", gNoLimitsWarning)
+	}
+
+	return
+}
+
+func (w *Worker) setupNotifier() (err error) {
 	var o, e io.Writer
 	var level notify.Level
 
@@ -161,10 +169,6 @@ func (w *Worker) Init() (err error) {
 			ModifyLevel(level).
 			ModifyOut(o).
 			ModifyErr(e)
-	}
-
-	if w.NoLimits && !w.Quiet {
-		w.Notifier.Error("%s\n", gNoLimitsWarning)
 	}
 
 	return

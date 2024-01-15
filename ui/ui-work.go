@@ -16,101 +16,96 @@ package ui
 
 import (
 	"fmt"
-	"path/filepath"
-	"time"
 
 	"github.com/go-curses/cdk/lib/math"
 )
 
-const (
-	gFileMatch = `🗸`
-	gFileSkip  = `🗴`
-)
-
-func (u *CUI) updateStatusLine() {
-	status := fmt.Sprintf("%d/%d: ", u.iter.Pos()+1, len(u.worker.Matched))
-	w, _ := u.Display.Screen().Size()
-	alloc := u.QuitButton.GetAllocation()
-	padding := 10
-	maxLen := math.FloorI(w-len(status)-alloc.W-padding, 10)
-	var name string
-	file, _ := filepath.Abs(u.iter.Name())
-	if size := len(file); size > maxLen {
-		name = "..." + file[size-maxLen:]
-	} else {
-		name = file
-	}
-	u.StatusLabel.SetLabel(status + " " + name)
-	u.ActionArea.Resize()
-	u.requestDrawAndShow()
-}
-
-func (u *CUI) updateFileWorkStatus() {
-	if u.iter == nil {
-		u.StatusLabel.SetLabel("")
-		return
-	}
-	u.MainLabel.SetLabel(filepath.Base(u.iter.Name()))
-	u.updateStatusLine()
-}
-
-func (u *CUI) updateEditWorkStatus() {
-	if u.iter == nil || u.delta == nil {
-		u.StatusLabel.SetLabel("")
-		return
-	}
-	u.MainLabel.SetLabel(fmt.Sprintf(
-		"Change %d of %d in: %s",
-		u.group+1, u.delta.EditGroupsLen(),
-		filepath.Base(u.iter.Name()),
-	))
-	u.updateStatusLine()
-}
-
 func (u *CUI) initWork() {
+	u.setStateSpinner(true)
+	u.DiffLabel.Show()
+	u.DiffView.Show()
+
 	w, _ := u.Display.Screen().Size()
 	maxLen := math.FloorI((w/2)-2, 10)
-	u.worker.Init(func(file string, matched bool) {
-		var name string
-		if size := len(file); size > maxLen {
-			name = "..." + file[size-maxLen:]
+	if u.LastError = u.worker.InitTargets(nil); u.LastError != nil {
+		u.requestQuit()
+		return
+	}
+	if u.LastError = u.worker.FindMatching(func(file string, matched bool, err error) {
+		u.updateInitWorkStatus(maxLen, cFindResult{
+			target:  file,
+			matched: matched,
+			err:     err,
+		})
+	}); u.LastError != nil {
+		u.requestQuit()
+		return
+	}
+
+	var count int
+	if count = len(u.worker.Matched); count == 0 {
+		u.setHeaderLabel(u.getSearchText("no files contain"))
+		u.setFocusLabels(true)
+	} else {
+		if count == 1 {
+			u.setHeaderLabel(u.getSearchText("one file contains"))
 		} else {
-			name = file
+			u.setHeaderLabel(u.getSearchText(fmt.Sprintf("%d files contain", count)))
 		}
-		if matched {
-			u.StatusLabel.SetLabel(gFileMatch + " " + name)
-		} else {
-			u.StatusLabel.SetLabel(gFileSkip + " " + name)
+		u.setFooterLabel("(-) no matches; (+) has matches; (x) errors")
+	}
+
+	u.setStatusLabel("")
+	u.setStateSpinner(false)
+
+	if u.worker.Pause {
+		if count > 0 {
+			u.ContinueButton.Show()
+			u.ContinueButton.GrabFocus()
 		}
 		u.requestDrawAndShow()
-		time.Sleep(time.Millisecond * 10)
-	})
-	u.StatusLabel.SetLabel("")
-	u.StateSpinner.StopSpinning()
-	u.StateSpinner.Hide()
-	u.startWork()
+	} else {
+		u.startWork()
+	}
 }
 
 func (u *CUI) startWork() {
-	u.iter = u.worker.Start()
+	u.setFooterLabel("")
+	u.ContinueButton.Hide()
+	u.setDiffLabel("", false)
+	u.DiffView.ScrollTop()
+
+	u.iter = u.worker.StartIterating()
 	if len(u.worker.Matched) > 0 {
+		// work to do
 		u.processNextWork()
-	} else if len(u.worker.Files) > 0 {
-		u.MainLabel.SetText(fmt.Sprintf("no files have %q to replace!", u.worker.Search))
-	} else {
-		u.MainLabel.SetText("no files found")
+		u.DiffView.GrabFocus()
+		return
 	}
+
+	// no work to do
+	if len(u.worker.Files) > 0 {
+		u.setHeaderLabel(fmt.Sprintf("no files match search: %q", u.worker.Search))
+	} else {
+		u.setHeaderLabel("no files to search")
+	}
+
+	u.QuitButton.GrabFocus()
+	u.requestDrawAndShow()
 	return
 }
 
 func (u *CUI) applyAndProcessNextWork() {
 	if u.iter != nil && u.delta != nil {
-		if u.worker.DryRun {
+		if u.worker.Nop {
 			u.notifier.Info(u.delta.UnifiedEdits())
 		} else {
-			if _, unified, err := u.iter.ApplyChanges(u.delta); err != nil {
-				u.notifier.Error("# error applying changes to %q: %v", u.iter.Name(), err)
+			if _, unified, backup, err := u.iter.ApplySpecific(u.delta); err != nil {
+				u.notifier.Error("# error applying changes to %q: %v\n", u.iter.Name(), err)
 			} else {
+				if u.worker.Verbose && backup != "" {
+					u.notifier.Error("# backed up %q to %q\n", u.iter.Name(), backup)
+				}
 				u.notifier.Info(unified)
 			}
 		}
@@ -134,7 +129,7 @@ func (u *CUI) processNextWork() {
 	}
 
 	var err error
-	if _, _, u.delta, err = u.iter.Replace(); err != nil {
+	if _, _, u.count, u.delta, err = u.iter.Replace(); err != nil {
 		u.notifier.Error(err.Error())
 		u.processNextWork()
 		return
@@ -142,11 +137,13 @@ func (u *CUI) processNextWork() {
 
 	u.delta.KeepAll()
 	unified := u.delta.UnifiedEdits()
+	u.setDiffPatch(unified)
 
-	if err = u.DiffLabel.SetMarkup(tangoDiff(unified)); err != nil {
-		u.DiffLabel.LogErr(err)
+	if count := u.delta.EditGroupsLen(); count > 1 {
+		u.setFooterLabel("one group of changes")
+	} else {
+		u.setFooterLabel(fmt.Sprintf("%d groups of changes", count))
 	}
-	u.DiffLabel.SetSizeRequest(u.DiffLabel.GetPlainTextInfo())
 
 	u.displayFileView()
 }
@@ -172,12 +169,11 @@ func (u *CUI) processNextEdit() {
 		u.group += 1
 		if u.group < u.delta.EditGroupsLen() {
 			unified := u.delta.EditGroup(u.group)
-			if err := u.DiffLabel.SetMarkup(tangoDiff(unified)); err != nil {
-				u.DiffLabel.LogErr(err)
-			}
-			u.DiffLabel.SetSizeRequest(u.DiffLabel.GetPlainTextInfo())
+			u.setDiffPatch(unified)
 			u.displayEditView()
 		} else {
+			unified := u.delta.UnifiedEdits()
+			u.setDiffPatch(unified)
 			u.displayFileView()
 		}
 	}
@@ -191,8 +187,8 @@ func (u *CUI) skipCurrentWork() {
 
 func (u *CUI) displayFileView() {
 	u.view = FileView
-	u.SkipEditButton.Hide()
-	u.KeepEditButton.Hide()
+	u.SkipGroupButton.Hide()
+	u.KeepGroupButton.Hide()
 
 	numMatched := len(u.worker.Matched)
 
@@ -205,16 +201,19 @@ func (u *CUI) displayFileView() {
 	numEditGroups := u.delta.EditGroupsLen()
 	if numEditGroups > 0 {
 		if numEditGroups > 1 {
-			u.EditButton.Show()
+			u.SelectGroupsButton.Show()
 		} else {
-			u.EditButton.Hide()
+			u.SelectGroupsButton.Hide()
 		}
 		u.ApplyButton.Show()
 	} else {
-		u.EditButton.Hide()
+		u.SelectGroupsButton.Hide()
 		u.ApplyButton.Hide()
 	}
 
+	u.setFooterLabel(u.getChangesText())
+
+	u.DiffView.ScrollTop()
 	u.Window.Resize()
 	u.updateFileWorkStatus()
 }
@@ -222,10 +221,10 @@ func (u *CUI) displayFileView() {
 func (u *CUI) displayEditView() {
 	u.view = EditView
 	u.SkipButton.Hide()
-	u.EditButton.Hide()
+	u.SelectGroupsButton.Hide()
 	u.ApplyButton.Hide()
-	u.SkipEditButton.Show()
-	u.KeepEditButton.Show()
+	u.SkipGroupButton.Show()
+	u.KeepGroupButton.Show()
 	u.Window.Resize()
 	u.updateEditWorkStatus()
 }

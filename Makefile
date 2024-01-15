@@ -21,8 +21,8 @@
 #export
 
 BIN_NAME := rpl
-UNTAGGED_VERSION := v0.5.3
-UNTAGGED_COMMIT := 37c694033a
+UNTAGGED_VERSION := v0.9.0
+UNTAGGED_COMMIT := trunk
 
 SHELL := /bin/bash
 RUN_ARGS := --help
@@ -33,64 +33,18 @@ BE_LOCAL_PATH := nil
 
 GOPKG_KEYS ?= CDK CTK
 
-CDK_GO_PACKAGE ?= github.com/go-curses/cdk
-CDK_LOCAL_PATH ?= ../cdk
+AUTO_CORELIBS := true
 
-CTK_GO_PACKAGE ?= github.com/go-curses/ctk
-CTK_LOCAL_PATH ?= ../ctk
-
-GOPKG_KEYS += CL_RUN
-CL_RUN_GO_PACKAGE ?= github.com/go-curses/corelibs/run
-CL_RUN_LOCAL_PATH ?= ../corelibs/run
-
-GOPKG_KEYS += CL_CHDIRS
-CL_CHDIRS_GO_PACKAGE ?= github.com/go-curses/corelibs/chdirs
-CL_CHDIRS_LOCAL_PATH ?= ../corelibs/chdirs
-
-GOPKG_KEYS += CL_SPINNER
-CL_SPINNER_GO_PACKAGE ?= github.com/go-curses/corelibs/spinner
-CL_SPINNER_LOCAL_PATH ?= ../corelibs/spinner
-
-GOPKG_KEYS += CL_MAPS
-CL_MAPS_GO_PACKAGE ?= github.com/go-curses/corelibs/maps
-CL_MAPS_LOCAL_PATH ?= ../corelibs/maps
-
-GOPKG_KEYS += CL_STRINGS
-CL_STRINGS_GO_PACKAGE ?= github.com/go-curses/corelibs/strings
-CL_STRINGS_LOCAL_PATH ?= ../corelibs/strings
-
-GOPKG_KEYS += CL_SLICES
-CL_SLICES_GO_PACKAGE ?= github.com/go-curses/corelibs/slices
-CL_SLICES_LOCAL_PATH ?= ../corelibs/slices
-
-GOPKG_KEYS += CL_PATH
-CL_PATH_GO_PACKAGE ?= github.com/go-curses/corelibs/path
-CL_PATH_LOCAL_PATH ?= ../corelibs/path
-
-GOPKG_KEYS += CL_REGEXPS
-CL_REGEXPS_GO_PACKAGE ?= github.com/go-curses/corelibs/regexps
-CL_REGEXPS_LOCAL_PATH ?= ../corelibs/regexps
-
-GOPKG_KEYS += CL_MATHS
-CL_MATHS_GO_PACKAGE ?= github.com/go-curses/corelibs/maths
-CL_MATHS_LOCAL_PATH ?= ../corelibs/maths
-
-GOPKG_KEYS += CL_CONVERT
-CL_CONVERT_GO_PACKAGE ?= github.com/go-curses/corelibs/convert
-CL_CONVERT_LOCAL_PATH ?= ../corelibs/convert
-
-GOPKG_KEYS += CL_FILEWRITER
-CL_FILEWRITER_GO_PACKAGE ?= github.com/go-curses/corelibs/filewriter
-CL_FILEWRITER_LOCAL_PATH ?= ../corelibs/filewriter
-
-CLEAN_FILES     ?= ${BIN_NAME} ${BIN_NAME}.*.* coverage.out pprof.*
+CLEAN_FILES     ?= ${BIN_NAME} ${BIN_NAME}.*.* coverage.* pprof.*
 DISTCLEAN_FILES ?=
 REALCLEAN_FILES ?=
 
-BUILD_VERSION_VAR := main.APP_VERSION
-BUILD_RELEASE_VAR := main.APP_RELEASE
+BUILD_VERSION_VAR := main.AppVersion
+BUILD_RELEASE_VAR := main.AppRelease
 
 SRC_CMD_PATH := ./cmd/rpl
+
+INCLUDE_CDK_LOG_FLAGS := false
 
 include Golang.cmd.mk
 include Golang.def.mk

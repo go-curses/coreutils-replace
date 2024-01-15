@@ -15,14 +15,11 @@
 package replace
 
 import (
-	"errors"
 	"io"
-	"regexp"
 
-	"github.com/wneessen/go-fileperm"
-
-	"github.com/go-curses/corelibs/diff"
-	"github.com/go-curses/corelibs/path"
+	"github.com/go-corelibs/diff"
+	"github.com/go-corelibs/path"
+	"github.com/go-corelibs/replace"
 )
 
 type Iterator struct {
@@ -36,18 +33,14 @@ func (i *Iterator) Pos() (pos int) {
 }
 
 func (i *Iterator) Next() {
-	if count := len(i.w.Matched); (i.pos + 1) < count {
+	if i.Valid() {
 		i.pos += 1
-	} else if i.pos != count {
-		i.pos = count
 	}
 	return
 }
 
 func (i *Iterator) Valid() (valid bool) {
-	if i != nil {
-		valid = i.pos >= 0 && i.pos < len(i.w.Matched)
-	}
+	valid = i != nil && i.pos >= 0 && i.pos < len(i.w.Matched)
 	return
 }
 
@@ -58,42 +51,39 @@ func (i *Iterator) Name() (path string) {
 	return
 }
 
-func (i *Iterator) Replace() (original, modified string, delta *diff.Diff, err error) {
+func (i *Iterator) Replace() (original, modified string, count int, delta *diff.Diff, err error) {
 	if !i.Valid() {
 		err = io.EOF
-		return
-	}
-	if i.w.Pattern == nil {
-		if i.w.IgnoreCase {
-			original, modified, delta, err = ProcessTargetStringInsensitive(i.w.Search, i.w.Replace, i.w.Matched[i.pos])
+	} else if i.w.Pattern != nil {
+		if i.w.PreserveCase {
+			original, modified, count, delta, err = replace.RegexPreserveFile(i.w.Pattern, i.w.Replace, i.w.Matched[i.pos])
 		} else {
-			original, modified, delta, err = ProcessTargetString(i.w.Search, i.w.Replace, i.w.Matched[i.pos])
+			original, modified, count, delta, err = replace.RegexFile(i.w.Pattern, i.w.Replace, i.w.Matched[i.pos])
 		}
+	} else if i.w.PreserveCase {
+		original, modified, count, delta, err = replace.StringPreserveFile(i.w.Search, i.w.Replace, i.w.Matched[i.pos])
+	} else if i.w.IgnoreCase {
+		original, modified, count, delta, err = replace.StringInsensitiveFile(i.w.Search, i.w.Replace, i.w.Matched[i.pos])
 	} else {
-		var rx *regexp.Regexp
-		if rx, err = MakeRegexp(i.w.Search, i.w); err != nil {
-			return
-		}
-		original, modified, delta, err = ProcessTargetRegex(rx, i.w.Replace, i.w.Matched[i.pos])
+		original, modified, count, delta, err = replace.StringFile(i.w.Search, i.w.Replace, i.w.Matched[i.pos])
 	}
 	return
 }
 
-func (i *Iterator) Apply() (count int, unified string, err error) {
+func (i *Iterator) ApplyAll() (count int, unified, backup string, err error) {
 	if !i.Valid() {
 		err = io.EOF
 		return
 	}
 	var delta *diff.Diff
-	if _, _, delta, err = i.Replace(); err != nil {
-		return
+	if _, _, count, delta, err = i.Replace(); err == nil {
+		delta.KeepAll()
+		_, unified, backup, err = i.ApplySpecific(delta)
 	}
-	delta.KeepAll()
-	count, unified, err = i.ApplyChanges(delta)
 	return
 }
 
-func (i *Iterator) ApplyChanges(delta *diff.Diff) (count int, unified string, err error) {
+func (i *Iterator) ApplySpecific(delta *diff.Diff) (count int, unified, backup string, err error) {
 	if !i.Valid() {
 		err = io.EOF
 		return
@@ -105,32 +95,36 @@ func (i *Iterator) ApplyChanges(delta *diff.Diff) (count int, unified string, er
 	}
 
 	var modified string
-	if modified, err = delta.ModifiedEdits(); err != nil {
-		return
-	}
-	unified = delta.UnifiedEdits()
+	if modified, err = delta.ModifiedEdits(); err == nil {
 
-	var fp fileperm.PermUser
-	if fp, err = fileperm.New(i.w.Matched[i.pos]); err != nil {
-		return
-	} else if !fp.UserWritable() {
-		err = errors.New("file write permission denied")
-		return
-	} else if i.w.DryRun {
-		return
-	}
+		unified = delta.UnifiedEdits()
 
-	if i.w.Backup {
-		var extension string
-		if i.w.BackupExtension != "" {
-			extension = i.w.BackupExtension
-		} else {
-			extension = DefaultBackupExtension
+		var backupExtension, backupSeparator string
+		if i.w.Backup {
+			// TODO: figure out a template pattern for backup extension
+			//       that isn't as cumbersome as text/template and also
+			//       not as terse as fmt.Sprintf
+			backupExtension = i.w.getBackupExtension()
+			if i.w.BackupExtension != "" {
+				backupSeparator = "."
+			} else {
+				backupSeparator = DefaultBackupSeparator
+			}
 		}
-		err = path.BackupAndOverwrite(i.w.Matched[i.pos], extension, modified)
-		return
+
+		if i.w.Nop {
+			if i.w.Backup { // simulate backup filename
+				for backup = path.BackupName(i.w.Matched[i.pos], backupExtension, backupSeparator); path.Exists(backup); {
+					backup = path.BackupName(backup, backupExtension, backupSeparator)
+				}
+			}
+		} else if i.w.Backup {
+			backup, err = path.BackupAndOverwrite(i.w.Matched[i.pos], modified, backupExtension, backupSeparator)
+		} else {
+			err = path.Overwrite(i.w.Matched[i.pos], modified)
+		}
+
 	}
 
-	err = path.Overwrite(i.w.Matched[i.pos], modified)
 	return
 }

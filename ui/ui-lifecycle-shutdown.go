@@ -15,11 +15,15 @@
 package ui
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strings"
 
+	"github.com/dustin/go-humanize"
+
 	cenums "github.com/go-curses/cdk/lib/enums"
+	replace "github.com/go-curses/coreutils-replace"
 )
 
 // shutdown happens after the curses display screen is closed and the display itself shutdown, it is safe to use stdout
@@ -49,11 +53,37 @@ func (u *CUI) shutdown(data []interface{}, argv ...interface{}) cenums.EventFlag
 		return cenums.EVENT_PASS
 	}
 
-	u.worker.Init(nil)
+	return u.shutdownRunCLI()
+}
 
-	if u.worker.Verbose {
+func (u *CUI) shutdownRunMatchingFn(file string, matched bool, err error) {
+	if err != nil {
+		if u.worker.Verbose && errors.Is(err, replace.ErrLargeFile) {
+			u.notifier.Error("# ignoring large file (max %v): %q\n", humanize.Bytes(uint64(replace.MaxFileSize)), file)
+		} else if u.worker.Verbose && errors.Is(err, replace.ErrBinaryFile) {
+			u.notifier.Error("# ignoring binary file: %q\n", file)
+		} else {
+			u.notifier.Error("# error: %v - %q\n", err, file)
+		}
+		return
+	}
+}
+
+func (u *CUI) shutdownRunCLI() cenums.EventFlag {
+
+	if err := u.worker.InitTargets(nil); err != nil {
+		u.notifier.Error("# error: %v\n", err)
+		return cenums.EVENT_PASS
+	}
+
+	if err := u.worker.FindMatching(u.shutdownRunMatchingFn); err != nil {
+		u.notifier.Error("# error: %v\n", err)
+		return cenums.EVENT_PASS
+	}
+
+	if !u.worker.Quiet {
 		var format string
-		if u.worker.DryRun {
+		if u.worker.Nop {
 			format = "# [nop] would replace"
 		} else {
 			format = "# replacing"
@@ -73,19 +103,25 @@ func (u *CUI) shutdown(data []interface{}, argv ...interface{}) cenums.EventFlag
 		)
 	}
 
-	for iter := u.worker.Start(); iter.Valid(); iter.Next() {
+	for iter := u.worker.StartIterating(); iter.Valid(); iter.Next() {
 		var count int
-		var unified string
+		var unified, backup string
 		var err error
-		if count, unified, err = iter.Apply(); err != nil {
+		if count, unified, backup, err = iter.ApplyAll(); err != nil {
 			u.notifier.Error("# %q error: %v\n", err)
 			continue
 		}
 
-		if u.worker.DryRun {
-			u.notifier.Error("# [dry-run] would have made %d edits to: %v\n", count, iter.Name())
+		if u.worker.Nop {
+			if backup != "" {
+				u.notifier.Error("# [nop] would have backed up %q to %q\n", iter.Name(), backup)
+			}
+			u.notifier.Error("# [nop] would have made %d changes to: %q\n", count, iter.Name())
 		} else {
-			u.notifier.Error("# made %d edits to: %v\n", count, iter.Name())
+			if backup != "" {
+				u.notifier.Error("# backed up %q to %q\n", iter.Name(), backup)
+			}
+			u.notifier.Error("# made %d changes to: %q\n", count, iter.Name())
 		}
 
 		if u.worker.ShowDiff {

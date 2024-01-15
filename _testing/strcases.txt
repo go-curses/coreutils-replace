@@ -1,0 +1,4 @@
+HelloWorld is CamelCase
+helloWorld is lowerCamelCase
+hello-world is kebab-case
+hello_world is snake_case

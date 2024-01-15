@@ -15,7 +15,7 @@
 # limitations under the License.
 
 GOLANG_MAKEFILE_KEYS += CMD
-GOLANG_CMD_MK_VERSION := v0.1.7
+GOLANG_CMD_MK_VERSION := v0.1.8
 
 .PHONY: __golang __tidy __local __unlocal __be_update
 .PHONY: __vet __test __cover __generate
@@ -26,7 +26,7 @@ SHELL := /bin/bash
 UNTAGGED_VERSION ?= v0.0.0
 UNTAGGED_COMMIT ?= 0000000000
 
-BUILD_OS   ?= $(shell uname -s | awk '{print $$1}' | perl -pe '$$_=lc($$_)')
+BUILD_OS   ?= $(shell uname -s | awk '{print $$1}' | tr '[:upper:]' '[:lower:]')
 BUILD_ARCH ?= $(shell uname -m | perl -pe 's!aarch64!arm64!;s!x86_64!amd64!;')
 BUILD_NAME := ${BIN_NAME}.${BUILD_OS}.${BUILD_ARCH}
 
@@ -54,6 +54,14 @@ GOIMPORTS_LIST ?= github.com/go-curses,github.com/go-corelibs
 
 GOCONVEY_HOST ?= 0.0.0.0
 GOCONVEY_PORT ?= 8080
+
+BUILD_EXTRA_LDFLAGS ?=
+
+ifeq (${INCLUDE_CDK_LOG_FLAGS},true)
+BUILD_EXTRA_LDFLAGS += -X 'github.com/go-curses/cdk.IncludeLogFile=true'
+BUILD_EXTRA_LDFLAGS += -X 'github.com/go-curses/cdk.IncludeLogLevel=true'
+BUILD_EXTRA_LDFLAGS += -X 'github.com/go-curses/cdk.IncludeLogLevels=true'
+endif
 
 _INTERNAL_BUILD_LOG_ ?= /dev/null
 
@@ -197,7 +205,7 @@ endef
 
 # 1: bin-name, 2: goos, 3: goarch, 4: ldflags, 5: gcflags, 6: asmflags, 7: argv, 8: src
 define __cmd_go_build
-$(call __go_build,$(1),$(2),$(3),$(4) -X '${BUILD_VERSION_VAR}=${BUILD_VERSION}' -X '${BUILD_RELEASE_VAR}=${BUILD_RELEASE}',$(5),$(6),$(7),$(8))
+$(call __go_build,$(1),$(2),$(3),$(4) -X '${BUILD_VERSION_VAR}=${BUILD_VERSION}' -X '${BUILD_RELEASE_VAR}=${BUILD_RELEASE}' ${BUILD_EXTRA_LDFLAGS},$(5),$(6),$(7),$(8))
 endef
 
 # 1: bin-name, 2: goos, 3: goarch, 4: ldflags, 5: src

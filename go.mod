@@ -14,8 +14,8 @@ require (
 	github.com/go-corelibs/replace v1.1.0
 	github.com/go-corelibs/scanners v1.0.0
 	github.com/go-corelibs/slices v1.2.0
-	github.com/go-curses/cdk v0.5.20
-	github.com/go-curses/ctk v0.5.12
+	github.com/go-curses/cdk v0.5.22
+	github.com/go-curses/ctk v0.5.13
 	github.com/pkg/profile v1.7.0
 	github.com/smartystreets/goconvey v1.8.1
 	github.com/urfave/cli/v2 v2.27.1

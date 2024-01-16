@@ -52,10 +52,10 @@ github.com/go-corelibs/slices v1.2.0 h1:penJP6zL40kv5AUU5ZxkmR9K9lKtCuuKe8LMKcUc
 github.com/go-corelibs/slices v1.2.0/go.mod h1:vdScCtnJXNqPRvERHAzV/6BvUb9G+1YVYioUkWe801c=
 github.com/go-corelibs/strcases v1.0.0 h1:NqpPbO+GNwX4y2q2QpGwLxHRMYZqm/Jb/9+JVchcMaU=
 github.com/go-corelibs/strcases v1.0.0/go.mod h1:w8YQbdL4CVaQB3K/nZjkG+Ro9uOPK5uak0vgQR9szCU=
-github.com/go-curses/cdk v0.5.20 h1:RNpEXRxC8X04ighAq38KUWt5WgXiEFQ3jezkSdXZtK8=
-github.com/go-curses/cdk v0.5.20/go.mod h1:TpEMBfbJxvXguMp0AiNxrlRfGPajh0AV8mX0YKSvvhk=
-github.com/go-curses/ctk v0.5.12 h1:QHs1upzxq3BpjRUaSeXCbbGGM3v9168jiZaSps2jkmU=
-github.com/go-curses/ctk v0.5.12/go.mod h1:bXKXy5dOGpsMxWZkmP6RwohyrIhCZmfKPwWOFb3B5r0=
+github.com/go-curses/cdk v0.5.22 h1:XSEcHgt0FtN88wo5OMSy3EvAsviGKlJSvWpJvJblkIU=
+github.com/go-curses/cdk v0.5.22/go.mod h1:TpEMBfbJxvXguMp0AiNxrlRfGPajh0AV8mX0YKSvvhk=
+github.com/go-curses/ctk v0.5.13 h1:ixTA+LyNwLlDO08Resa6Dw7VRsAj8adVZ/n0cBhc2Sc=
+github.com/go-curses/ctk v0.5.13/go.mod h1:1LMoxHGP4+JphqXwH51DEq6hyREizGJWSPge9aDKdNc=
 github.com/go-curses/term v1.2.2-gocurses.1 h1:wUi7qtaZQO9q7+YpX8nGBDoFJd7aWZeo25UrbyPsgPg=
 github.com/go-curses/term v1.2.2-gocurses.1/go.mod h1:ZuwRe9U+iLY2qTuhzg/kg0Pc9bZdfcJCtfHrjGvZtVA=
 github.com/go-curses/terminfo v1.1.0 h1:rZlQdmG63pueovR0Y9/aIv4X3pkuM5OAjoltuODC3x8=

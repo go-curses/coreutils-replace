@@ -1,3 +1,12 @@
+replace (0.9.1) unstable; urgency=medium
+
+  * tagged v0.9.1 release build - d8aee773e8842a504f44d057be76d0324f1e0ddb
+  * upstream changes:
+   * d8aee77 Makefile,cmd: setting versions to 0.9.1
+   * bb61f81 go.mod: cdk v0.5.22; ctk v0.5.13; tidy
+
+ -- The Go-Curses Team <go.enjin.org+curses@gmail.com>  Tue, 16 Jan 2024 13:15:57 -0500
+
 replace (0.9.0) unstable; urgency=medium
 
   * tagged v0.9.0 release build - 54d8df895411dcce17770c611f0a3d50f1a50036

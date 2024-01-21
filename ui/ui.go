@@ -30,15 +30,12 @@ import (
 	replace "github.com/go-curses/coreutils-replace"
 )
 
-//go:embed rpl.help.tmpl
-var gAppHelpTemplate string
-
 type ViewType uint8
 
 const (
 	NopeView ViewType = iota
 	FileView
-	EditView
+	SelectGroupsView
 )
 
 type CUI struct {
@@ -56,8 +53,8 @@ type CUI struct {
 	SelectGroupsButton ctk.Button
 	KeepGroupButton    ctk.Button
 	SkipGroupButton    ctk.Button
-	SkipButton         ctk.Button
-	ApplyButton        ctk.Button
+	SkipFileButton     ctk.Button
+	SaveFileButton     ctk.Button
 	QuitButton         ctk.Button
 
 	ActionArea ctk.HButtonBox

@@ -18,57 +18,6 @@ import (
 	"github.com/go-curses/cdk/log"
 )
 
-func (u *CUI) requestEdit(argv ...interface{}) (handled bool) {
-	if u.SelectGroupsButton.IsVisible() {
-		log.DebugF("edit-accel called")
-		u.SelectGroupsButton.GrabFocus()
-		u.delta.SkipAll()
-		u.group = -1
-		u.processNextEdit()
-	}
-	return
-}
-
-func (u *CUI) requestSkipEdit(argv ...interface{}) (handled bool) {
-	if u.SkipGroupButton.IsVisible() {
-		log.DebugF("skip-edit-accel called")
-		u.SkipGroupButton.GrabFocus()
-		u.skipCurrentEdit()
-		u.processNextEdit()
-	}
-	return
-}
-
-func (u *CUI) requestKeepEdit(argv ...interface{}) (handled bool) {
-	if u.KeepGroupButton.IsVisible() {
-		log.DebugF("keep-edit-accel called")
-		u.KeepGroupButton.GrabFocus()
-		u.keepCurrentEdit()
-		u.processNextEdit()
-	}
-	return
-}
-
-func (u *CUI) requestSkip(argv ...interface{}) (handled bool) {
-	if u.SkipButton.IsVisible() {
-		log.DebugF("skip-accel called")
-		u.SkipButton.GrabFocus()
-		u.skipCurrentWork()
-		u.processNextWork()
-	}
-	return
-}
-
-func (u *CUI) requestApply(argv ...interface{}) (handled bool) {
-	if u.ApplyButton.IsVisible() {
-		log.DebugF("apply-accel called")
-		u.ApplyButton.GrabFocus()
-		//u.ApplyButton.SetPressed(true)
-		u.applyAndProcessNextWork()
-	}
-	return
-}
-
 func (u *CUI) requestQuit() {
 	log.DebugDF(1, "requesting quit")
 	u.QuitButton.GrabFocus()

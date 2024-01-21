@@ -140,6 +140,11 @@ func init() {
 	cdk.AppCliLogLevelFlag.Category = GoCursesCategory
 	cdk.AppCliLogLevelsFlag.Category = GoCursesCategory
 
+	//cdk.Build.TtyFlag = true
+	//cdk.AppCliTtyFlag.Category = GoCursesCategory
+	cdk.Build.TtyFlag = false
+	cdk.AppCliTtyFlag.Category = ""
+
 	flagStringer := cli.FlagStringer
 	cli.FlagStringer = func(flag cli.Flag) (usage string) {
 		output := flagStringer(flag)

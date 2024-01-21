@@ -51,7 +51,7 @@ func (u *CUI) makeWindowTitle() (title string) {
 	return
 }
 
-func (u *CUI) startup(data []interface{}, argv ...interface{}) cenums.EventFlag {
+func (u *CUI) startup(_ []interface{}, argv ...interface{}) cenums.EventFlag {
 	var ok bool
 	if _, u.Display, _, _, _, ok = ctk.ArgvApplicationSignalStartup(argv...); ok {
 
@@ -113,71 +113,55 @@ func (u *CUI) startup(data []interface{}, argv ...interface{}) cenums.EventFlag 
 		waLeftSep.Show()
 		workButtonsArea.PackStart(waLeftSep, true, true, 0)
 
-		u.ContinueButton = ctk.NewButtonWithMnemonic("_Continue")
+		mkButton := func(name, label, tooltip, handle string, fn func()) (b ctk.Button) {
+			b = ctk.NewButtonWithMnemonic(label)
+			b.SetName(name)
+			b.Hide()
+			if tooltip != "" {
+				b.SetHasTooltip(true)
+				b.SetTooltipText(tooltip)
+			}
+			b.Connect(ctk.SignalActivate, handle, func(data []interface{}, argv ...interface{}) cenums.EventFlag {
+				b.LogDebug("clicked")
+				fn()
+				return cenums.EVENT_PASS
+			})
+			return
+		}
+
+		u.ContinueButton = mkButton("continue", ContinueAccelLabel, ContinueAccelTooltip, ContinueAccelHandle, u.startWork)
 		u.ContinueButton.Hide()
-		u.ContinueButton.SetHasTooltip(true)
-		u.ContinueButton.SetTooltipText("begin the process of selecting and\napplying changes for each file")
-		u.ContinueButton.Connect(ctk.SignalActivate, "rpl-begin-handler", func(data []interface{}, argv ...interface{}) cenums.EventFlag {
-			u.ContinueButton.LogDebug("clicked")
-			u.startWork()
-			return cenums.EVENT_PASS
-		})
 		workButtonsArea.PackStart(u.ContinueButton, false, false, 0)
 
-		u.SelectGroupsButton = ctk.NewButtonWithMnemonic("Select _Groups <F2>")
-		u.SelectGroupsButton.Hide()
-		u.SelectGroupsButton.SetHasTooltip(true)
-		u.SelectGroupsButton.SetTooltipText("edit the selected changes")
-		u.SelectGroupsButton.Connect(ctk.SignalActivate, "rpl-edit-handler", func(data []interface{}, argv ...interface{}) cenums.EventFlag {
-			u.SelectGroupsButton.LogDebug("clicked")
-			u.WorkAccel.Activate(cdk.KeyF2, 0)
-			return cenums.EVENT_PASS
+		u.SelectGroupsButton = mkButton("select-groups", SelectGroupsAccelLabel, SelectGroupsAccelTooltip, SelectGroupsAccelHandle, func() {
+			u.WorkAccel.Activate(SelectGroupsAccelKey, 0)
 		})
+		u.SelectGroupsButton.Hide()
 		workButtonsArea.PackStart(u.SelectGroupsButton, false, false, 0)
 
-		u.SkipGroupButton = ctk.NewButtonWithMnemonic("_Skip Group <F3>")
-		u.SkipGroupButton.Hide()
-		u.SkipGroupButton.SetHasTooltip(true)
-		u.SkipGroupButton.SetTooltipText("skip this group of changes")
-		u.SkipGroupButton.Connect(ctk.SignalActivate, "rpl-skip-edit-handler", func(data []interface{}, argv ...interface{}) cenums.EventFlag {
-			u.SkipGroupButton.LogDebug("clicked")
-			u.WorkAccel.Activate(cdk.KeyF3, 0)
-			return cenums.EVENT_PASS
+		u.SkipGroupButton = mkButton("skip-group", SkipGroupAccelLabel, SkipGroupAccelTooltip, SkipGroupAccelHandle, func() {
+			u.WorkAccel.Activate(SkipGroupAccelKey, 0)
 		})
+		u.SkipGroupButton.Hide()
 		workButtonsArea.PackStart(u.SkipGroupButton, false, false, 0)
 
-		u.KeepGroupButton = ctk.NewButtonWithMnemonic("_Keep Group <F4>")
-		u.KeepGroupButton.Hide()
-		u.KeepGroupButton.SetHasTooltip(true)
-		u.KeepGroupButton.SetTooltipText("keep this group of changes")
-		u.KeepGroupButton.Connect(ctk.SignalActivate, "rpl-keep-edit-handler", func(data []interface{}, argv ...interface{}) cenums.EventFlag {
-			u.KeepGroupButton.LogDebug("clicked")
-			u.WorkAccel.Activate(cdk.KeyF4, 0)
-			return cenums.EVENT_PASS
+		u.KeepGroupButton = mkButton("keep-group", KeepGroupAccelLabel, KeepGroupAccelTooltip, KeepGroupAccelHandle, func() {
+			u.WorkAccel.Activate(KeepGroupAccelKey, 0)
 		})
+		u.KeepGroupButton.Hide()
 		workButtonsArea.PackStart(u.KeepGroupButton, false, false, 0)
 
-		u.SkipButton = ctk.NewButtonWithMnemonic("_Skip File <F8>")
-		u.SkipButton.Hide()
-		u.SkipButton.SetHasTooltip(true)
-		u.SkipButton.SetTooltipText("skip the file changes and proceed")
-		u.SkipButton.Connect(ctk.SignalActivate, "rpl-skip-handler", func(data []interface{}, argv ...interface{}) cenums.EventFlag {
-			u.SkipButton.LogDebug("clicked")
-			u.WorkAccel.Activate(cdk.KeyF8, 0)
-			return cenums.EVENT_PASS
+		u.SkipFileButton = mkButton("skip-file", SkipFileAccelLabel, SkipFileAccelTooltip, SkipFileAccelHandle, func() {
+			u.WorkAccel.Activate(SkipFileAccelKey, 0)
 		})
-		workButtonsArea.PackStart(u.SkipButton, false, false, 0)
+		u.SkipFileButton.Hide()
+		workButtonsArea.PackStart(u.SkipFileButton, false, false, 0)
 
-		u.ApplyButton = ctk.NewButtonWithMnemonic("Save _File <F9>")
-		u.ApplyButton.Hide()
-		u.ApplyButton.SetHasTooltip(true)
-		u.ApplyButton.SetTooltipText("write the file changes and proceed")
-		u.ApplyButton.Connect(ctk.SignalActivate, "rpl-apply-handler", func(data []interface{}, argv ...interface{}) cenums.EventFlag {
-			u.ApplyButton.LogDebug("clicked")
-			u.WorkAccel.Activate(cdk.KeyF9, 0)
-			return cenums.EVENT_PASS
+		u.SaveFileButton = mkButton("save-file", SaveFileAccelLabel, SaveFileAccelTooltip, SaveFileAccelHandle, func() {
+			u.WorkAccel.Activate(SaveFileAccelKey, 0)
 		})
-		workButtonsArea.PackStart(u.ApplyButton, false, false, 0)
+		u.SaveFileButton.Hide()
+		workButtonsArea.PackStart(u.SaveFileButton, false, false, 0)
 
 		waRightSep := ctk.NewSeparator()
 		waRightSep.Show()
@@ -202,16 +186,8 @@ func (u *CUI) startup(data []interface{}, argv ...interface{}) cenums.EventFlag 
 		u.StatusLabel.SetSingleLineMode(true)
 		u.ActionArea.PackStart(u.StatusLabel, true, true, 1)
 
-		//secondaryActionSep := ctk.NewSeparator()
-		//secondaryActionSep.Show()
-		//u.ActionArea.PackEnd(secondaryActionSep, true, true, 0)
-
-		u.QuitButton = ctk.NewButtonWithMnemonic("_Quit <F10>")
+		u.QuitButton = mkButton("quit", QuitAccelLabel, QuitAccelTooltip, QuitAccelHandle, u.requestQuit)
 		u.QuitButton.Show()
-		u.QuitButton.Connect(ctk.SignalActivate, "rpl-quit-handler", func(data []interface{}, argv ...interface{}) cenums.EventFlag {
-			u.requestQuit()
-			return cenums.EVENT_PASS
-		})
 		u.ActionArea.PackStart(u.QuitButton, false, false, 0)
 
 		u.Window.Show()

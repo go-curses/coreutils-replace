@@ -18,11 +18,10 @@
 #CMD=echo
 
 -include .env
-#export
 
 BIN_NAME := rpl
-UNTAGGED_VERSION := v0.9.1
-UNTAGGED_COMMIT := d8aee773e8
+UNTAGGED_VERSION := v0.9.2
+UNTAGGED_COMMIT := trunk
 
 SHELL := /bin/bash
 RUN_ARGS := --help
@@ -46,12 +45,4 @@ SRC_CMD_PATH := ./cmd/rpl
 
 INCLUDE_CDK_LOG_FLAGS := false
 
-include Golang.cmd.mk
-include Golang.def.mk
-include Golang.cdk.mk
-
-#: begin debian packaging branch changes
-PACKAGING_NAME := replace
--include Debian.mk
-export
-#: end debian packaging branch changes
+include Golang.mk

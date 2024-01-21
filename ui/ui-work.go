@@ -78,7 +78,7 @@ func (u *CUI) startWork() {
 	u.iter = u.worker.StartIterating()
 	if len(u.worker.Matched) > 0 {
 		// work to do
-		u.processNextWork()
+		u.processNextFile()
 		u.DiffView.GrabFocus()
 		return
 	}
@@ -95,7 +95,7 @@ func (u *CUI) startWork() {
 	return
 }
 
-func (u *CUI) applyAndProcessNextWork() {
+func (u *CUI) saveFileAndProcessNextFile() {
 	if u.iter != nil && u.delta != nil {
 		if u.worker.Nop {
 			u.notifier.Info(u.delta.UnifiedEdits())
@@ -110,11 +110,11 @@ func (u *CUI) applyAndProcessNextWork() {
 			}
 		}
 		u.group = -1
-		u.processNextWork()
+		u.processNextFile()
 	}
 }
 
-func (u *CUI) processNextWork() {
+func (u *CUI) processNextFile() {
 	if u.delta == nil {
 		// just started working
 	} else {
@@ -131,7 +131,7 @@ func (u *CUI) processNextWork() {
 	var err error
 	if _, _, u.count, u.delta, err = u.iter.Replace(); err != nil {
 		u.notifier.Error(err.Error())
-		u.processNextWork()
+		u.processNextFile()
 		return
 	}
 
@@ -145,10 +145,10 @@ func (u *CUI) processNextWork() {
 		u.setFooterLabel(fmt.Sprintf("%d groups of changes", count))
 	}
 
-	u.displayFileView()
+	u.presentFileView()
 }
 
-func (u *CUI) keepCurrentEdit() {
+func (u *CUI) keepCurrentGroup() {
 	if u.iter != nil && u.delta != nil {
 		if u.group >= 0 && u.group < u.delta.EditGroupsLen() {
 			u.delta.KeepGroup(u.group)
@@ -156,7 +156,7 @@ func (u *CUI) keepCurrentEdit() {
 	}
 }
 
-func (u *CUI) skipCurrentEdit() {
+func (u *CUI) skipCurrentGroup() {
 	if u.iter != nil && u.delta != nil {
 		if u.group >= 0 && u.group < u.delta.EditGroupsLen() {
 			u.delta.SkipGroup(u.group)
@@ -164,28 +164,34 @@ func (u *CUI) skipCurrentEdit() {
 	}
 }
 
-func (u *CUI) processNextEdit() {
+func (u *CUI) startSelectingGroups() {
+	u.delta.SkipAll()
+	u.group = -1
+	u.processNextGroup()
+}
+
+func (u *CUI) processNextGroup() {
 	if u.iter != nil && u.delta != nil {
 		u.group += 1
 		if u.group < u.delta.EditGroupsLen() {
 			unified := u.delta.EditGroup(u.group)
 			u.setDiffPatch(unified)
-			u.displayEditView()
+			u.presentSelectGroupsView()
 		} else {
 			unified := u.delta.UnifiedEdits()
 			u.setDiffPatch(unified)
-			u.displayFileView()
+			u.presentFileView()
 		}
 	}
 }
 
-func (u *CUI) skipCurrentWork() {
+func (u *CUI) skipCurrentFile() {
 	if u.iter != nil && u.delta != nil {
 		u.delta.SkipAll()
 	}
 }
 
-func (u *CUI) displayFileView() {
+func (u *CUI) presentFileView() {
 	u.view = FileView
 	u.SkipGroupButton.Hide()
 	u.KeepGroupButton.Hide()
@@ -193,9 +199,9 @@ func (u *CUI) displayFileView() {
 	numMatched := len(u.worker.Matched)
 
 	if numMatched > 1 {
-		u.SkipButton.Show()
+		u.SkipFileButton.Show()
 	} else {
-		u.SkipButton.Hide()
+		u.SkipFileButton.Hide()
 	}
 
 	numEditGroups := u.delta.EditGroupsLen()
@@ -205,10 +211,10 @@ func (u *CUI) displayFileView() {
 		} else {
 			u.SelectGroupsButton.Hide()
 		}
-		u.ApplyButton.Show()
+		u.SaveFileButton.Show()
 	} else {
 		u.SelectGroupsButton.Hide()
-		u.ApplyButton.Hide()
+		u.SaveFileButton.Hide()
 	}
 
 	u.setFooterLabel(u.getChangesText())
@@ -218,11 +224,11 @@ func (u *CUI) displayFileView() {
 	u.updateFileWorkStatus()
 }
 
-func (u *CUI) displayEditView() {
-	u.view = EditView
-	u.SkipButton.Hide()
+func (u *CUI) presentSelectGroupsView() {
+	u.view = SelectGroupsView
+	u.SkipFileButton.Hide()
 	u.SelectGroupsButton.Hide()
-	u.ApplyButton.Hide()
+	u.SaveFileButton.Hide()
 	u.SkipGroupButton.Show()
 	u.KeepGroupButton.Show()
 	u.Window.Resize()

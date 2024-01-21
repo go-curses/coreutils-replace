@@ -30,9 +30,6 @@ import (
 	replace "github.com/go-curses/coreutils-replace"
 )
 
-//go:embed rpl.help.tmpl
-var gAppHelpTemplate string
-
 type ViewType uint8
 
 const (

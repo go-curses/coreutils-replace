@@ -107,10 +107,8 @@ func (u *CUI) setFooterLabel(text string) {
 func (u *CUI) setStatusLabel(text string) {
 	if text == "" {
 		u.StatusLabel.SetLabel("")
-		//u.StatusLabel.Hide()
 	} else {
 		u.StatusLabel.SetLabel(text)
-		//u.StatusLabel.Show()
 	}
 	return
 }
@@ -157,7 +155,6 @@ func (u *CUI) updateFileWorkStatus() {
 		u.setStatusLabel("")
 		return
 	}
-	//u.setHeaderLabel("Viewing changes in: " + filepath.Base(u.iter.Name()))
 	u.setHeaderLabel("")
 	u.updateStatusLine()
 }

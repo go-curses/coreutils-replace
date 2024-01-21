@@ -51,7 +51,7 @@ func (u *CUI) makeWindowTitle() (title string) {
 	return
 }
 
-func (u *CUI) startup(data []interface{}, argv ...interface{}) cenums.EventFlag {
+func (u *CUI) startup(_ []interface{}, argv ...interface{}) cenums.EventFlag {
 	var ok bool
 	if _, u.Display, _, _, _, ok = ctk.ArgvApplicationSignalStartup(argv...); ok {
 

@@ -21,7 +21,7 @@
 
 BIN_NAME := rpl
 UNTAGGED_VERSION := v0.9.2
-UNTAGGED_COMMIT := trunk
+UNTAGGED_COMMIT := 0a50144fca
 
 SHELL := /bin/bash
 RUN_ARGS := --help
@@ -45,4 +45,8 @@ SRC_CMD_PATH := ./cmd/rpl
 
 INCLUDE_CDK_LOG_FLAGS := false
 
+#: begin debian packaging branch changes
+PACKAGING_NAME := replace
+-include Debian.mk
+#: end debian packaging branch changes
 include Golang.mk

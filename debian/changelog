@@ -1,3 +1,19 @@
+replace (0.9.2) unstable; urgency=medium
+
+  * tagged v0.9.2 release build - 0a50144fca432bd688005abfe0aa6a87a711d112
+  * upstream changes:
+   * 0a50144 Makefile,cmd: setting versions to v0.9.2
+   * 8e17b70 ui: hide stray Go-Curses cli flag category
+   * d253c62 Makefile,Golang*mk: migrate to Golang.mk v0.2.0 build system
+   * 839ffb0 ui: renamed view presentation methods to presentFileView and presentSelectGroupsView
+   * bce869a ui: eliminate duplicated button constructor code; migrate button tooltips to ui-accels constants
+   * d801d70 ui: code cosmetic changes
+   * 4fd7ea0 ui: rename EditView to SelectGroupsView
+   * 9c2eb67 ui: refactored accelerator and button naming conventions for clarity and code readbility; moved and renamed all accel callbacks from ui-request.go to ui-accel.go; code cosmetic changes
+   * a3bdbfb ui: purging rpl.html.tmpl
+
+ -- The Go-Curses Team <go.enjin.org+curses@gmail.com>  Sun, 21 Jan 2024 13:31:39 -0500
+
 replace (0.9.1) unstable; urgency=medium
 
   * tagged v0.9.1 release build - d8aee773e8842a504f44d057be76d0324f1e0ddb

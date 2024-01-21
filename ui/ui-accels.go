@@ -31,6 +31,17 @@ const (
 	QuitAccelLabel         = "_Quit <F10>"
 )
 
+// Accelerator Button Tooltips
+const (
+	ContinueAccelTooltip     = "begin selecting and saving file changes"
+	SelectGroupsAccelTooltip = "select which groups of changes to keep"
+	SkipGroupAccelTooltip    = "skip this group of changes"
+	KeepGroupAccelTooltip    = "keep this group of changes"
+	SkipFileAccelTooltip     = "skip this file and proceed"
+	SaveFileAccelTooltip     = "save this file and proceed"
+	QuitAccelTooltip         = ""
+)
+
 // Accelerator Keys
 const (
 	SelectGroupsAccelKey = cdk.KeyF2
@@ -53,6 +64,7 @@ const (
 
 // Accelerator Handles
 const (
+	ContinueAccelHandle     = "continue-accel"
 	SelectGroupsAccelHandle = "select-groups-accel"
 	SkipGroupAccelHandle    = "skip-group-accel"
 	KeepGroupAccelHandle    = "keep-group-accel"

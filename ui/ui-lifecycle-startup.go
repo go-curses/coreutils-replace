@@ -113,75 +113,54 @@ func (u *CUI) startup(_ []interface{}, argv ...interface{}) cenums.EventFlag {
 		waLeftSep.Show()
 		workButtonsArea.PackStart(waLeftSep, true, true, 0)
 
-		/*
-			Continue Button
-			This button is only used with --pause present and is the means for
-			the end-user to proceed having reviewed the search results summary
-		*/
-		u.ContinueButton = ctk.NewButtonWithMnemonic(ContinueAccelLabel)
+		mkButton := func(name, label, tooltip, handle string, fn func()) (b ctk.Button) {
+			b = ctk.NewButtonWithMnemonic(label)
+			b.SetName(name)
+			b.Hide()
+			if tooltip != "" {
+				b.SetHasTooltip(true)
+				b.SetTooltipText(tooltip)
+			}
+			b.Connect(ctk.SignalActivate, handle, func(data []interface{}, argv ...interface{}) cenums.EventFlag {
+				b.LogDebug("clicked")
+				fn()
+				return cenums.EVENT_PASS
+			})
+			return
+		}
+
+		u.ContinueButton = mkButton("continue", ContinueAccelLabel, ContinueAccelTooltip, ContinueAccelHandle, u.startWork)
 		u.ContinueButton.Hide()
-		u.ContinueButton.SetHasTooltip(true)
-		u.ContinueButton.SetTooltipText("begin the process of selecting and\napplying changes for each file")
-		u.ContinueButton.Connect(ctk.SignalActivate, "rpl-begin-handler", func(data []interface{}, argv ...interface{}) cenums.EventFlag {
-			u.ContinueButton.LogDebug("clicked")
-			u.startWork()
-			return cenums.EVENT_PASS
-		})
 		workButtonsArea.PackStart(u.ContinueButton, false, false, 0)
 
-		u.SelectGroupsButton = ctk.NewButtonWithMnemonic(SelectGroupsAccelLabel)
-		u.SelectGroupsButton.Hide()
-		u.SelectGroupsButton.SetHasTooltip(true)
-		u.SelectGroupsButton.SetTooltipText("select which groups of changes to keep")
-		u.SelectGroupsButton.Connect(ctk.SignalActivate, "rpl-select-groups-handler", func(data []interface{}, argv ...interface{}) cenums.EventFlag {
-			u.SelectGroupsButton.LogDebug("clicked")
+		u.SelectGroupsButton = mkButton("select-groups", SelectGroupsAccelLabel, SelectGroupsAccelTooltip, SelectGroupsAccelHandle, func() {
 			u.WorkAccel.Activate(SelectGroupsAccelKey, 0)
-			return cenums.EVENT_PASS
 		})
+		u.SelectGroupsButton.Hide()
 		workButtonsArea.PackStart(u.SelectGroupsButton, false, false, 0)
 
-		u.SkipGroupButton = ctk.NewButtonWithMnemonic(SkipGroupAccelLabel)
-		u.SkipGroupButton.Hide()
-		u.SkipGroupButton.SetHasTooltip(true)
-		u.SkipGroupButton.SetTooltipText("skip this group of changes")
-		u.SkipGroupButton.Connect(ctk.SignalActivate, "rpl-skip-group-handler", func(data []interface{}, argv ...interface{}) cenums.EventFlag {
-			u.SkipGroupButton.LogDebug("clicked")
+		u.SkipGroupButton = mkButton("skip-group", SkipGroupAccelLabel, SkipGroupAccelTooltip, SkipGroupAccelHandle, func() {
 			u.WorkAccel.Activate(SkipGroupAccelKey, 0)
-			return cenums.EVENT_PASS
 		})
+		u.SkipGroupButton.Hide()
 		workButtonsArea.PackStart(u.SkipGroupButton, false, false, 0)
 
-		u.KeepGroupButton = ctk.NewButtonWithMnemonic(KeepGroupAccelLabel)
-		u.KeepGroupButton.Hide()
-		u.KeepGroupButton.SetHasTooltip(true)
-		u.KeepGroupButton.SetTooltipText("keep this group of changes")
-		u.KeepGroupButton.Connect(ctk.SignalActivate, "rpl-keep-group-handler", func(data []interface{}, argv ...interface{}) cenums.EventFlag {
-			u.KeepGroupButton.LogDebug("clicked")
+		u.KeepGroupButton = mkButton("keep-group", KeepGroupAccelLabel, KeepGroupAccelTooltip, KeepGroupAccelHandle, func() {
 			u.WorkAccel.Activate(KeepGroupAccelKey, 0)
-			return cenums.EVENT_PASS
 		})
+		u.KeepGroupButton.Hide()
 		workButtonsArea.PackStart(u.KeepGroupButton, false, false, 0)
 
-		u.SkipFileButton = ctk.NewButtonWithMnemonic(SkipFileAccelLabel)
-		u.SkipFileButton.Hide()
-		u.SkipFileButton.SetHasTooltip(true)
-		u.SkipFileButton.SetTooltipText("skip changing this file and continue")
-		u.SkipFileButton.Connect(ctk.SignalActivate, "rpl-skip-file-handler", func(data []interface{}, argv ...interface{}) cenums.EventFlag {
-			u.SkipFileButton.LogDebug("clicked")
+		u.SkipFileButton = mkButton("skip-file", SkipFileAccelLabel, SkipFileAccelTooltip, SkipFileAccelHandle, func() {
 			u.WorkAccel.Activate(SkipFileAccelKey, 0)
-			return cenums.EVENT_PASS
 		})
+		u.SkipFileButton.Hide()
 		workButtonsArea.PackStart(u.SkipFileButton, false, false, 0)
 
-		u.SaveFileButton = ctk.NewButtonWithMnemonic(SaveFileAccelLabel)
-		u.SaveFileButton.Hide()
-		u.SaveFileButton.SetHasTooltip(true)
-		u.SaveFileButton.SetTooltipText("change this file and continue")
-		u.SaveFileButton.Connect(ctk.SignalActivate, "rpl-save-file-handler", func(data []interface{}, argv ...interface{}) cenums.EventFlag {
-			u.SaveFileButton.LogDebug("clicked")
+		u.SaveFileButton = mkButton("save-file", SaveFileAccelLabel, SaveFileAccelTooltip, SaveFileAccelHandle, func() {
 			u.WorkAccel.Activate(SaveFileAccelKey, 0)
-			return cenums.EVENT_PASS
 		})
+		u.SaveFileButton.Hide()
 		workButtonsArea.PackStart(u.SaveFileButton, false, false, 0)
 
 		waRightSep := ctk.NewSeparator()
@@ -207,12 +186,8 @@ func (u *CUI) startup(_ []interface{}, argv ...interface{}) cenums.EventFlag {
 		u.StatusLabel.SetSingleLineMode(true)
 		u.ActionArea.PackStart(u.StatusLabel, true, true, 1)
 
-		u.QuitButton = ctk.NewButtonWithMnemonic(QuitAccelLabel)
+		u.QuitButton = mkButton("quit", QuitAccelLabel, QuitAccelTooltip, QuitAccelHandle, u.requestQuit)
 		u.QuitButton.Show()
-		u.QuitButton.Connect(ctk.SignalActivate, "rpl-quit-handler", func(data []interface{}, argv ...interface{}) cenums.EventFlag {
-			u.requestQuit()
-			return cenums.EVENT_PASS
-		})
 		u.ActionArea.PackStart(u.QuitButton, false, false, 0)
 
 		u.Window.Show()

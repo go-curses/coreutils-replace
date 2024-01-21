@@ -18,7 +18,6 @@
 #CMD=echo
 
 -include .env
-#export
 
 BIN_NAME := rpl
 UNTAGGED_VERSION := v0.9.1
@@ -46,6 +45,4 @@ SRC_CMD_PATH := ./cmd/rpl
 
 INCLUDE_CDK_LOG_FLAGS := false
 
-include Golang.cmd.mk
-include Golang.def.mk
-include Golang.cdk.mk
+include Golang.mk

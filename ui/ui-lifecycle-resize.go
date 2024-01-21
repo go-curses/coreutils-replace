@@ -22,7 +22,7 @@ func (u *CUI) resize(data []interface{}, argv ...interface{}) cenums.EventFlag {
 	switch u.view {
 	case FileView:
 		u.updateFileWorkStatus()
-	case EditView:
+	case SelectGroupsView:
 		u.updateEditWorkStatus()
 	case NopeView:
 	}

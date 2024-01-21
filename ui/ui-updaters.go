@@ -28,7 +28,7 @@ func (u *CUI) getChangesText() (text string) {
 
 	if u.delta != nil {
 		if count := u.delta.EditGroupsLen(); count > 1 {
-			if u.view == EditView {
+			if u.view == SelectGroupsView {
 				text = fmt.Sprintf("%d of %d groups of changes", u.group+1, count)
 			} else {
 				text = fmt.Sprintf("%d groups of changes", count)

@@ -35,7 +35,7 @@ type ViewType uint8
 const (
 	NopeView ViewType = iota
 	FileView
-	EditView
+	SelectGroupsView
 )
 
 type CUI struct {

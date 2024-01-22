@@ -20,8 +20,8 @@
 -include .env
 
 BIN_NAME := rpl
-UNTAGGED_VERSION := v0.9.2
-UNTAGGED_COMMIT := 0a50144fca
+UNTAGGED_VERSION := v0.9.3
+UNTAGGED_COMMIT := trunk
 
 SHELL := /bin/bash
 RUN_ARGS := --help

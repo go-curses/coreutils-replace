@@ -5,15 +5,16 @@ go 1.21.5
 require (
 	github.com/dustin/go-humanize v1.0.1
 	github.com/go-corelibs/chdirs v1.1.1
+	github.com/go-corelibs/cli v0.2.0
 	github.com/go-corelibs/diff v1.1.1
 	github.com/go-corelibs/filewriter v1.0.1
 	github.com/go-corelibs/globs v1.0.0
 	github.com/go-corelibs/mock-stdio v1.0.0
 	github.com/go-corelibs/notify v1.0.2
-	github.com/go-corelibs/path v1.1.0
-	github.com/go-corelibs/replace v1.1.0
+	github.com/go-corelibs/path v1.2.0
+	github.com/go-corelibs/replace v1.2.1
 	github.com/go-corelibs/scanners v1.0.0
-	github.com/go-corelibs/slices v1.2.0
+	github.com/go-corelibs/slices v1.3.0
 	github.com/go-curses/cdk v0.5.22
 	github.com/go-curses/ctk v0.5.13
 	github.com/pkg/profile v1.7.0
@@ -31,7 +32,7 @@ require (
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/ganbarodigital/go_glob v1.0.0 // indirect
 	github.com/gdamore/encoding v1.0.0 // indirect
-	github.com/go-corelibs/maps v1.0.2 // indirect
+	github.com/go-corelibs/maps v1.1.0 // indirect
 	github.com/go-corelibs/maths v1.0.1 // indirect
 	github.com/go-corelibs/strcases v1.0.0 // indirect
 	github.com/go-curses/term v1.2.2-gocurses.1 // indirect
@@ -61,7 +62,7 @@ require (
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2 // indirect
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	golang.org/x/crypto v0.18.0 // indirect
-	golang.org/x/exp v0.0.0-20240112132812-db7319d0e0e3 // indirect
+	golang.org/x/exp v0.0.0-20240119083558-1b970713d09a // indirect
 	golang.org/x/net v0.20.0 // indirect
 	golang.org/x/sys v0.16.0 // indirect
 	golang.org/x/term v0.16.0 // indirect

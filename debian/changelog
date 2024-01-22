@@ -1,3 +1,15 @@
+replace (0.9.3) unstable; urgency=medium
+
+  * tagged v0.9.3 release build - 1df67af9ff93ad963edf5cacee9bdb77b97ffb7d
+  * upstream changes:
+   * 1df67af Makefile,cmd: setting versions to v0.9.3
+   * 2ec74f5 go.mod: be-update; tidy
+   * c42d844 Golang.lib.mk: updated to v0.2.1
+   * 4512949 ui (flags): use go-corelibs/cli.ClearEmptyCategories
+   * ecff4b0 ui (flags): restore cdk tty flag category; replace ad-hoc FlagStringFunc with go-corelibs/cli.FlagStringer (prune default bools, prune repeats, details on new lines)
+
+ -- The Go-Curses Team <go.enjin.org+curses@gmail.com>  Mon, 22 Jan 2024 10:31:36 -0500
+
 replace (0.9.2) unstable; urgency=medium
 
   * tagged v0.9.2 release build - 0a50144fca432bd688005abfe0aa6a87a711d112

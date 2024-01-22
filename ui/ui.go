@@ -21,6 +21,7 @@ import (
 
 	"github.com/urfave/cli/v2"
 
+	clcli "github.com/go-corelibs/cli"
 	"github.com/go-corelibs/diff"
 	"github.com/go-corelibs/notify"
 	"github.com/go-corelibs/slices"
@@ -98,7 +99,6 @@ func NewUI(name, usage, description, manual, version, release, tag, title, ttyPa
 		c.Description += manual
 	} else {
 		c.Description = ""
-		NoLimitsFlag.Category = ""
 		NoLimitsFlag.Hidden = true
 	}
 
@@ -132,6 +132,8 @@ func NewUI(name, usage, description, manual, version, release, tag, title, ttyPa
 		QuietFlag,
 		VerboseFlag,
 	)
+
+	clcli.ClearEmptyCategories(c.Flags)
 
 	u.App.Connect(cdk.SignalPrepareStartup, "ui-prepare-startup-handler", u.prepareStartup)
 	u.App.Connect(cdk.SignalPrepare, "ui-prepare-handler", u.prepare)

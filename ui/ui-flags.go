@@ -17,7 +17,7 @@ package ui
 import (
 	"github.com/urfave/cli/v2"
 
-	"github.com/go-corelibs/slices"
+	clcli "github.com/go-corelibs/cli"
 	"github.com/go-curses/cdk"
 )
 
@@ -139,25 +139,11 @@ func init() {
 	cdk.AppCliLogFileFlag.Category = GoCursesCategory
 	cdk.AppCliLogLevelFlag.Category = GoCursesCategory
 	cdk.AppCliLogLevelsFlag.Category = GoCursesCategory
+	cdk.AppCliTtyFlag.Category = GoCursesCategory
 
-	//cdk.Build.TtyFlag = true
-	//cdk.AppCliTtyFlag.Category = GoCursesCategory
-	cdk.Build.TtyFlag = false
-	cdk.AppCliTtyFlag.Category = ""
-
-	flagStringer := cli.FlagStringer
-	cli.FlagStringer = func(flag cli.Flag) (usage string) {
-		output := flagStringer(flag)
-		if b, _, a, found := slices.Carve([]rune(output), []rune("["), []rune("]")); found {
-			if usage = string(b); string(a) != "" {
-				usage += " " + string(a)
-			}
-		} else {
-			usage = output
-		}
-		if b, _, _, found := slices.Carve([]rune(usage), []rune("(default:"), []rune(")")); found {
-			usage = string(b)
-		}
-		return
-	}
+	cli.FlagStringer = clcli.NewFlagStringer().
+		PruneDefaultBools(true).
+		DetailsOnNewLines(true).
+		PruneRepeats(true).
+		Make()
 }

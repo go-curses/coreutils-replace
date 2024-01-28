@@ -26,6 +26,7 @@ import (
 	"github.com/go-corelibs/notify"
 	"github.com/go-corelibs/path"
 	"github.com/go-corelibs/scanners"
+	"github.com/go-corelibs/slices"
 )
 
 type Worker struct {
@@ -223,6 +224,16 @@ func (w *Worker) InitTargets(fn FindAllMatchingFn) (err error) {
 
 	w.initLookup = make(map[string]struct{})
 
+	// if not recursive, and "." is present, use the CWD files instead of "."
+	if !w.Recurse && slices.Within(".", w.Paths) {
+		w.Paths = slices.Prune(w.Paths, ".")
+		var files []string
+		if files, err = path.ListFiles(".", w.All); err != nil {
+			return
+		}
+		w.Paths = append(w.Paths, files...)
+	}
+
 	// add any path arguments given
 	for _, target := range w.Paths {
 		if tooMany, ee := w.addTargetFile(target); tooMany {
@@ -258,16 +269,22 @@ func (w *Worker) InitTargets(fn FindAllMatchingFn) (err error) {
 		}
 	}
 
+	// free memory
+	w.initLookup = nil
 	return
 }
 
 func (w *Worker) FindMatching(fn FindAllMatchingFn) (err error) {
 	if w.Regex {
-		w.Files, w.Matched, err = FindAllMatchingRegexp(w.Pattern, w.Targets, w.All, w.NoLimits, w.BinAsText, w.Include, w.Exclude, fn)
+		if w.MultiLine {
+			w.Files, w.Matched, err = FindAllMatchingRegexp(w.Pattern, w.Targets, w.All, w.NoLimits, w.BinAsText, w.Recurse, w.Include, w.Exclude, fn)
+		} else {
+			w.Files, w.Matched, err = FindAllMatchingRegexpLines(w.Pattern, w.Targets, w.All, w.NoLimits, w.BinAsText, w.Recurse, w.Include, w.Exclude, fn)
+		}
 	} else if w.PreserveCase || w.IgnoreCase {
-		w.Files, w.Matched, err = FindAllMatchingStringInsensitive(w.Search, w.Targets, w.All, w.NoLimits, w.BinAsText, w.Include, w.Exclude, fn)
+		w.Files, w.Matched, err = FindAllMatchingStringInsensitive(w.Search, w.Targets, w.All, w.NoLimits, w.BinAsText, w.Recurse, w.Include, w.Exclude, fn)
 	} else {
-		w.Files, w.Matched, err = FindAllMatchingString(w.Search, w.Targets, w.All, w.NoLimits, w.BinAsText, w.Include, w.Exclude, fn)
+		w.Files, w.Matched, err = FindAllMatchingString(w.Search, w.Targets, w.All, w.NoLimits, w.BinAsText, w.Recurse, w.Include, w.Exclude, fn)
 	}
 	return
 }

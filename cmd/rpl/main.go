@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"runtime/debug"
+	"slices"
 	"strings"
 
 	"github.com/dustin/go-humanize"
@@ -18,7 +19,7 @@ import (
 
 var (
 	AppName    = "rpl"
-	AppVersion = "0.9.3"
+	AppVersion = "0.9.4"
 	AppRelease = "trunk"
 	AppTag     = "rpl"
 	AppTitle   = "rpl"
@@ -276,6 +277,12 @@ func main() {
 	defer func() {
 		if v := recover(); v != nil {
 			_, _ = fmt.Fprintf(os.Stderr, "# rpl panic: %q\n", v)
+			if slices.Contains(os.Args, "-v") || slices.Contains(os.Args, "--verbose") {
+				_, _ = fmt.Fprintln(os.Stderr, "#")
+				for _, line := range strings.Split(string(debug.Stack()), "\n") {
+					_, _ = fmt.Fprintln(os.Stderr, "#\t"+line)
+				}
+			}
 			os.Exit(1)
 		}
 	}()

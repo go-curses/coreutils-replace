@@ -17,14 +17,17 @@ package ui
 import (
 	"github.com/urfave/cli/v2"
 
+	clcli "github.com/go-corelibs/cli"
 	"github.com/go-corelibs/notify"
+	"github.com/go-corelibs/slices"
 	"github.com/go-curses/cdk/lib/enums"
 	"github.com/go-curses/coreutils-replace"
 )
 
 func MakeWorker(ctx *cli.Context, notifier notify.Notifier) (w *replace.Worker, eventFlag enums.EventFlag, err error) {
 	w = &replace.Worker{
-		Regex:           ctx.Bool(RegexFlag.Name) || ctx.Bool(DotMatchNlFlag.Name),
+		Regex:           ctx.Bool(RegexFlag.Name) || ctx.Bool(DotMatchNlFlag.Name) || ctx.Bool(MultiLineFlag.Name),
+		MultiLine:       ctx.Bool(MultiLineFlag.Name),
 		DotMatchNl:      ctx.Bool(DotMatchNlFlag.Name),
 		Recurse:         ctx.Bool(RecurseFlag.Name),
 		Nop:             ctx.Bool(NopFlag.Name),
@@ -49,16 +52,19 @@ func MakeWorker(ctx *cli.Context, notifier notify.Notifier) (w *replace.Worker, 
 		Notifier:        notifier,
 	}
 
-	w.Search, w.Replace = w.Argv[0], w.Argv[1]
-	if w.Argc > 2 {
-		if w.Stdin = w.Argv[2] == "-"; w.Stdin {
-			w.Paths = w.Argv[3:]
-		} else {
-			w.Paths = w.Argv[2:]
+	if w.Argc >= 2 {
+		w.Search, w.Replace = w.Argv[0], w.Argv[1]
+		if w.Argc > 2 {
+			w.Argv = w.Argv[2:]
+			if w.Stdin = slices.Within("-", w.Argv); w.Stdin {
+				w.Argv = slices.Prune(w.Argv, "-")
+			}
+			w.Argc = len(w.Argv)
 		}
 	}
+	w.Stdin = w.Stdin || w.Null
 
-	if len(w.Paths) == 0 && !ctx.IsSet(FileFlag.Name) {
+	if len(w.Paths) == 0 && !ctx.IsSet(FileFlag.Name) && !w.Stdin {
 		// add CWD if no arguments and --file not present
 		w.Paths = []string{"."}
 	}
@@ -67,9 +73,12 @@ func MakeWorker(ctx *cli.Context, notifier notify.Notifier) (w *replace.Worker, 
 		return
 	}
 
-	if w.Argc < 2 {
-		cli.ShowAppHelpAndExit(ctx, 1)
-		eventFlag = enums.EVENT_STOP
+	if ctx.NArg() < 2 {
+		if w.Verbose {
+			clcli.ShowUsageOptionsAndExit(ctx, 1)
+			return
+		}
+		clcli.ShowUsageAndExit(ctx, 1)
 		return
 	}
 

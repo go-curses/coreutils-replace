@@ -1,3 +1,24 @@
+replace (0.9.4) unstable; urgency=medium
+
+  * tagged v0.9.4 release build - 99cf7c9577915a26041758abc028c8526f9295f6
+  * upstream changes:
+   * 99cf7c9 Makefile,cmd: setting version to v0.9.4
+   * 011db9b README.md: updated --help section; updated copyright year
+   * 785a276 go.mod: go-corelibs/cli v0.4.0; tidy
+   * e9bf1ea rpl (iterator,worker): factor in --multi-line, use RegexLinesFiles when not --multi-line
+   * 2cb2485 work (finders): refactor to account for --recurse; add FindAllMatchingRegexLines; ensure no duplicate results
+   * 4326418 rpl (worker): if not recursive and . is present, use the CWD files instead of recurising .
+   * 8b5846b ui (worker): use new clcli.ShowUsageAndExit when not enough arguments; use new clcli.ShowUsageOptionsAndExit when not enough arguments and also w.Verbose is present
+   * 06bbc24 ui (worker): refactor initial w.Stdin, w.Argv and w.Argc handling
+   * 36f106b cmd: include stack trace if --verbose is present when a main panic happens
+   * b475992 ui (worker): refactor - and -0 handling so that w.Stdin is actually correct; only add . to w.Paths when --file, -0 and - are not present
+   * 12db161 ui (worker): include --multi-line with w.Regex check; add w.MultiLine assignment
+   * 5b8bc49 ui (shutdownRunCLI): quote regex like normal search because the pattern may include slashes, making it look wrong
+   * 2fa01c8 ui (preprare): bugfix for MakeWorker errors being lost and causing the ui to startup
+   * 544aac9 rpl (worker): free initLookup for gc when done using it
+
+ -- The Go-Curses Team <go.enjin.org+curses@gmail.com>  Sun, 28 Jan 2024 17:55:45 -0500
+
 replace (0.9.3) unstable; urgency=medium
 
   * tagged v0.9.3 release build - 1df67af9ff93ad963edf5cacee9bdb77b97ffb7d

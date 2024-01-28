@@ -49,11 +49,9 @@ func (u *CUI) prepare(data []interface{}, argv ...interface{}) cenums.EventFlag 
 		return cenums.EVENT_STOP
 	}
 
-	if worker, eventFlag, err := MakeWorker(ctx, u.notifier); err != nil {
+	if worker, eventFlag, err := MakeWorker(ctx, u.notifier); err != nil || eventFlag == cenums.EVENT_STOP {
 		u.LastError = err
-		return eventFlag
-	} else if eventFlag == cenums.EVENT_STOP {
-		return eventFlag
+		return cenums.EVENT_STOP
 	} else {
 		u.worker = worker
 	}

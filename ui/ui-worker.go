@@ -17,6 +17,7 @@ package ui
 import (
 	"github.com/urfave/cli/v2"
 
+	clcli "github.com/go-corelibs/cli"
 	"github.com/go-corelibs/notify"
 	"github.com/go-corelibs/slices"
 	"github.com/go-curses/cdk/lib/enums"
@@ -73,8 +74,11 @@ func MakeWorker(ctx *cli.Context, notifier notify.Notifier) (w *replace.Worker, 
 	}
 
 	if ctx.NArg() < 2 {
-		cli.ShowAppHelpAndExit(ctx, 1)
-		eventFlag = enums.EVENT_STOP
+		if w.Verbose {
+			clcli.ShowUsageOptionsAndExit(ctx, 1)
+			return
+		}
+		clcli.ShowUsageAndExit(ctx, 1)
 		return
 	}
 

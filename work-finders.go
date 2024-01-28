@@ -48,12 +48,16 @@ func IsIncluded(include, exclude globs.Globs, input string) (included bool) {
 	return
 }
 
-func FindAllIncluded(targets []string, includeHidden, noLimit, binAsText bool, include, exclude globs.Globs) (found []string) {
+func FindAllIncluded(targets []string, includeHidden, noLimit, binAsText, recurse bool, include, exclude globs.Globs) (found []string) {
+	unique := make(map[string]struct{})
 	check := func(target string) (allowed bool) {
-		if !includeHidden && path.IsHidden(target) {
+		if _, present := unique[target]; present {
+			return
+		} else if !includeHidden && path.IsHidden(target) {
 			return
 		}
 		allowed = IsIncluded(include, exclude, target)
+		unique[target] = struct{}{} // don't check this target again
 		return
 	}
 	for _, target := range targets {
@@ -62,7 +66,7 @@ func FindAllIncluded(targets []string, includeHidden, noLimit, binAsText bool, i
 			if check(target) {
 				found = append(found, target)
 			}
-		} else if path.IsDir(target) {
+		} else if recurse && path.IsDir(target) {
 			// process dir path
 			files, _ := path.ListFiles(target, includeHidden)
 			for _, file := range files {
@@ -71,19 +75,18 @@ func FindAllIncluded(targets []string, includeHidden, noLimit, binAsText bool, i
 				}
 			}
 			dirs, _ := path.ListDirs(target, includeHidden)
-			more := FindAllIncluded(dirs, includeHidden, noLimit, binAsText, include, exclude)
+			more := FindAllIncluded(dirs, includeHidden, noLimit, binAsText, recurse, include, exclude)
 			found = append(found, more...)
 		}
-
 	}
 	return
 }
 
-func FindAllMatcher(targets []string, includeHidden, noLimit, binAsText bool, include, exclude globs.Globs, fn FindAllMatchingFn, matcher FindAllMatcherFn) (files, matches []string, err error) {
+func FindAllMatcher(targets []string, includeHidden, noLimit, binAsText, recurse bool, include, exclude globs.Globs, fn FindAllMatchingFn, matcher FindAllMatcherFn) (files, matches []string, err error) {
 	if fn == nil {
 		fn = func(file string, matched bool, err error) {}
 	}
-	for _, target := range FindAllIncluded(targets, includeHidden, noLimit, binAsText, include, exclude) {
+	for _, target := range FindAllIncluded(targets, includeHidden, noLimit, binAsText, recurse, include, exclude) {
 		files = append(files, target)
 		if len(files) > MaxFileCount {
 			err = ErrTooManyFiles
@@ -106,24 +109,36 @@ func FindAllMatcher(targets []string, includeHidden, noLimit, binAsText bool, in
 	return
 }
 
-func FindAllMatchingRegexp(search *regexp.Regexp, targets []string, includeHidden, noLimit, binAsText bool, include, exclude globs.Globs, fn FindAllMatchingFn) (files, matches []string, err error) {
-	files, matches, err = FindAllMatcher(targets, includeHidden, noLimit, binAsText, include, exclude, fn, func(data []byte) (matched bool) {
+func FindAllMatchingRegexp(search *regexp.Regexp, targets []string, includeHidden, noLimit, binAsText, recurse bool, include, exclude globs.Globs, fn FindAllMatchingFn) (files, matches []string, err error) {
+	files, matches, err = FindAllMatcher(targets, includeHidden, noLimit, binAsText, recurse, include, exclude, fn, func(data []byte) (matched bool) {
 		matched = search.Match(data)
 		return
 	})
 	return
 }
 
-func FindAllMatchingString(search string, targets []string, includeHidden, noLimit, binAsText bool, include, exclude globs.Globs, fn FindAllMatchingFn) (files, matches []string, err error) {
-	files, matches, err = FindAllMatcher(targets, includeHidden, noLimit, binAsText, include, exclude, fn, func(data []byte) (matched bool) {
+func FindAllMatchingRegexpLines(search *regexp.Regexp, targets []string, includeHidden, noLimit, binAsText, recurse bool, include, exclude globs.Globs, fn FindAllMatchingFn) (files, matches []string, err error) {
+	files, matches, err = FindAllMatcher(targets, includeHidden, noLimit, binAsText, recurse, include, exclude, fn, func(data []byte) (matched bool) {
+		for _, line := range strings.Split(string(data), "\n") {
+			if matched = search.MatchString(line); matched {
+				return
+			}
+		}
+		return
+	})
+	return
+}
+
+func FindAllMatchingString(search string, targets []string, includeHidden, noLimit, binAsText, recurse bool, include, exclude globs.Globs, fn FindAllMatchingFn) (files, matches []string, err error) {
+	files, matches, err = FindAllMatcher(targets, includeHidden, noLimit, binAsText, recurse, include, exclude, fn, func(data []byte) (matched bool) {
 		matched = strings.Contains(string(data), search)
 		return
 	})
 	return
 }
 
-func FindAllMatchingStringInsensitive(search string, targets []string, includeHidden, noLimit, binAsText bool, include, exclude globs.Globs, fn FindAllMatchingFn) (files, matches []string, err error) {
-	files, matches, err = FindAllMatcher(targets, includeHidden, noLimit, binAsText, include, exclude, fn, func(data []byte) (matched bool) {
+func FindAllMatchingStringInsensitive(search string, targets []string, includeHidden, noLimit, binAsText, recurse bool, include, exclude globs.Globs, fn FindAllMatchingFn) (files, matches []string, err error) {
+	files, matches, err = FindAllMatcher(targets, includeHidden, noLimit, binAsText, recurse, include, exclude, fn, func(data []byte) (matched bool) {
 		matched = strings.Contains(strings.ToLower(string(data)), strings.ToLower(search))
 		return
 	})

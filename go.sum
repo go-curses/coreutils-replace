@@ -28,8 +28,8 @@ github.com/gdamore/encoding v1.0.0 h1:+7OoQ1Bc6eTm5niUzBa0Ctsh6JbMW6Ra+YNuAtDBdk
 github.com/gdamore/encoding v1.0.0/go.mod h1:alR0ol34c49FCSBLjhosxzcPHQbf2trDkoo5dl+VrEg=
 github.com/go-corelibs/chdirs v1.1.1 h1:N9rzIR+czy21jgp2qrSrXePbJfMrnrgMf3fnzXBW1YU=
 github.com/go-corelibs/chdirs v1.1.1/go.mod h1:LTJzxNUeHLUvJ2KSU+D+cNGTX0ZnIUytg1Ui/H3kRo0=
-github.com/go-corelibs/cli v0.2.0 h1:sZh0ymVDStaWkETL4tfMjs70yYbWgHg5vnCGxpN1KuA=
-github.com/go-corelibs/cli v0.2.0/go.mod h1:DkSxwzilMFFpww0txrLTuixGzkoAMgFrR4ATxOsp8j4=
+github.com/go-corelibs/cli v0.4.0 h1:Jb75wiBb1teVr9NGB62QpG2db2kMPkRHD8CSiQ2kuYU=
+github.com/go-corelibs/cli v0.4.0/go.mod h1:euSkE3/oYRs0nG9dTtVOyy7fzRWKcPJI1h5H6yny1iA=
 github.com/go-corelibs/diff v1.1.1 h1:qP5mKQ3t6mngKmeLP8YHpIkc5bzJc1Xt0yRzXHSj8GE=
 github.com/go-corelibs/diff v1.1.1/go.mod h1:dcPEP7ZEJAv6T0kVmcc7iz7sjxoe3nXgxec8A/C2tGQ=
 github.com/go-corelibs/filewriter v1.0.1 h1:rv7vLsS8oV7h7az5zNj/xzehGbCSNzC6VzeR/DziTRA=

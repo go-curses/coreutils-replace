@@ -5,7 +5,7 @@ go 1.21.5
 require (
 	github.com/dustin/go-humanize v1.0.1
 	github.com/go-corelibs/chdirs v1.1.1
-	github.com/go-corelibs/cli v0.2.0
+	github.com/go-corelibs/cli v0.4.0
 	github.com/go-corelibs/diff v1.1.1
 	github.com/go-corelibs/filewriter v1.0.1
 	github.com/go-corelibs/globs v1.0.0

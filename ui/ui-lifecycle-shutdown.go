@@ -88,12 +88,7 @@ func (u *CUI) shutdownRunCLI() cenums.EventFlag {
 		} else {
 			format = "# replacing"
 		}
-		if u.worker.Regex {
-			format += " /%s/"
-		} else {
-			format += " %q"
-		}
-		format += " with %q in %d of %d files\n"
+		format += " %q with %q in %d of %d files\n"
 		u.notifier.Error(
 			format,
 			u.worker.Search,

@@ -42,10 +42,10 @@ USAGE:
    rpl [options] <search> <replace> [path...]
 
 VERSION:
-   v0.9.0 (trunk)
+   v0.9.4 (trunk)
 
 DESCRIPTION:
-   
+
    rpl is a command line utility for searching and replacing content within plain
    text files.
 
@@ -265,53 +265,55 @@ DESCRIPTION:
 
 
 GLOBAL OPTIONS:
+
    1. Case Sensitivity
 
-   --ignore-case, -i    perform a case-insensitive search (plain or regex) 
-   --preserve-case, -P  try to preserve replacement string cases 
+   --ignore-case, -i    perform a case-insensitive search (plain or regex)
+   --preserve-case, -P  try to preserve replacement string cases
 
    2. Regular Expressions
 
-   --dot-match-nl, -s  set the dot-match-nl (?s) global flag (implies -r) 
-   --multi-line, -m    set the multiline (?m) global flag (implies -r) 
-   --regex, -r         search and replace arguments are regular expressions 
+   --dot-match-nl, -s  set the dot-match-nl (?s) global flag (implies -r)
+   --multi-line, -m    set the multiline (?m) global flag (implies -r)
+   --regex, -r         search and replace arguments are regular expressions
 
    3. User Interface
 
-   --interactive, -e  selectively apply changes per-file 
-   --pause, -E        pause on file search results screen (implies -e) 
-   --show-diff, -d    output unified diffs for all changes 
+   --interactive, -e  selectively apply changes per-file
+   --pause, -E        pause on file search results screen (implies -e)
+   --show-diff, -d    output unified diffs for all changes
 
    4. Backups
 
-   --backup, -b                        make backups before replacing content 
+   --backup, -b                        make backups before replacing content
    --backup-extension value, -B value  specify the backup file suffix to use (implies -b)
 
    5. Target Selection
 
-   --all, -a                    include backups and files that start with a dot 
-   --exclude value, -X value    exclude files matching glob pattern
-   --file value, -f value       read paths listed in files
-   --include value, -I value    include on files matching glob pattern
-   --null, -0                   read null-terminated paths from os.Stdin 
-   --recurse, -R                travel directory paths 
+   --all, -a                  include backups and files that start with a dot
+   --exclude value, -X value  exclude files matching glob pattern
+   --file value, -f value     read paths listed in files
+   --include value, -I value  include on files matching glob pattern
+   --null, -0                 read null-terminated paths from os.Stdin
+   --recurse, -R              travel directory paths
 
    6. General
 
-   --help             display complete command-line help text 
-   --no-limits, -U    ignore max file count and size limits 
-   --nope, --nop, -n  report what would otherwise have been done 
-   --quiet, -q        silence notices 
-   --usage, -h        display command-line usage information 
-   --verbose, -v      verbose notices 
+   --help             display complete command-line help text
+   --no-limits, -U    ignore max file count and size limits
+   --nope, --nop, -n  report what would otherwise have been done
+   --quiet, -q        silence notices
+   --usage, -h        display command-line usage information
+   --verbose, -v      verbose notices
    --version, -V      display the version
+
 ```
 
 
 ## LICENSE
 
 ```
-Copyright 2023  The Go-Curses Authors
+Copyright 2024  The Go-Curses Authors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use file except in compliance with the License.

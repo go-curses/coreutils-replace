@@ -258,6 +258,8 @@ func (w *Worker) InitTargets(fn FindAllMatchingFn) (err error) {
 		}
 	}
 
+	// free memory
+	w.initLookup = nil
 	return
 }
 

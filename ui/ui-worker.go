@@ -24,7 +24,8 @@ import (
 
 func MakeWorker(ctx *cli.Context, notifier notify.Notifier) (w *replace.Worker, eventFlag enums.EventFlag, err error) {
 	w = &replace.Worker{
-		Regex:           ctx.Bool(RegexFlag.Name) || ctx.Bool(DotMatchNlFlag.Name),
+		Regex:           ctx.Bool(RegexFlag.Name) || ctx.Bool(DotMatchNlFlag.Name) || ctx.Bool(MultiLineFlag.Name),
+		MultiLine:       ctx.Bool(MultiLineFlag.Name),
 		DotMatchNl:      ctx.Bool(DotMatchNlFlag.Name),
 		Recurse:         ctx.Bool(RecurseFlag.Name),
 		Nop:             ctx.Bool(NopFlag.Name),

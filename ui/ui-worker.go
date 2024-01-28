@@ -51,14 +51,15 @@ func MakeWorker(ctx *cli.Context, notifier notify.Notifier) (w *replace.Worker, 
 		Notifier:        notifier,
 	}
 
-	w.Search, w.Replace = w.Argv[0], w.Argv[1]
-	if w.Argc > 2 {
-		if w.Stdin = slices.Within("-", w.Argv); w.Stdin {
-			w.Argv = slices.Prune(w.Argv[2:], "-")
-		} else {
+	if w.Argc >= 2 {
+		w.Search, w.Replace = w.Argv[0], w.Argv[1]
+		if w.Argc > 2 {
 			w.Argv = w.Argv[2:]
+			if w.Stdin = slices.Within("-", w.Argv); w.Stdin {
+				w.Argv = slices.Prune(w.Argv, "-")
+			}
+			w.Argc = len(w.Argv)
 		}
-		w.Argc = len(w.Argv)
 	}
 	w.Stdin = w.Stdin || w.Null
 

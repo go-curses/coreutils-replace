@@ -57,8 +57,10 @@ func (i *Iterator) Replace() (original, modified string, count int, delta *diff.
 	} else if i.w.Pattern != nil {
 		if i.w.PreserveCase {
 			original, modified, count, delta, err = replace.RegexPreserveFile(i.w.Pattern, i.w.Replace, i.w.Matched[i.pos])
-		} else {
+		} else if i.w.MultiLine {
 			original, modified, count, delta, err = replace.RegexFile(i.w.Pattern, i.w.Replace, i.w.Matched[i.pos])
+		} else {
+			original, modified, count, delta, err = replace.RegexLinesFile(i.w.Pattern, i.w.Replace, i.w.Matched[i.pos])
 		}
 	} else if i.w.PreserveCase {
 		original, modified, count, delta, err = replace.StringPreserveFile(i.w.Search, i.w.Replace, i.w.Matched[i.pos])

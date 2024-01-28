@@ -276,11 +276,15 @@ func (w *Worker) InitTargets(fn FindAllMatchingFn) (err error) {
 
 func (w *Worker) FindMatching(fn FindAllMatchingFn) (err error) {
 	if w.Regex {
-		w.Files, w.Matched, err = FindAllMatchingRegexp(w.Pattern, w.Targets, w.All, w.NoLimits, w.BinAsText, w.Include, w.Exclude, fn)
+		if w.MultiLine {
+			w.Files, w.Matched, err = FindAllMatchingRegexp(w.Pattern, w.Targets, w.All, w.NoLimits, w.BinAsText, w.Recurse, w.Include, w.Exclude, fn)
+		} else {
+			w.Files, w.Matched, err = FindAllMatchingRegexpLines(w.Pattern, w.Targets, w.All, w.NoLimits, w.BinAsText, w.Recurse, w.Include, w.Exclude, fn)
+		}
 	} else if w.PreserveCase || w.IgnoreCase {
-		w.Files, w.Matched, err = FindAllMatchingStringInsensitive(w.Search, w.Targets, w.All, w.NoLimits, w.BinAsText, w.Include, w.Exclude, fn)
+		w.Files, w.Matched, err = FindAllMatchingStringInsensitive(w.Search, w.Targets, w.All, w.NoLimits, w.BinAsText, w.Recurse, w.Include, w.Exclude, fn)
 	} else {
-		w.Files, w.Matched, err = FindAllMatchingString(w.Search, w.Targets, w.All, w.NoLimits, w.BinAsText, w.Include, w.Exclude, fn)
+		w.Files, w.Matched, err = FindAllMatchingString(w.Search, w.Targets, w.All, w.NoLimits, w.BinAsText, w.Recurse, w.Include, w.Exclude, fn)
 	}
 	return
 }

@@ -20,8 +20,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/dustin/go-humanize"
-
+	rpl "github.com/go-corelibs/replace"
 	cenums "github.com/go-curses/cdk/lib/enums"
 	replace "github.com/go-curses/coreutils-replace"
 )
@@ -58,9 +57,9 @@ func (u *CUI) shutdown(data []interface{}, argv ...interface{}) cenums.EventFlag
 
 func (u *CUI) shutdownRunMatchingFn(file string, matched bool, err error) {
 	if err != nil {
-		if u.worker.Verbose && errors.Is(err, replace.ErrLargeFile) {
-			u.notifier.Error("# ignoring large file (max %v): %q\n", humanize.Bytes(uint64(replace.MaxFileSize)), file)
-		} else if u.worker.Verbose && errors.Is(err, replace.ErrBinaryFile) {
+		if u.worker.Verbose && errors.Is(err, rpl.ErrLargeFile) {
+			u.notifier.Error("# ignoring large file (max %v): %q\n", replace.MaxFileSizeLabel, file)
+		} else if u.worker.Verbose && errors.Is(err, rpl.ErrBinaryFile) {
 			u.notifier.Error("# ignoring binary file: %q\n", file)
 		} else {
 			u.notifier.Error("# error: %v - %q\n", err, file)

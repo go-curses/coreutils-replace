@@ -95,42 +95,42 @@ func NewUI(name, usage, description, manual, version, release, tag, title, ttyPa
 	c.EnableBashCompletion = true
 	c.UseShortOptionHandling = true
 
-	if slices.Within("--"+HelpFlag.Name, os.Args[1:]) {
+	if slices.Within("--"+replace.HelpFlag.Name, os.Args[1:]) {
 		c.Description += manual
 	} else {
 		c.Description = ""
-		NoLimitsFlag.Hidden = true
+		replace.NoLimitsFlag.Hidden = true
 	}
 
-	cli.HelpFlag = UsageFlag
-	cli.VersionFlag = VersionFlag
+	cli.HelpFlag = replace.UsageFlag
+	cli.VersionFlag = replace.VersionFlag
 
 	c.Flags = append(c.Flags,
-		BackupFlag,
-		BackupExtensionFlag,
-		IgnoreCaseFlag,
-		PreserveCaseFlag,
-		NopFlag,
-		NoLimitsFlag,
+		replace.BackupFlag,
+		replace.BackupExtensionFlag,
+		replace.IgnoreCaseFlag,
+		replace.PreserveCaseFlag,
+		replace.NopFlag,
+		replace.NoLimitsFlag,
 
-		ShowDiffFlag,
-		InteractiveFlag,
-		PauseFlag,
+		replace.ShowDiffFlag,
+		replace.InteractiveFlag,
+		replace.PauseFlag,
 
-		RecurseFlag,
-		AllFlag,
-		NullFlag,
-		FileFlag,
-		ExcludeFlag,
-		IncludeFlag,
+		replace.RecurseFlag,
+		replace.AllFlag,
+		replace.NullFlag,
+		replace.FileFlag,
+		replace.ExcludeFlag,
+		replace.IncludeFlag,
 
-		RegexFlag,
-		MultiLineFlag,
-		DotMatchNlFlag,
+		replace.RegexFlag,
+		replace.MultiLineFlag,
+		replace.DotMatchNlFlag,
 
-		HelpFlag,
-		QuietFlag,
-		VerboseFlag,
+		replace.HelpFlag,
+		replace.QuietFlag,
+		replace.VerboseFlag,
 	)
 
 	clcli.ClearEmptyCategories(c.Flags)

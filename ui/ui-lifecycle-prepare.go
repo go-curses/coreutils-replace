@@ -19,6 +19,7 @@ import (
 
 	cenums "github.com/go-curses/cdk/lib/enums"
 	"github.com/go-curses/cdk/log"
+	"github.com/go-curses/coreutils-replace"
 )
 
 // prepareStartup happens immediately upon cli action func
@@ -44,12 +45,12 @@ func (u *CUI) prepare(data []interface{}, argv ...interface{}) cenums.EventFlag 
 		return cenums.EVENT_STOP
 	}
 
-	if ctx.Bool(HelpFlag.Name) {
+	if ctx.Bool(replace.HelpFlag.Name) {
 		cli.ShowAppHelpAndExit(ctx, 0)
 		return cenums.EVENT_STOP
 	}
 
-	if worker, eventFlag, err := MakeWorker(ctx, u.notifier); err != nil || eventFlag == cenums.EVENT_STOP {
+	if worker, eventFlag, err := replace.MakeWorker(ctx, u.notifier); err != nil || eventFlag == cenums.EVENT_STOP {
 		u.LastError = err
 		return cenums.EVENT_STOP
 	} else {

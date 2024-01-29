@@ -46,8 +46,8 @@ github.com/go-corelibs/notify v1.0.2 h1:IyRmVmnwqgT36xi89XohFTqIBhuAAVNvWywaJoil
 github.com/go-corelibs/notify v1.0.2/go.mod h1:rOQifvCFsnHT777zp4k9NMsarrxMum2zIJZDrNHVIo4=
 github.com/go-corelibs/path v1.2.0 h1:mVbvgU3LsZU9PXPyBkzUArbgWaJDTZSs3qk6OfxSIz8=
 github.com/go-corelibs/path v1.2.0/go.mod h1:wc2Z328iLGtFZYYAiIhUWpishilhNy4aZcAipqsX2LA=
-github.com/go-corelibs/replace v1.2.1 h1:IcdFm/7DQTS8AlDQ+fLBSy9i5AZ5AdikxsBA6coXaPM=
-github.com/go-corelibs/replace v1.2.1/go.mod h1:T6yFi232aEQTDdqEpOY/PVOtjr7akJSlsHRAzN4iqRU=
+github.com/go-corelibs/replace v1.3.2 h1:DjTg/AhJay/fceo+4xaBP6svajIYueer71KTJ8abvj0=
+github.com/go-corelibs/replace v1.3.2/go.mod h1:L9ZoLNuxcqPpXzGbglFcyjeQi829hlc/yRoCIwLMbkE=
 github.com/go-corelibs/scanners v1.0.0 h1:7ifdwBOD1tMGwO3ixPDCZ7OZCrtjD12F9qD+BuKm2I0=
 github.com/go-corelibs/scanners v1.0.0/go.mod h1:JPqWe8VexXdaoVSsoxHVGG2nevCOkfDkKH+2Rj21VmY=
 github.com/go-corelibs/slices v1.3.0 h1:1czJgGhW/F2hRiCRat1O9R/OOaDWixFJwxXfb5rDOfw=

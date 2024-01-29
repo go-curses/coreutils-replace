@@ -11,6 +11,7 @@ import (
 	"github.com/pkg/profile"
 
 	"github.com/go-corelibs/notify"
+	rpl "github.com/go-corelibs/replace"
 	"github.com/go-curses/cdk"
 	"github.com/go-curses/cdk/env"
 	replace "github.com/go-curses/coreutils-replace"
@@ -19,7 +20,7 @@ import (
 
 var (
 	AppName    = "rpl"
-	AppVersion = "0.9.4"
+	AppVersion = "0.9.5"
 	AppRelease = "trunk"
 	AppTag     = "rpl"
 	AppTitle   = "rpl"
@@ -122,22 +123,22 @@ Unified diff output:
  # universal diff of the changes that would be made to STDOUT, any errors
  # or other notices are printed to STDERR
  #
- # flags: --nop (-n), --recurse (-r), --show-diff (-d)
+ # flags: --nop (-n), --recurse (-R), --show-diff (-d)
 
- rpl -nrd "search" "replaced" .
+ rpl -nRd "search" "replaced" .
 
  # same as above but save the diff output to a file
  #
- # flags: --nop (-n), --recurse (-r), --show-diff (-d)
+ # flags: --nop (-n), --recurse (-R), --show-diff (-d)
 
- rpl -nrd "search" "replaced" . > /tmp/search-replaced.patch
+ rpl -nRd "search" "replaced" . > /tmp/search-replaced.patch
 
  # same as above but interactively, which outputs the user-interface to
  # STDOUT and so the diff is output to STDERR
  #
- # flags: --nop (-n), --interactive (-e), --recurse (-r), --show-diff (-d)
+ # flags: --nop (-n), --interactive (-e), --recurse (-R), --show-diff (-d)
 
- rpl -nerd "search" "replaced" . 2> /tmp/search-replaced.patch
+ rpl -neRd "search" "replaced" . 2> /tmp/search-replaced.patch
 
 
 Regular Expression operations:
@@ -148,9 +149,9 @@ Regular Expression operations:
  # a global (?m) flag because the default mode would be to only search and
  # replace within the first line of a file's content
  #
- # flags: --regex (-p), --ignore-case (-i)
+ # flags: --regex (-r), --ignore-case (-i)
 
- rpl -pi '([a-z])([-a-z0-9]+?)' '${1}_${2}' *
+ rpl -ri '([a-z])([-a-z0-9]+?)' '${1}_${2}' *
  #
  # this pattern captures two groups of characters, the first is a single
  # lower-case letter and the second is one or more dashes, lower-case
@@ -240,7 +241,7 @@ File selection operations:
 Limitations:
 
 * maximum file size: ` + replace.MaxFileSizeLabel + `
-* maximum number of files: ` + humanize.Comma(int64(replace.MaxFileCount)) + `
+* maximum number of files: ` + humanize.Comma(int64(rpl.MaxFileCount)) + `
 * more than 10k changes per file can consume gigabytes of memory
 `
 )

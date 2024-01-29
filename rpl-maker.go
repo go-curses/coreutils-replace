@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package ui
+package replace
 
 import (
 	"github.com/urfave/cli/v2"
@@ -21,11 +21,10 @@ import (
 	"github.com/go-corelibs/notify"
 	"github.com/go-corelibs/slices"
 	"github.com/go-curses/cdk/lib/enums"
-	"github.com/go-curses/coreutils-replace"
 )
 
-func MakeWorker(ctx *cli.Context, notifier notify.Notifier) (w *replace.Worker, eventFlag enums.EventFlag, err error) {
-	w = &replace.Worker{
+func MakeWorker(ctx *cli.Context, notifier notify.Notifier) (w *Worker, eventFlag enums.EventFlag, err error) {
+	w = &Worker{
 		Regex:           ctx.Bool(RegexFlag.Name) || ctx.Bool(DotMatchNlFlag.Name) || ctx.Bool(MultiLineFlag.Name),
 		MultiLine:       ctx.Bool(MultiLineFlag.Name),
 		DotMatchNl:      ctx.Bool(DotMatchNlFlag.Name),

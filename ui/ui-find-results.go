@@ -73,6 +73,22 @@ func (r cFindResult) Tango() (markup string) {
 
 type cFindResults []cFindResult
 
+func (r cFindResults) Status(maxLen int) (line string) {
+	var errCount, matchedCount int
+	for _, result := range r {
+		if result.err != nil {
+			errCount += 1
+		} else if result.matched {
+			matchedCount += 1
+		}
+	}
+	line = fmt.Sprintf("%d errors; %d matched; %d total", errCount, matchedCount, len(r))
+	if size := len(line); size >= maxLen {
+		line = fmt.Sprintf("%d "+gFileMatchCharacter+"; %d "+gFileErrorCharacter+"; %d total", errCount, matchedCount, len(r))
+	}
+	return
+}
+
 func (r cFindResults) Tango() (markup string) {
 	for idx, result := range r {
 		if idx > 0 {

@@ -1,3 +1,15 @@
+replace (0.9.6) unstable; urgency=medium
+
+  * tagged v0.9.6 release build - 2bd44134d23b967dc52709812669218005db1d9f
+  * upstream changes:
+   * 2bd4413 Makefile,cmd: updated versions to v0.9.6
+   * e00ab82 README.md: updated --help section
+   * de1da12 rpl,ui: simplify InitTargets as the given fn is always nil, reduces gocyclo count
+   * d1004ce rpl (worker tests): corrections for ErrTooManyFiles vs rpl.ErrTooManyFiles cases
+   * 3847aa2 ui (work): better startup times for cases without --pause
+
+ -- The Go-Curses Team <go.enjin.org+curses@gmail.com>  Mon, 29 Jan 2024 13:27:10 -0500
+
 replace (0.9.5) unstable; urgency=medium
 
   * tagged v0.9.5 release build - eb90e8e281fe2fbe155c243391df44449fa91eab

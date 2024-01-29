@@ -42,7 +42,7 @@ USAGE:
    rpl [options] <search> <replace> [path...]
 
 VERSION:
-   v0.9.4 (trunk)
+   v0.9.6 (trunk)
 
 DESCRIPTION:
 
@@ -142,22 +142,22 @@ DESCRIPTION:
     # universal diff of the changes that would be made to STDOUT, any errors
     # or other notices are printed to STDERR
     #
-    # flags: --nop (-n), --recurse (-r), --show-diff (-d)
+    # flags: --nop (-n), --recurse (-R), --show-diff (-d)
 
-    rpl -nrd "search" "replaced" .
+    rpl -nRd "search" "replaced" .
 
     # same as above but save the diff output to a file
     #
-    # flags: --nop (-n), --recurse (-r), --show-diff (-d)
+    # flags: --nop (-n), --recurse (-R), --show-diff (-d)
 
-    rpl -nrd "search" "replaced" . > /tmp/search-replaced.patch
+    rpl -nRd "search" "replaced" . > /tmp/search-replaced.patch
 
     # same as above but interactively, which outputs the user-interface to
     # STDOUT and so the diff is output to STDERR
     #
-    # flags: --nop (-n), --interactive (-e), --recurse (-r), --show-diff (-d)
+    # flags: --nop (-n), --interactive (-e), --recurse (-R), --show-diff (-d)
 
-    rpl -nerd "search" "replaced" . 2> /tmp/search-replaced.patch
+    rpl -neRd "search" "replaced" . 2> /tmp/search-replaced.patch
 
 
    Regular Expression operations:
@@ -168,9 +168,9 @@ DESCRIPTION:
     # a global (?m) flag because the default mode would be to only search and
     # replace within the first line of a file's content
     #
-    # flags: --regex (-p), --ignore-case (-i)
+    # flags: --regex (-r), --ignore-case (-i)
 
-    rpl -pi '([a-z])([-a-z0-9]+?)' '${1}_${2}' *
+    rpl -ri '([a-z])([-a-z0-9]+?)' '${1}_${2}' *
     #
     # this pattern captures two groups of characters, the first is a single
     # lower-case letter and the second is one or more dashes, lower-case
@@ -260,7 +260,7 @@ DESCRIPTION:
    Limitations:
 
    * maximum file size: 5.2 MB
-   * maximum number of files: 100,000
+   * maximum number of files: 1,000,000
    * more than 10k changes per file can consume gigabytes of memory
 
 

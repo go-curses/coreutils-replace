@@ -25,6 +25,7 @@ import (
 	"github.com/go-corelibs/chdirs"
 	stdio "github.com/go-corelibs/mock-stdio"
 	"github.com/go-corelibs/notify"
+	rpl "github.com/go-corelibs/replace"
 )
 
 var (
@@ -713,9 +714,9 @@ func TestWorker(t *testing.T) {
 			outio, errio, w := makeWorker()
 			defer outio.Restore()
 			defer errio.Restore()
-			oldMaxFiles := MaxFileCount
-			defer func() { MaxFileCount = oldMaxFiles }()
-			MaxFileCount = 1
+			oldMaxFiles := rpl.MaxFileCount
+			defer func() { rpl.MaxFileCount = oldMaxFiles }()
+			rpl.MaxFileCount = 1
 			w.Regex = true
 			w.Recurse = true
 			w.Paths = append(w.Paths, "_testing")
@@ -748,7 +749,7 @@ func TestWorker(t *testing.T) {
 				`include=[];`+
 				`}`)
 			So(err1, ShouldEqual, nil)
-			So(err2, ShouldEqual, ErrTooManyFiles)
+			So(err2, ShouldEqual, rpl.ErrTooManyFiles)
 			So(outData, ShouldEqual, ``)
 			So(errData, ShouldEqual, ``)
 		})
@@ -759,9 +760,9 @@ func TestWorker(t *testing.T) {
 			outio, errio, w := makeWorker()
 			defer outio.Restore()
 			defer errio.Restore()
-			oldMaxFiles := MaxFileCount
-			defer func() { MaxFileCount = oldMaxFiles }()
-			MaxFileCount = 1
+			oldMaxFiles := rpl.MaxFileCount
+			defer func() { rpl.MaxFileCount = oldMaxFiles }()
+			rpl.MaxFileCount = 1
 			w.Recurse = true
 			w.Paths = append(w.Paths, "_testing/test.txt", "_testing/hello.html")
 			err0 := w.Init()
@@ -791,7 +792,7 @@ func TestWorker(t *testing.T) {
 				`exclude=["*~"];`+
 				`include=[];`+
 				`}`)
-			So(err1, ShouldEqual, ErrTooManyFiles)
+			So(err1, ShouldEqual, rpl.ErrTooManyFiles)
 			So(outData, ShouldEqual, ``)
 			So(errData, ShouldEqual, ``)
 		})
@@ -802,9 +803,9 @@ func TestWorker(t *testing.T) {
 			outio, errio, w := makeWorker()
 			defer outio.Restore()
 			defer errio.Restore()
-			oldMaxFiles := MaxFileCount
-			defer func() { MaxFileCount = oldMaxFiles }()
-			MaxFileCount = 1
+			oldMaxFiles := rpl.MaxFileCount
+			defer func() { rpl.MaxFileCount = oldMaxFiles }()
+			rpl.MaxFileCount = 1
 			w.AddFile = []string{"_testing/files.list"}
 			err0 := w.Init()
 			wString0 := w.String()
@@ -833,7 +834,7 @@ func TestWorker(t *testing.T) {
 				`exclude=["*~"];`+
 				`include=[];`+
 				`}`)
-			So(err1, ShouldEqual, ErrTooManyFiles)
+			So(err1, ShouldEqual, rpl.ErrTooManyFiles)
 			So(outData, ShouldEqual, ``)
 			So(errData, ShouldEqual, ``)
 		})
@@ -890,9 +891,9 @@ func TestWorker(t *testing.T) {
 			outio, errio, w := makeWorker()
 			defer outio.Restore()
 			defer errio.Restore()
-			oldMaxFiles := MaxFileCount
-			defer func() { MaxFileCount = oldMaxFiles }()
-			MaxFileCount = 1
+			oldMaxFiles := rpl.MaxFileCount
+			defer func() { rpl.MaxFileCount = oldMaxFiles }()
+			rpl.MaxFileCount = 1
 			w.Recurse = true
 			w.Paths = append(w.Paths, "_testing")
 			err := w.Init()
@@ -924,7 +925,7 @@ func TestWorker(t *testing.T) {
 				`include=[];`+
 				`}`)
 			So(err1, ShouldEqual, nil)
-			So(err2, ShouldEqual, ErrTooManyFiles)
+			So(err2, ShouldEqual, rpl.ErrTooManyFiles)
 			So(outData, ShouldEqual, ``)
 			So(errData, ShouldEqual, ``)
 		})
@@ -935,9 +936,9 @@ func TestWorker(t *testing.T) {
 			outio, errio, w := makeWorker()
 			defer outio.Restore()
 			defer errio.Restore()
-			oldMaxFiles := MaxFileCount
-			defer func() { MaxFileCount = oldMaxFiles }()
-			MaxFileCount = 1
+			oldMaxFiles := rpl.MaxFileCount
+			defer func() { rpl.MaxFileCount = oldMaxFiles }()
+			rpl.MaxFileCount = 1
 			w.IgnoreCase = true
 			w.Recurse = true
 			w.Paths = append(w.Paths, "_testing")
@@ -969,7 +970,7 @@ func TestWorker(t *testing.T) {
 				`include=[];`+
 				`}`)
 			So(err1, ShouldEqual, nil)
-			So(err2, ShouldEqual, ErrTooManyFiles)
+			So(err2, ShouldEqual, rpl.ErrTooManyFiles)
 			So(outData, ShouldEqual, ``)
 			So(errData, ShouldEqual, ``)
 		})
@@ -983,9 +984,9 @@ _testing/test.txt`))
 			outio, errio, w := makeWorker()
 			defer outio.Restore()
 			defer errio.Restore()
-			oldMaxFiles := MaxFileCount
-			defer func() { MaxFileCount = oldMaxFiles }()
-			MaxFileCount = 1
+			oldMaxFiles := rpl.MaxFileCount
+			defer func() { rpl.MaxFileCount = oldMaxFiles }()
+			rpl.MaxFileCount = 1
 			w.Stdin = true
 			err := w.Init()
 			err1 := w.InitTargets(nil)
@@ -1013,7 +1014,7 @@ _testing/test.txt`))
 				`exclude=["*~"];`+
 				`include=[];`+
 				`}`)
-			So(err1, ShouldEqual, ErrTooManyFiles)
+			So(err1, ShouldEqual, rpl.ErrTooManyFiles)
 			So(outData, ShouldEqual, ``)
 			So(errData, ShouldEqual, ``)
 		})
@@ -1026,9 +1027,9 @@ _testing/test.txt`))
 			outio, errio, w := makeWorker()
 			defer outio.Restore()
 			defer errio.Restore()
-			oldMaxFiles := MaxFileCount
-			defer func() { MaxFileCount = oldMaxFiles }()
-			MaxFileCount = 1
+			oldMaxFiles := rpl.MaxFileCount
+			defer func() { rpl.MaxFileCount = oldMaxFiles }()
+			rpl.MaxFileCount = 1
 			w.Stdin = true
 			w.Null = true
 			err := w.Init()
@@ -1057,7 +1058,7 @@ _testing/test.txt`))
 				`exclude=["*~"];`+
 				`include=[];`+
 				`}`)
-			So(err1, ShouldEqual, ErrTooManyFiles)
+			So(err1, ShouldEqual, rpl.ErrTooManyFiles)
 			So(outData, ShouldEqual, ``)
 			So(errData, ShouldEqual, ``)
 		})

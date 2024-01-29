@@ -25,6 +25,7 @@ import (
 	"github.com/go-corelibs/globs"
 	"github.com/go-corelibs/notify"
 	"github.com/go-corelibs/path"
+	rpl "github.com/go-corelibs/replace"
 	"github.com/go-corelibs/scanners"
 	"github.com/go-corelibs/slices"
 )
@@ -87,7 +88,7 @@ func (w *Worker) getBackupExtension() (extension string) {
 func (w *Worker) Init() (err error) {
 
 	if w.Regex {
-		if w.Pattern, err = MakeRegexp(w.Search, w.MultiLine, w.DotMatchNl, w.IgnoreCase); err != nil {
+		if w.Pattern, err = rpl.MakeRegexp(w.Search, w.MultiLine, w.DotMatchNl, w.IgnoreCase); err != nil {
 			err = fmt.Errorf("error compiling %q: %w", w.Search, err)
 			return
 		}
@@ -205,7 +206,7 @@ func (w *Worker) addTargetFile(target string) (tooMany bool, err error) {
 			return
 		}
 	}
-	tooMany = !w.NoLimits && len(w.Targets) > MaxFileCount
+	tooMany = !w.NoLimits && len(w.Targets) > rpl.MaxFileCount
 	return
 }
 
@@ -217,7 +218,7 @@ func (w *Worker) scanTargetFn(line string) (stop bool) {
 	return
 }
 
-func (w *Worker) InitTargets(fn FindAllMatchingFn) (err error) {
+func (w *Worker) InitTargets(fn rpl.FindAllMatchingFn) (err error) {
 	if fn == nil {
 		fn = func(file string, matched bool, err error) {}
 	}
@@ -274,17 +275,17 @@ func (w *Worker) InitTargets(fn FindAllMatchingFn) (err error) {
 	return
 }
 
-func (w *Worker) FindMatching(fn FindAllMatchingFn) (err error) {
+func (w *Worker) FindMatching(fn rpl.FindAllMatchingFn) (err error) {
 	if w.Regex {
 		if w.MultiLine {
-			w.Files, w.Matched, err = FindAllMatchingRegexp(w.Pattern, w.Targets, w.All, w.NoLimits, w.BinAsText, w.Recurse, w.Include, w.Exclude, fn)
+			w.Files, w.Matched, err = rpl.FindAllMatchingRegexp(w.Pattern, w.Targets, w.All, w.NoLimits, w.BinAsText, w.Recurse, w.Include, w.Exclude, fn)
 		} else {
-			w.Files, w.Matched, err = FindAllMatchingRegexpLines(w.Pattern, w.Targets, w.All, w.NoLimits, w.BinAsText, w.Recurse, w.Include, w.Exclude, fn)
+			w.Files, w.Matched, err = rpl.FindAllMatchingRegexpLines(w.Pattern, w.Targets, w.All, w.NoLimits, w.BinAsText, w.Recurse, w.Include, w.Exclude, fn)
 		}
 	} else if w.PreserveCase || w.IgnoreCase {
-		w.Files, w.Matched, err = FindAllMatchingStringInsensitive(w.Search, w.Targets, w.All, w.NoLimits, w.BinAsText, w.Recurse, w.Include, w.Exclude, fn)
+		w.Files, w.Matched, err = rpl.FindAllMatchingStringInsensitive(w.Search, w.Targets, w.All, w.NoLimits, w.BinAsText, w.Recurse, w.Include, w.Exclude, fn)
 	} else {
-		w.Files, w.Matched, err = FindAllMatchingString(w.Search, w.Targets, w.All, w.NoLimits, w.BinAsText, w.Recurse, w.Include, w.Exclude, fn)
+		w.Files, w.Matched, err = rpl.FindAllMatchingString(w.Search, w.Targets, w.All, w.NoLimits, w.BinAsText, w.Recurse, w.Include, w.Exclude, fn)
 	}
 	return
 }

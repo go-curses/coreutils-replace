@@ -19,10 +19,11 @@ package replace
 import (
 	"errors"
 	"fmt"
-	"math"
 	"os"
 
 	"github.com/dustin/go-humanize"
+
+	rpl "github.com/go-corelibs/replace"
 )
 
 var (
@@ -37,14 +38,10 @@ var (
 
 var (
 	ErrNotFound      = errors.New("not found")
-	ErrLargeFile     = errors.New("large file")
-	ErrBinaryFile    = errors.New("binary file")
-	ErrTooManyFiles  = fmt.Errorf("too many files, try batches of %d or less", MaxFileCount)
+	ErrTooManyFiles  = fmt.Errorf("%w; try batches of %d or less", rpl.ErrTooManyFiles, rpl.MaxFileCount)
 	gNoLimitsWarning = fmt.Sprintf("# WARNING: files larger than %s can consume all available memory\n", MaxFileSizeLabel)
 )
 
 var (
-	MaxFileSize      int64 = int64(math.Round(1024.0 * 1024.0 * 5.0))
-	MaxFileSizeLabel       = humanize.Bytes(uint64(MaxFileSize))
-	MaxFileCount           = 100000
+	MaxFileSizeLabel = humanize.Bytes(uint64(rpl.MaxFileSize))
 )

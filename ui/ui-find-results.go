@@ -90,11 +90,34 @@ func (r cFindResults) Status(maxLen int) (line string) {
 }
 
 func (r cFindResults) Tango() (markup string) {
-	for idx, result := range r {
+	markup = r.TangoSlice(-1, -1)
+	return
+}
+
+func (r cFindResults) TangoSlice(start, end int) (markup string) {
+	var slice cFindResults
+	if end > 0 {
+		slice = r[start:end]
+	} else if start > 0 {
+		slice = r[start:]
+	} else {
+		slice = r
+	}
+	for idx, result := range slice {
 		if idx > 0 {
 			markup += "\n"
 		}
 		markup += result.Tango()
 	}
+	return
+}
+
+func (r cFindResults) TangoTail(size int) (markup string) {
+	count := len(r)
+	if size <= 0 || size > count {
+		markup = r.Tango()
+		return
+	}
+	markup = r.TangoSlice(count-size, -1)
 	return
 }

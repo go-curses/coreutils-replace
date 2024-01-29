@@ -22,13 +22,13 @@ import (
 
 func (u *CUI) initWork() {
 	u.setStateSpinner(true)
-	u.DiffLabel.Show()
 	u.DiffView.Show()
+	u.DiffLabel.Show()
 
 	w, h := u.Display.Screen().Size()
 	maxWidth := math.FloorI((w/2)-2, 10)
 	maxHeight := math.FloorI(h-10, 1)
-	if u.LastError = u.worker.InitTargets(nil); u.LastError != nil {
+	if u.LastError = u.worker.InitTargets(); u.LastError != nil {
 		u.requestQuit()
 		return
 	}
@@ -42,7 +42,6 @@ func (u *CUI) initWork() {
 		u.requestQuit()
 		return
 	}
-	u.finishInitWorkStatus(maxWidth)
 
 	var count int
 	if count = len(u.worker.Matched); count == 0 {
@@ -60,6 +59,7 @@ func (u *CUI) initWork() {
 	u.setStateSpinner(false)
 
 	if u.worker.Pause {
+		u.finishInitWorkStatus(maxWidth)
 		if count > 0 {
 			u.ContinueButton.Show()
 			u.ContinueButton.GrabFocus()

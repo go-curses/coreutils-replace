@@ -218,11 +218,7 @@ func (w *Worker) scanTargetFn(line string) (stop bool) {
 	return
 }
 
-func (w *Worker) InitTargets(fn rpl.FindAllMatchingFn) (err error) {
-	if fn == nil {
-		fn = func(file string, matched bool, err error) {}
-	}
-
+func (w *Worker) InitTargets() (err error) {
 	w.initLookup = make(map[string]struct{})
 
 	// if not recursive, and "." is present, use the CWD files instead of "."
@@ -240,7 +236,7 @@ func (w *Worker) InitTargets(fn rpl.FindAllMatchingFn) (err error) {
 		if tooMany, ee := w.addTargetFile(target); tooMany {
 			return ErrTooManyFiles
 		} else if ee != nil {
-			if fn(target, false, err); w.Verbose {
+			if w.Verbose {
 				w.Notifier.Error("# error: %v\n", ee)
 			}
 		}

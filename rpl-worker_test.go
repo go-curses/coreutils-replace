@@ -792,7 +792,7 @@ func TestWorker(t *testing.T) {
 				`exclude=["*~"];`+
 				`include=[];`+
 				`}`)
-			So(err1, ShouldEqual, rpl.ErrTooManyFiles)
+			So(err1, ShouldEqual, ErrTooManyFiles)
 			So(outData, ShouldEqual, ``)
 			So(errData, ShouldEqual, ``)
 		})
@@ -834,7 +834,7 @@ func TestWorker(t *testing.T) {
 				`exclude=["*~"];`+
 				`include=[];`+
 				`}`)
-			So(err1, ShouldEqual, rpl.ErrTooManyFiles)
+			So(err1, ShouldEqual, ErrTooManyFiles)
 			So(outData, ShouldEqual, ``)
 			So(errData, ShouldEqual, ``)
 		})
@@ -1014,7 +1014,7 @@ _testing/test.txt`))
 				`exclude=["*~"];`+
 				`include=[];`+
 				`}`)
-			So(err1, ShouldEqual, rpl.ErrTooManyFiles)
+			So(err1, ShouldEqual, ErrTooManyFiles)
 			So(outData, ShouldEqual, ``)
 			So(errData, ShouldEqual, ``)
 		})
@@ -1058,7 +1058,7 @@ _testing/test.txt`))
 				`exclude=["*~"];`+
 				`include=[];`+
 				`}`)
-			So(err1, ShouldEqual, rpl.ErrTooManyFiles)
+			So(err1, ShouldEqual, ErrTooManyFiles)
 			So(outData, ShouldEqual, ``)
 			So(errData, ShouldEqual, ``)
 		})

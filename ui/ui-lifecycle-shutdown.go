@@ -70,7 +70,7 @@ func (u *CUI) shutdownRunMatchingFn(file string, matched bool, err error) {
 
 func (u *CUI) shutdownRunCLI() cenums.EventFlag {
 
-	if err := u.worker.InitTargets(nil); err != nil {
+	if err := u.worker.InitTargets(); err != nil {
 		u.notifier.Error("# error: %v\n", err)
 		return cenums.EVENT_PASS
 	}

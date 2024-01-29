@@ -28,7 +28,7 @@ func (u *CUI) initWork() {
 	w, h := u.Display.Screen().Size()
 	maxWidth := math.FloorI((w/2)-2, 10)
 	maxHeight := math.FloorI(h-10, 1)
-	if u.LastError = u.worker.InitTargets(nil); u.LastError != nil {
+	if u.LastError = u.worker.InitTargets(); u.LastError != nil {
 		u.requestQuit()
 		return
 	}

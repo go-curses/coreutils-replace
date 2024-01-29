@@ -25,14 +25,15 @@ func (u *CUI) initWork() {
 	u.DiffLabel.Show()
 	u.DiffView.Show()
 
-	w, _ := u.Display.Screen().Size()
-	maxLen := math.FloorI((w/2)-2, 10)
+	w, h := u.Display.Screen().Size()
+	maxWidth := math.FloorI((w/2)-2, 10)
+	maxHeight := math.FloorI(h-10, 1)
 	if u.LastError = u.worker.InitTargets(nil); u.LastError != nil {
 		u.requestQuit()
 		return
 	}
 	if u.LastError = u.worker.FindMatching(func(file string, matched bool, err error) {
-		u.updateInitWorkStatus(maxLen, cFindResult{
+		u.updateInitWorkStatus(maxWidth, maxHeight, cFindResult{
 			target:  file,
 			matched: matched,
 			err:     err,
@@ -41,6 +42,7 @@ func (u *CUI) initWork() {
 		u.requestQuit()
 		return
 	}
+	u.finishInitWorkStatus(maxWidth)
 
 	var count int
 	if count = len(u.worker.Matched); count == 0 {
@@ -55,7 +57,6 @@ func (u *CUI) initWork() {
 		u.setFooterLabel("(-) no matches; (+) has matches; (x) errors")
 	}
 
-	u.setStatusLabel("")
 	u.setStateSpinner(false)
 
 	if u.worker.Pause {
@@ -70,6 +71,7 @@ func (u *CUI) initWork() {
 }
 
 func (u *CUI) startWork() {
+	u.setStatusLabel("")
 	u.setFooterLabel("")
 	u.ContinueButton.Hide()
 	u.setDiffLabel("", false)

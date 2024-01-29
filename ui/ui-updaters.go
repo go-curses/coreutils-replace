@@ -17,7 +17,6 @@ package ui
 import (
 	"fmt"
 	"path/filepath"
-	"time"
 
 	"github.com/go-corelibs/diff"
 	"github.com/go-curses/cdk/lib/math"
@@ -123,13 +122,19 @@ func (u *CUI) setStateSpinner(active bool) {
 	}
 }
 
-func (u *CUI) updateInitWorkStatus(maxLen int, r cFindResult) {
+func (u *CUI) updateInitWorkStatus(maxWidth, maxHeight int, r cFindResult) {
 	u.results = append(u.results, r)
-	u.setStatusLabel(r.Status(maxLen))
+	u.setStatusLabel(r.Status(maxWidth))
+	u.setDiffLabel(u.results.TangoTail(maxHeight), true)
+	u.DiffView.ScrollBottom()
+	u.requestDrawAndShow()
+}
+
+func (u *CUI) finishInitWorkStatus(maxLen int) {
+	u.setStatusLabel("")
 	u.setDiffLabel(u.results.Tango(), true)
 	u.DiffView.ScrollBottom()
 	u.requestDrawAndShow()
-	time.Sleep(time.Millisecond * 10)
 }
 
 func (u *CUI) updateStatusLine() {

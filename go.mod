@@ -12,7 +12,7 @@ require (
 	github.com/go-corelibs/mock-stdio v1.0.0
 	github.com/go-corelibs/notify v1.0.2
 	github.com/go-corelibs/path v1.2.0
-	github.com/go-corelibs/replace v1.2.1
+	github.com/go-corelibs/replace v1.3.2
 	github.com/go-corelibs/scanners v1.0.0
 	github.com/go-corelibs/slices v1.3.0
 	github.com/go-curses/cdk v0.5.22

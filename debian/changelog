@@ -1,3 +1,23 @@
+replace (0.9.5) unstable; urgency=medium
+
+  * tagged v0.9.5 release build - eb90e8e281fe2fbe155c243391df44449fa91eab
+  * upstream changes:
+   * eb90e8e Makefile,cmd: setting versions to v0.9.5
+   * f219c63 go.mod: go-corelibs/replace v1.3.2; tidy
+   * d27db3c ui (updaters): refactor file-finding startup view to only tail as many lines as fit on the display screen and when complete, display the entire find process results; remove sleep delay during file-finding startup view
+   * de5c9f1 ui (lifecycle): migrate to go-corelibs/replace errors; use replace.MaxFileSizeLabel
+   * e009eb8 ui: migrate to replace package flags and MakeWorker func
+   * 56b5ce1 ui (find results): split Tango into TangoSlice(start,end); add TangoTail(size)
+   * dd2ba28 ui (find results): added cFindResults.Status method
+   * 389b8c8 ui (find results): cache Tango() markup strings
+   * bb32525 rpl: updated global variables and errors to use new go-corelibs/replace versions of the same; wrap ErrTooManyFiles with additional rpl.MaxFileCount context
+   * 06cf558 work (finders,makers): migrated all MakeRegexp and all finder funcs to go-corelibs/replace
+   * 81ce845 ui,replace: moved ui/ui-worker.go to rpl-maker.go
+   * cb45a87 ui,replace: moved ui/ui-flags.go to rpl-flags.go
+   * e27c424 cmd: fix incorrect flags in documentation text; use go-corelibs/replace.MaxFileCount
+
+ -- The Go-Curses Team <go.enjin.org+curses@gmail.com>  Mon, 29 Jan 2024 12:27:36 -0500
+
 replace (0.9.4) unstable; urgency=medium
 
   * tagged v0.9.4 release build - 99cf7c9577915a26041758abc028c8526f9295f6

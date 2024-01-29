@@ -32,6 +32,7 @@ type cFindResult struct {
 	target  string
 	matched bool
 	err     error
+	markup  string
 }
 
 func (r cFindResult) Status(maxLen int) (line string) {
@@ -52,6 +53,10 @@ func (r cFindResult) Status(maxLen int) (line string) {
 }
 
 func (r cFindResult) Tango() (markup string) {
+	if r.markup != "" {
+		markup = r.markup
+		return
+	}
 	if r.err != nil {
 		markup = fmt.Sprintf(
 			`[ <span foreground="red">%v</span> ]  %v <span foreground="#ffffff" background="red">/* %v */</span>`,
@@ -62,6 +67,7 @@ func (r cFindResult) Tango() (markup string) {
 	} else {
 		markup = fmt.Sprintf(`[ <span foreground="navy">%v</span> ]  %v`, gFileSkipRune, r.target)
 	}
+	r.markup = markup
 	return
 }
 

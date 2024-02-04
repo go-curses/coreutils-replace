@@ -59,6 +59,7 @@ func MakeWorker(ctx *cli.Context, notifier notify.Notifier) (w *Worker, eventFla
 				w.Argv = slices.Prune(w.Argv, "-")
 			}
 			w.Argc = len(w.Argv)
+			w.Paths = w.Argv[:]
 		}
 	}
 	w.Stdin = w.Stdin || w.Null

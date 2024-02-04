@@ -80,7 +80,7 @@ func (u *CUI) shutdownRunCLI() cenums.EventFlag {
 		return cenums.EVENT_PASS
 	}
 
-	if !u.worker.Quiet {
+	if u.worker.Verbose {
 		var format string
 		if u.worker.Nop {
 			format = "# [nop] would replace"

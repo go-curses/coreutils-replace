@@ -1,3 +1,13 @@
+replace (0.9.7) unstable; urgency=medium
+
+  * tagged v0.9.7 release build - c58605c96cd5d713e3326644d9e00b5ca4f09b2d
+  * upstream changes:
+   * c58605c Makefile,cmd: setting versions to v0.9.7
+   * 934391c ui: print rpl summary note only when --verbose
+   * 487dacb rpl (maker): bugfix for ignored cli path arguments
+
+ -- The Go-Curses Team <go.enjin.org+curses@gmail.com>  Sun, 04 Feb 2024 13:40:43 -0500
+
 replace (0.9.6) unstable; urgency=medium
 
   * tagged v0.9.6 release build - 2bd44134d23b967dc52709812669218005db1d9f
